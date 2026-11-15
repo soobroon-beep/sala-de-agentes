@@ -15,20 +15,23 @@ def _audit_target(agent,target=None):
  if repo is None:
   r['resumen']='Bloqueado: falta conector de lectura privada del servidor.' if agent=='discord' else 'Bloqueado: falta inventario operativo y telemetría por bot.';return r
  url='https://soobroon-beep.github.io/'+repo+'/';r['pasos']=['GET HTTPS con User-Agent SalaAuditoria/2.0 y cabecera X-Synthetic-Monitor: sala-de-agentes.'];r['url']=url
+ attempts=[]
  for attempt in range(2):
   start=time.monotonic()
   try:
    request=urllib.request.Request(url,headers={'User-Agent':'SalaAuditoria/2.0 (synthetic-monitor)','X-Synthetic-Monitor':'sala-de-agentes'})
    with urllib.request.urlopen(request,timeout=12) as response:
     body=response.read(1500000);status=response.status;final=response.url
+   attempts.append(status)
    ok=status==200 and contains.encode() in body
-   r.update(resultado='funciona' if ok else 'falló',gravedad='sin incidencia HTTP' if ok else 'media',resumen='La página respondió HTTP 200 y contiene el identificador esperado.' if ok else 'El documento no cumplió la respuesta o el contenido esperado.',observado=f'HTTP {status}; identificador presente: {contains.encode() in body}',evidencia={'http':status,'ms':round((time.monotonic()-start)*1000),'bytes_muestreados':len(body),'sha256_muestra':hashlib.sha256(body).hexdigest(),'url_final':final,'intentos':attempt+1});break
+   r.update(resultado='funciona' if ok else 'falló',gravedad='sin incidencia HTTP' if ok else 'media',resumen='La página respondió HTTP 200 y contiene el identificador esperado.' if ok else 'El documento no cumplió la respuesta o el contenido esperado.',observado=f'HTTP {status}; identificador presente: {contains.encode() in body}',evidencia={'http':status,'ms':round((time.monotonic()-start)*1000),'bytes_muestreados':len(body),'sha256_muestra':hashlib.sha256(body).hexdigest(),'url_final':final,'intentos':attempt+1,'respuestas_http':attempts});break
   except urllib.error.HTTPError as error:
+   attempts.append(error.code)
    if error.code in (401,403,429):
     r.update(resumen=f'No comprobable: acceso restringido o límite HTTP {error.code}.',observado=f'HTTP {error.code}');break
-   if attempt==1:r.update(resultado='falló',resumen=f'Respuesta HTTP {error.code} después de dos intentos.',observado=f'HTTP {error.code}',gravedad='media',evidencia={'http':error.code,'intentos':2})
+   if attempt==1:r.update(resultado='falló',resumen=f'Respuesta HTTP {error.code} después de dos intentos.',observado=f'HTTP {error.code}',gravedad='media',evidencia={'http':error.code,'intentos':2,'respuestas_http':attempts})
   except (OSError,TimeoutError) as error:
-   if attempt==1:r.update(resumen='No comprobable: error de transporte desde este ejecutor. No confirma una caída.',observado=type(error).__name__,evidencia={'intentos':2})
+   if attempt==1:r.update(resumen='No comprobable: error de transporte desde este ejecutor. No confirma una caída.',observado=type(error).__name__,evidencia={'intentos':2,'respuestas_http':attempts})
   if attempt==0:time.sleep(2)
  return r
 APP_TARGETS=[('Nova HUB','Nova-HUB','NOVA HUB'),('INKBOT PRO','InkBot','INKBOT PRO'),('INKBOT VIDEO','INKBOT-VIDEO-','INKBOT VIDEO'),('Moldes Gabys','moldesgabys',"Moldes Gaby")]
@@ -50,12 +53,17 @@ def manager(rows):
    if 'paginas' in r:
     components['interfaz']=r
     for page in r['paginas']:
+     page_start=len(findings)
      for error in page.get('errores_js',[]):findings.append({'aplicacion':v[0],'funcion':'JavaScript de interfaz','entorno':page.get('viewport'),'esperado':'Sin excepciones JavaScript','observado':error,'pasos':['Abrir '+page.get('url',''),'Navegar con los controles permitidos del inventario'],'gravedad':'media','estado':'investigando','responsable':'Auditor de '+v[0]})
      network=[x for x in page.get('red_fallida',[]) if x.get('error')!='net::ERR_ABORTED']
      if network:
       unique=list({(x.get('url'),x.get('http'),x.get('error')):x for x in network}.values())
       findings.append({'aplicacion':v[0],'funcion':'APIs y solicitudes de red','esperado':'Los proveedores responden o se comprueba la recuperación con un respaldo','observado':'Se observaron solicitudes fallidas desde el ejecutor de pruebas. Puede tratarse de restricciones del proveedor o del entorno; no se confirma una caída general. Rutas: '+str(unique[:12]),'evidencia':unique,'entorno':page.get('viewport'),'gravedad':'media','estado':'investigando','responsable':'Auditor de '+v[0],'siguiente_paso':'Reproducir la conexión y comprobar si el proveedor de respaldo completa la función.'})
      if page.get('desbordamiento_horizontal'):findings.append({'aplicacion':v[0],'funcion':'Diseño adaptable','esperado':'Sin desbordamiento horizontal','observado':'El documento excede el ancho de la pantalla','entorno':page.get('viewport'),'gravedad':'baja','estado':'investigando','responsable':'Auditor de '+v[0]})
+     for finding in findings[page_start:]:
+      finding.update(aplicacion=page.get('aplicacion',v[0]),fecha=r.get('fecha',base.get('fecha',stamp())),url=page.get('url'),naturaleza='hecho confirmado' if finding['funcion']!='APIs y solicitudes de red' else 'inferencia')
+      finding.setdefault('pasos',['Abrir '+page.get('url',''),'Ejecutar navegación permitida en '+str(page.get('viewport',{}))])
+      finding.setdefault('evidencia',{'observado':finding.get('observado'),'url':page.get('url')})
    elif 'pruebas' in r or 'bloqueo' in r:
     components['codigo']=r
     if r.get('resultado')=='falló':findings.append({'aplicacion':v[0],'funcion':'Pruebas de código','esperado':'Suite satisfactoria','observado':r.get('detalle',r.get('evidencia',[])),'entorno':'Simulación aislada','gravedad':'alta' if a=='bots' else 'media','estado':'investigando','responsable':'Auditor de '+v[0]})
@@ -65,6 +73,10 @@ def manager(rows):
      if f['resultado']!='funciona':findings.append({'aplicacion':v[0],'funcion':f['flujo'],'esperado':'Ejecución reciente y sin fallo','observado':f,'entorno':'GitHub Actions','gravedad':'media','estado':'investigando' if f['resultado']=='falló' else 'pendiente de decisión','responsable':'Auditor de '+v[0]})
   manual=read(ROOT/'data/revision-manual.json',{})
   findings.extend(f for f in manual.get('hallazgos',[]) if f.get('agente')==a)
+  for finding in findings:
+   finding.setdefault('fecha',base.get('fecha',stamp()));finding.setdefault('entorno','Fuente pública de solo lectura')
+   finding.setdefault('pasos',['Consultar la fuente de evidencia indicada y comparar con el resultado esperado.'])
+   finding.setdefault('evidencia',finding.get('observado'));finding.setdefault('siguiente_paso','Reproducir y revisar evidencia sin modificar producción.')
   base['componentes']=components;base['hallazgos']=findings;base['cobertura_completa']=False;base['resultado_http']=base['resultado']
   if any(r.get('resultado')=='falló' for r in components.values()):base['resultado']='falló';base['resumen']='Se detectaron fallos en las comprobaciones disponibles; ver hallazgos y evidencia.'
   elif any(f.get('funcion')=='APIs y solicitudes de red' for f in findings):base['resultado']='no se pudo comprobar';base['resumen']='Navegación comprobada, pero hubo solicitudes de red fallidas. Falta verificar los respaldos o restricciones del ejecutor; consulta los hallazgos.'

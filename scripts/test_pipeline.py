@@ -21,7 +21,7 @@ class Pipeline(unittest.TestCase):
  def test_only_confirmed_critical_and_verified_recovery_alert(self):
   rows=self.rows();rows[0].update(resultado='falló',evidencia={'http':503,'intentos':1})
   r=pipeline.validate(self.manager(rows));self.assertFalse(r['jefe']['alertas_inmediatas'])
-  rows[0]['evidencia']['intentos']=2;r=pipeline.validate(self.manager(rows));self.assertEqual(len(r['jefe']['alertas_inmediatas']),1)
+  rows[0]['evidencia'].update(intentos=2,respuestas_http=[503,503]);r=pipeline.validate(self.manager(rows));self.assertEqual(len(r['jefe']['alertas_inmediatas']),1)
   rows[0]['resultado']='no se pudo comprobar';r2=pipeline.validate(self.manager(rows),r);self.assertFalse(r2['jefe']['recuperaciones'])
   rows[0]['resultado']='funciona';r3=pipeline.validate(self.manager(rows),r2);self.assertFalse(r3['jefe']['recuperaciones'])
   r4=pipeline.validate(self.manager(rows),r3);self.assertEqual(len(r4['jefe']['recuperaciones']),1)
@@ -53,3 +53,31 @@ class Pipeline(unittest.TestCase):
    manager=pipeline.consolidate(td);chief=pipeline.validate(manager)
   self.assertEqual(len(manager['recepciones']),5);self.assertEqual(chief['jefe']['validacion']['faltantes'],[]);self.assertFalse(chief['operacion_completa_24_7'])
 if __name__=='__main__':unittest.main()
+
+class Continuity(unittest.TestCase):
+ def test_history_survives_new_commit(self):
+  report={'version':4,'ejecucion':'old-run','generado':'2026-11-15T10:00:00-06:00'}
+  def fake(method,path,body=None):
+   if path.startswith('/actions/runs'):return {'workflow_runs':[{'path':'.github/workflows/supervision.yml','head_sha':'old'}]}
+   return {'check_runs':[] if '/new/' in path else [{'output':{'text':json.dumps(report)}}]}
+  with patch.dict(os.environ,{'GITHUB_SHA':'new'}),patch.object(report_store,'api',side_effect=fake):self.assertEqual(report_store.history(1),[report])
+ def test_one_app_failure_does_not_mark_others_failed(self):
+  app={'agente':'apps','aplicacion':'Apps','fecha':monitor.stamp(),'resultado':'funciona','funcion':'HTTP','objetivos':[{'aplicacion':n,'url':'https://example.org/'+n,'resultado':'funciona'} for n in ['Nova','Ink']]}
+  ui={'agente':'apps','resultado':'falló','paginas':[{'aplicacion':'Nova','url':'https://example.org/Nova','resultado':'falló','errores_js':['Error de prueba'],'viewport':{'width':390}}]}
+  m=monitor.manager([app,ui]);points=pipeline.points(m)
+  self.assertEqual(next(p for p in points if p['aplicacion']=='Nova')['estado'],'FALLÓ')
+  self.assertEqual(next(p for p in points if p['aplicacion']=='Ink')['estado'],'FUNCIONA')
+  finding=next(a for a in m['auditores'] if a['agente']=='apps')['hallazgos'][0]
+  self.assertEqual(finding['aplicacion'],'Nova');self.assertTrue(finding['fecha']);self.assertTrue(finding['pasos']);self.assertTrue(finding['evidencia'])
+ def test_scheduled_proof_requires_complete_receipts(self):
+  m=monitor.manager([])|{'ronda':'ligera'}
+  bad={'origen':'schedule','jefe':{'validacion':{'integridad':False}}}
+  good={'origen':'schedule','jefe':{'validacion':{'integridad':True}}}
+  self.assertFalse(pipeline.validate(m,history=[bad])['prueba_programada']['comprobada'])
+  self.assertTrue(pipeline.validate(m,history=[good])['prueba_programada']['comprobada'])
+
+class ConfirmedOutage(unittest.TestCase):
+ def test_one_http_error_after_timeout_is_not_confirmed_outage(self):
+  row={'agente':'vortex','aplicacion':'Vortex','fecha':monitor.stamp(),'funcion':'HTTP','resultado':'falló','evidencia':{'http':503,'intentos':2,'respuestas_http':[503]}}
+  r=pipeline.validate(monitor.manager([row])|{'ronda':'ligera'})
+  self.assertFalse(r['jefe']['alertas_inmediatas'])

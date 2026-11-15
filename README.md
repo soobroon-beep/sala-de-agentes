@@ -36,3 +36,8 @@ Solo dos respuestas HTTP 5xx en intentos separados pueden generar un crítico de
 `python3 scripts/package_site.py`
 
 Abrir el sitio con un servidor HTTP; no con file://. Three.js está incluido con licencia MIT. Se respeta movimiento reducido y hay una vista compatible sin WebGL.
+
+## Continuidad y lectura del panel
+El historial busca informes en los commits de las últimas 100 ejecuciones (hasta 12 commits y 200 muestras en tendencias); no se borra al actualizar el código. El informe indica cuántas muestras estuvieron disponibles. Las incidencias críticas conservan su estado entre rondas. La confirmación de una caída exige dos respuestas HTTP 5xx reales; un timeout seguido de un 5xx no basta.
+
+El panel muestra próxima revisión prevista, trabajos en ejecución o en cola, fallo del último proceso y enlaces a los artefactos. El estado por aplicación combina solo pruebas correspondientes a su URL y distingue disponibilidad de funciones privadas. Un hallazgo confirmado de consola no implica que toda la aplicación esté caída. No se corrigen automáticamente los proyectos supervisados.

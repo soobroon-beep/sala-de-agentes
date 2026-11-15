@@ -9,17 +9,23 @@ def api(method,path,body=None):
  request=urllib.request.Request(BASE+path,method=method,headers=headers,data=json.dumps(body,ensure_ascii=False).encode() if body is not None else None)
  with urllib.request.urlopen(request,timeout=25) as r:return json.load(r)
 def history(limit=100):
- sha=os.getenv('GITHUB_SHA','main');rows=[]
- for page in range(1,1+(limit+99)//100):
-  data=api('GET','/commits/'+sha+'/check-runs?'+urllib.parse.urlencode({'check_name':NAME,'filter':'all','per_page':100,'page':page}))
-  checks=data.get('check_runs',[])
-  for c in checks:
-   try:
-    d=json.loads(c.get('output',{}).get('text') or '{}')
-    if d.get('version')==4:rows.append(d)
-   except (json.JSONDecodeError,TypeError):pass
-  if len(checks)<100:break
- rows.sort(key=lambda x:x.get('generado',''),reverse=True);return rows[:limit]
+ # Consultar también commits anteriores: una actualización no borra incidencias.
+ rows={};heads=[os.getenv('GITHUB_SHA','main')];scanned=0
+ runs=api('GET','/actions/runs?'+urllib.parse.urlencode({'per_page':100}))
+ for run in runs.get('workflow_runs',[]):
+  if run.get('path')=='.github/workflows/supervision.yml' and run.get('head_sha') not in heads:heads.append(run['head_sha'])
+ for sha in heads[:12]:
+  for page in range(1,1+(limit+99)//100):
+   data=api('GET','/commits/'+sha+'/check-runs?'+urllib.parse.urlencode({'check_name':NAME,'filter':'all','per_page':100,'page':page}))
+   checks=data.get('check_runs',[]);scanned+=len(checks)
+   for c in checks:
+    try:
+     d=json.loads(c.get('output',{}).get('text') or '{}')
+     if d.get('version')==4:rows[str(d['ejecucion'])]=d
+    except (json.JSONDecodeError,TypeError,KeyError):pass
+   if len(checks)<100:break
+  if len(rows)>=limit:break
+ return sorted(rows.values(),key=lambda x:x.get('generado',''),reverse=True)[:limit]
 def compact(report):
  # El panel recibe un índice explícito; los artefactos conservan el informe íntegro.
  def brief(value,depth=0):
