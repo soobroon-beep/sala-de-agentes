@@ -41,3 +41,6 @@ Abrir el sitio con un servidor HTTP; no con file://. Three.js está incluido con
 El historial busca informes en los commits de las últimas 100 ejecuciones (hasta 12 commits y 200 muestras en tendencias); no se borra al actualizar el código. El informe indica cuántas muestras estuvieron disponibles. Las incidencias críticas conservan su estado entre rondas. La confirmación de una caída exige dos respuestas HTTP 5xx reales; un timeout seguido de un 5xx no basta.
 
 El panel muestra próxima revisión prevista, trabajos en ejecución o en cola, fallo del último proceso y enlaces a los artefactos. El estado por aplicación combina solo pruebas correspondientes a su URL y distingue disponibilidad de funciones privadas. Un hallazgo confirmado de consola no implica que toda la aplicación esté caída. No se corrigen automáticamente los proyectos supervisados.
+
+## Pisos de la sala
+Planta baja: los siete puestos actuales de supervisión. Segundo piso: espacio arquitectónico vacío, reservado para futuros sistemas con funciones distintas. El selector cambia el grupo visible y la altura de cámara en la escena 3D. No crea agentes ni tareas ni concede herramientas o permisos. La vista de reportes mantiene los datos del equipo existente.
