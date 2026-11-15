@@ -28,5 +28,10 @@
     "fecha": "2026-11-15T12:42:06.322015-06:00",
     "ejecucion": "43748036578",
     "resumen": "2 auditores sin fallos en las pruebas disponibles; 0 con fallos detectados; 3 bloqueados. Cobertura parcial: no se certifican todas las funciones privadas. El Gerente entrega este reporte al propietario, que es el Jefe."
+  },
+  {
+    "fecha": "2026-11-15T12:44:21.980279-06:00",
+    "ejecucion": "43748269408",
+    "resumen": "2 auditores sin fallos en las pruebas disponibles; 0 con fallos detectados; 3 bloqueados. Cobertura parcial: no se certifican todas las funciones privadas. El Gerente entrega este reporte al propietario, que es el Jefe."
   }
 ]
