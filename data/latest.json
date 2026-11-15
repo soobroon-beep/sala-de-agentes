@@ -1,17 +1,17 @@
 {
   "version": 3,
-  "generado": "2026-11-15T12:46:45.452468-06:00",
+  "generado": "2026-11-15T12:49:13.103898-06:00",
   "zona_horaria": "America/Mexico_City",
-  "ejecucion": "43748465424",
+  "ejecucion": "43748719268",
   "origen": "push",
-  "url_ejecucion": "https://github.com/soobroon-beep/sala-de-agentes/actions/runs/43748465424",
+  "url_ejecucion": "https://github.com/soobroon-beep/sala-de-agentes/actions/runs/43748719268",
   "operacion_completa_24_7": false,
   "auditores": [
     {
       "agente": "vortex",
       "aplicacion": "Vortex",
-      "fecha": "2026-11-15T12:44:49.225246-06:00",
-      "resultado": "funciona",
+      "fecha": "2026-11-15T12:47:28.184348-06:00",
+      "resultado": "no se pudo comprobar",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
       "esperado": "HTTP 200 y título esperado",
@@ -21,7 +21,7 @@
       "gravedad": "sin incidencia HTTP",
       "evidencia": {
         "http": 200,
-        "ms": 330,
+        "ms": 64,
         "bytes_muestreados": 50651,
         "sha256_muestra": "a5e24f36cfb20c1dc5fb6827aa7a1965070fcc5671c58bdfcf9a00c8766daa86",
         "url_final": "https://soobroon-beep.github.io/Vortex-By-Nova-Nexus/",
@@ -29,12 +29,12 @@
       },
       "cobertura": "No verifica botones, sesiones, IA, tráfico real ni lógica de negocio.",
       "url": "https://soobroon-beep.github.io/Vortex-By-Nova-Nexus/",
-      "resumen": "La página respondió HTTP 200 y contiene el identificador esperado. Interfaz, código e integraciones: consultar cobertura; las funciones privadas siguen sin certificar.",
+      "resumen": "Navegación comprobada, pero hubo solicitudes de red fallidas. Falta verificar los respaldos o restricciones del ejecutor; consulta los hallazgos.",
       "observado": "HTTP 200; identificador presente: True",
       "componentes": {
         "interfaz": {
           "agente": "vortex",
-          "fecha": "2026-11-15T18:45:23.503Z",
+          "fecha": "2026-11-15T18:47:53.557Z",
           "entorno": "Navegador anónimo sin sesión y con escrituras remotas bloqueadas",
           "politica": "No crear/borrar datos, no conectar cuentas, no enviar prompts a proveedores, no operar en exchanges.",
           "paginas": [
@@ -48,20 +48,8 @@
               "errores_js": [],
               "red_fallida": [
                 {
-                  "url": "https://soobroon-beep.github.io/Vortex-By-Nova-Nexus/pixel-draw.js",
-                  "http": 503
-                },
-                {
-                  "url": "https://soobroon-beep.github.io/Vortex-By-Nova-Nexus/pixel-draw.js",
-                  "error": "net::ERR_ABORTED"
-                },
-                {
                   "url": "https://api.binance.com/api/v3/klines",
                   "error": "net::ERR_ABORTED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/ticker/24hr",
-                  "error": "net::ERR_FAILED"
                 },
                 {
                   "url": "https://api.binance.com/api/v3/klines",
@@ -69,6 +57,18 @@
                 },
                 {
                   "url": "https://api.binance.com/api/v3/ticker/24hr",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://api.binance.com/api/v3/ticker/24hr",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://api.binance.com/api/v3/ticker/24hr",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://fapi.binance.com/fapi/v1/premiumIndex",
                   "error": "net::ERR_FAILED"
                 },
                 {
@@ -84,20 +84,16 @@
                   "error": "net::ERR_FAILED"
                 },
                 {
-                  "url": "https://fapi.binance.com/fapi/v1/premiumIndex",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/ticker/24hr",
-                  "error": "net::ERR_FAILED"
-                },
-                {
                   "url": "https://api.bybit.com/v5/market/tickers",
                   "error": "net::ERR_FAILED"
                 },
                 {
                   "url": "https://api.rss2json.com/v1/api.json",
                   "http": 422
+                },
+                {
+                  "url": "https://vortex-push.soobroon.workers.dev/mkt",
+                  "http": 403
                 },
                 {
                   "url": "https://vortex-push.soobroon.workers.dev/mkt",
@@ -161,6 +157,10 @@
                 },
                 {
                   "url": "https://api.binance.com/api/v3/ticker/price",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://api.allorigins.win/get",
                   "error": "net::ERR_FAILED"
                 },
                 {
@@ -544,7 +544,7 @@
                 {
                   "indice": 33,
                   "id": "",
-                  "etiqueta": "₿BTCBitcoin64,630.20-1.76%",
+                  "etiqueta": "₿BTCBitcoin64,644.10-1.42%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -562,7 +562,7 @@
                 {
                   "indice": 35,
                   "id": "",
-                  "etiqueta": "ΞETHEthereum1,814.55-1.26%",
+                  "etiqueta": "ΞETHEthereum1,814.83-0.87%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -580,7 +580,7 @@
                 {
                   "indice": 37,
                   "id": "",
-                  "etiqueta": "◎SOLSolana71.02-1.99%",
+                  "etiqueta": "◎SOLSolana71.05-1.61%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -598,7 +598,7 @@
                 {
                   "indice": 39,
                   "id": "",
-                  "etiqueta": "◆BNBBNB590.80+0.18%",
+                  "etiqueta": "◆BNBBNB591.01+0.49%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -616,7 +616,7 @@
                 {
                   "indice": 41,
                   "id": "",
-                  "etiqueta": "✕XRPXRP0.9519-0.29%",
+                  "etiqueta": "✕XRPXRP0.9526+0.06%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -634,7 +634,7 @@
                 {
                   "indice": 43,
                   "id": "",
-                  "etiqueta": "ÐDOGEDogecoin0.0587-2.46%",
+                  "etiqueta": "ÐDOGEDogecoin0.0587-2.15%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -688,7 +688,7 @@
                 {
                   "indice": 49,
                   "id": "",
-                  "etiqueta": "₿BTCVol 2.3B64,620.50-1.79%✓",
+                  "etiqueta": "₿BTCVol 2.3B64,643.64-1.34%✓",
                   "tag": "DIV",
                   "visible": true,
                   "atributos": {},
@@ -697,7 +697,7 @@
                 {
                   "indice": 50,
                   "id": "",
-                  "etiqueta": "ΞETHVol 975M1,814.45-1.26%✓",
+                  "etiqueta": "ΞETHVol 974M1,814.65-0.73%✓",
                   "tag": "DIV",
                   "visible": true,
                   "atributos": {},
@@ -706,7 +706,7 @@
                 {
                   "indice": 51,
                   "id": "",
-                  "etiqueta": "◎SOLVol 397M71.02-2.01%✓",
+                  "etiqueta": "◎SOLVol 397M71.04-1.54%✓",
                   "tag": "DIV",
                   "visible": true,
                   "atributos": {},
@@ -715,7 +715,7 @@
                 {
                   "indice": 52,
                   "id": "",
-                  "etiqueta": "✕XRPVol 231M0.9520-0.30%✓",
+                  "etiqueta": "✕XRPVol 230M0.9524+0.16%✓",
                   "tag": "DIV",
                   "visible": true,
                   "atributos": {},
@@ -724,7 +724,7 @@
                 {
                   "indice": 53,
                   "id": "",
-                  "etiqueta": "ZZECVol 204M893.68+4.86%＋",
+                  "etiqueta": "ZZECVol 204M894.28+5.23%＋",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -742,7 +742,7 @@
                 {
                   "indice": 55,
                   "id": "",
-                  "etiqueta": "◆BNBVol 112M590.78+0.12%✓",
+                  "etiqueta": "◆BNBVol 112M591.01+0.62%✓",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -751,7 +751,7 @@
                 {
                   "indice": 56,
                   "id": "",
-                  "etiqueta": "NNEARVol 100M3.12+0.35%＋",
+                  "etiqueta": "NNEARVol 100M3.13+0.94%＋",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -769,7 +769,7 @@
                 {
                   "indice": 58,
                   "id": "",
-                  "etiqueta": "HHYPEVol 83M66.46+1.33%＋",
+                  "etiqueta": "HHYPEVol 83M66.49+1.96%＋",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -787,7 +787,7 @@
                 {
                   "indice": 60,
                   "id": "",
-                  "etiqueta": "ÐDOGEVol 79M0.0587-2.48%✓",
+                  "etiqueta": "ÐDOGEVol 79M0.0587-1.97%✓",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -796,7 +796,7 @@
                 {
                   "indice": 61,
                   "id": "",
-                  "etiqueta": "UUNIVol 54M5.15+2.96%＋",
+                  "etiqueta": "UUNIVol 54M5.16+4.25%＋",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -3567,15 +3567,105 @@
                   "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 368,
+                  "id": "",
+                  "etiqueta": "Despedir a Nexus Pixel",
+                  "tag": "BUTTON",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 369,
+                  "id": "",
+                  "etiqueta": "¿Cómo lo ves?",
+                  "tag": "BUTTON",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 370,
+                  "id": "",
+                  "etiqueta": "¿Long o short?",
+                  "tag": "BUTTON",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 371,
+                  "id": "",
+                  "etiqueta": "Canal",
+                  "tag": "BUTTON",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 372,
+                  "id": "",
+                  "etiqueta": "Fibonacci",
+                  "tag": "BUTTON",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 373,
+                  "id": "",
+                  "etiqueta": "Hablarle a Nexus Pixel",
+                  "tag": "BUTTON",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 374,
+                  "id": "",
+                  "etiqueta": "Enviar",
+                  "tag": "BUTTON",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 375,
+                  "id": "",
+                  "etiqueta": "Llamar a Nexus Pixel",
+                  "tag": "BUTTON",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 376,
+                  "id": "",
+                  "etiqueta": "¿Te digo cuál se mueve más?×",
+                  "tag": "BUTTON",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
+                },
+                {
+                  "indice": 377,
+                  "id": "",
+                  "etiqueta": "Cerrar mensaje",
+                  "tag": "SPAN",
+                  "visible": false,
+                  "atributos": {},
+                  "cobertura": "Inventariado; acción no ejercitada"
                 }
               ],
               "resultado": "funciona",
               "http": 200,
-              "carga_ms": 4107,
+              "carga_ms": 4055,
               "titulo": "VORTEX · Powered by Nova Nexus",
               "desbordamiento_horizontal": false,
               "renderizado": "funciona",
-              "cobertura": "9/368 controles inventariados con navegación ejercitada",
+              "cobertura": "9/378 controles inventariados con navegación ejercitada",
               "bloqueos": [
                 "Controles de guardar, borrar, comprar, operar, autenticarse, conectar y enviar datos no ejercitados.",
                 "IA y cerebros privados requieren cuenta de prueba autorizada.",
@@ -3616,6 +3706,10 @@
                   "http": 422
                 },
                 {
+                  "url": "https://vortex-push.soobroon.workers.dev/mkt",
+                  "http": 403
+                },
+                {
                   "url": "https://api.binance.com/api/v3/klines",
                   "error": "net::ERR_FAILED"
                 },
@@ -3652,15 +3746,15 @@
                   "http": 401
                 },
                 {
-                  "url": "https://fapi.binance.com/fapi/v1/premiumIndex",
-                  "error": "net::ERR_FAILED"
-                },
-                {
                   "url": "https://fapi.binance.com/futures/data/openInterestHist",
                   "error": "net::ERR_FAILED"
                 },
                 {
                   "url": "https://fapi.binance.com/futures/data/globalLongShortAccountRatio",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://fapi.binance.com/fapi/v1/premiumIndex",
                   "error": "net::ERR_FAILED"
                 },
                 {
@@ -4052,7 +4146,7 @@
                 {
                   "indice": 33,
                   "id": "",
-                  "etiqueta": "₿BTCBitcoin64,633.70-1.76%",
+                  "etiqueta": "₿BTCBitcoin64,647.20-1.37%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4070,7 +4164,7 @@
                 {
                   "indice": 35,
                   "id": "",
-                  "etiqueta": "ΞETHEthereum1,814.08-1.29%",
+                  "etiqueta": "ΞETHEthereum1,814.76-0.76%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4088,7 +4182,7 @@
                 {
                   "indice": 37,
                   "id": "",
-                  "etiqueta": "◎SOLSolana71.02-1.99%",
+                  "etiqueta": "◎SOLSolana71.06-1.54%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4106,7 +4200,7 @@
                 {
                   "indice": 39,
                   "id": "",
-                  "etiqueta": "◆BNBBNB590.80+0.18%",
+                  "etiqueta": "◆BNBBNB591.01+0.58%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4124,7 +4218,7 @@
                 {
                   "indice": 41,
                   "id": "",
-                  "etiqueta": "✕XRPXRP0.9522-0.26%",
+                  "etiqueta": "✕XRPXRP0.9530+0.21%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4142,7 +4236,7 @@
                 {
                   "indice": 43,
                   "id": "",
-                  "etiqueta": "ÐDOGEDogecoin0.0587-2.46%",
+                  "etiqueta": "ÐDOGEDogecoin0.0587-2.00%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4196,7 +4290,7 @@
                 {
                   "indice": 49,
                   "id": "",
-                  "etiqueta": "₿BTCVol 2.3B64,625.15-1.77%✓",
+                  "etiqueta": "₿BTCVol 2.3B64,642.94-1.45%✓",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -4205,7 +4299,7 @@
                 {
                   "indice": 50,
                   "id": "",
-                  "etiqueta": "ΞETHVol 975M1,814.03-1.27%✓",
+                  "etiqueta": "ΞETHVol 974M1,814.62-0.91%✓",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -4214,7 +4308,7 @@
                 {
                   "indice": 51,
                   "id": "",
-                  "etiqueta": "◎SOLVol 397M71.02-2.03%✓",
+                  "etiqueta": "◎SOLVol 397M71.05-1.62%✓",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -4223,7 +4317,7 @@
                 {
                   "indice": 52,
                   "id": "",
-                  "etiqueta": "✕XRPVol 230M0.9521-0.27%✓",
+                  "etiqueta": "✕XRPVol 230M0.9529+0.06%✓",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -4232,7 +4326,7 @@
                 {
                   "indice": 53,
                   "id": "",
-                  "etiqueta": "ZZECVol 204M893.68+4.91%＋",
+                  "etiqueta": "ZZECVol 204M894.77+5.14%＋",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -4250,7 +4344,7 @@
                 {
                   "indice": 55,
                   "id": "",
-                  "etiqueta": "◆BNBVol 112M590.80+0.13%✓",
+                  "etiqueta": "◆BNBVol 112M591.05+0.49%✓",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -4259,7 +4353,7 @@
                 {
                   "indice": 56,
                   "id": "",
-                  "etiqueta": "NNEARVol 100M3.12+0.39%＋",
+                  "etiqueta": "NNEARVol 100M3.13+1.03%＋",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -4277,7 +4371,7 @@
                 {
                   "indice": 58,
                   "id": "",
-                  "etiqueta": "HHYPEVol 83M66.46+1.39%＋",
+                  "etiqueta": "HHYPEVol 83M66.50+1.87%＋",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -4295,7 +4389,7 @@
                 {
                   "indice": 60,
                   "id": "",
-                  "etiqueta": "ÐDOGEVol 79M0.0587-2.43%✓",
+                  "etiqueta": "ÐDOGEVol 79M0.0587-2.10%✓",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -4304,7 +4398,7 @@
                 {
                   "indice": 61,
                   "id": "",
-                  "etiqueta": "UUNIVol 54M5.15+3.29%＋",
+                  "etiqueta": "UUNIVol 54M5.16+4.08%＋",
                   "tag": "DIV",
                   "visible": false,
                   "atributos": {},
@@ -7088,7 +7182,7 @@
               ],
               "resultado": "funciona",
               "http": 200,
-              "carga_ms": 3863,
+              "carga_ms": 3985,
               "titulo": "VORTEX · Powered by Nova Nexus",
               "desbordamiento_horizontal": false,
               "renderizado": "funciona",
@@ -7104,7 +7198,7 @@
         },
         "integraciones": {
           "agente": "vortex",
-          "fecha": "2026-11-15T18:44:54.446268+00:00",
+          "fecha": "2026-11-15T18:47:30.746623+00:00",
           "flujos": [
             {
               "flujo": "brain-sync.yml",
@@ -7113,7 +7207,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T13:41:50Z",
-              "minutos_desde_inicio": 303,
+              "minutos_desde_inicio": 306,
               "umbral_minutos": 150,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43720340088",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -7125,7 +7219,7 @@
               "estado_github": "in_progress",
               "conclusion": null,
               "fecha": "2026-11-15T14:52:19Z",
-              "minutos_desde_inicio": 233,
+              "minutos_desde_inicio": 235,
               "umbral_minutos": 360,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43726706409",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -7138,7 +7232,7 @@
         },
         "codigo": {
           "agente": "vortex",
-          "fecha": "2026-11-15T18:44:49.633007+00:00",
+          "fecha": "2026-11-15T18:47:28.323222+00:00",
           "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
           "resultado": "funciona",
           "repositorio": "Vortex-By-Nova-Nexus",
@@ -7161,6 +7255,142 @@
       "hallazgos": [
         {
           "aplicacion": "Vortex",
+          "funcion": "APIs y solicitudes de red",
+          "esperado": "Los proveedores responden o se comprueba la recuperación con un respaldo",
+          "observado": "Se observaron solicitudes fallidas desde el ejecutor de pruebas. Puede tratarse de restricciones del proveedor o del entorno; no se confirma una caída general. Rutas: [{'url': 'https://api.binance.com/api/v3/klines', 'error': 'net::ERR_FAILED'}, {'url': 'https://api.binance.com/api/v3/ticker/24hr', 'error': 'net::ERR_FAILED'}, {'url': 'https://fapi.binance.com/fapi/v1/premiumIndex', 'error': 'net::ERR_FAILED'}, {'url': 'https://fapi.binance.com/futures/data/openInterestHist', 'error': 'net::ERR_FAILED'}, {'url': 'https://fapi.binance.com/futures/data/globalLongShortAccountRatio', 'error': 'net::ERR_FAILED'}, {'url': 'https://fapi.binance.com/fapi/v1/openInterest', 'error': 'net::ERR_FAILED'}, {'url': 'https://api.bybit.com/v5/market/tickers', 'error': 'net::ERR_FAILED'}, {'url': 'https://api.rss2json.com/v1/api.json', 'http': 422}, {'url': 'https://vortex-push.soobroon.workers.dev/mkt', 'http': 403}, {'url': 'https://es.cointelegraph.com/rss', 'error': 'net::ERR_FAILED'}, {'url': 'https://api.binance.com/api/v3/ticker/price', 'error': 'net::ERR_FAILED'}, {'url': 'https://api.allorigins.win/get', 'error': 'net::ERR_FAILED'}]",
+          "evidencia": [
+            {
+              "url": "https://api.binance.com/api/v3/klines",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://api.binance.com/api/v3/ticker/24hr",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://fapi.binance.com/fapi/v1/premiumIndex",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://fapi.binance.com/futures/data/openInterestHist",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://fapi.binance.com/futures/data/globalLongShortAccountRatio",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://fapi.binance.com/fapi/v1/openInterest",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://api.bybit.com/v5/market/tickers",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://api.rss2json.com/v1/api.json",
+              "http": 422
+            },
+            {
+              "url": "https://vortex-push.soobroon.workers.dev/mkt",
+              "http": 403
+            },
+            {
+              "url": "https://es.cointelegraph.com/rss",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://api.binance.com/api/v3/ticker/price",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://api.allorigins.win/get",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://corsproxy.io/",
+              "http": 401
+            }
+          ],
+          "entorno": {
+            "width": 1440,
+            "height": 1000
+          },
+          "gravedad": "media",
+          "estado": "investigando",
+          "responsable": "Auditor de Vortex",
+          "siguiente_paso": "Reproducir la conexión y comprobar si el proveedor de respaldo completa la función."
+        },
+        {
+          "aplicacion": "Vortex",
+          "funcion": "APIs y solicitudes de red",
+          "esperado": "Los proveedores responden o se comprueba la recuperación con un respaldo",
+          "observado": "Se observaron solicitudes fallidas desde el ejecutor de pruebas. Puede tratarse de restricciones del proveedor o del entorno; no se confirma una caída general. Rutas: [{'url': 'https://api.binance.com/api/v3/ticker/24hr', 'error': 'net::ERR_FAILED'}, {'url': 'https://api.binance.com/api/v3/klines', 'error': 'net::ERR_FAILED'}, {'url': 'https://api.bybit.com/v5/market/tickers', 'error': 'net::ERR_FAILED'}, {'url': 'https://api.rss2json.com/v1/api.json', 'http': 422}, {'url': 'https://vortex-push.soobroon.workers.dev/mkt', 'http': 403}, {'url': 'https://es.cointelegraph.com/rss', 'error': 'net::ERR_FAILED'}, {'url': 'https://api.binance.com/api/v3/ticker/price', 'error': 'net::ERR_FAILED'}, {'url': 'https://corsproxy.io/', 'http': 401}, {'url': 'https://fapi.binance.com/futures/data/openInterestHist', 'error': 'net::ERR_FAILED'}, {'url': 'https://fapi.binance.com/futures/data/globalLongShortAccountRatio', 'error': 'net::ERR_FAILED'}, {'url': 'https://fapi.binance.com/fapi/v1/premiumIndex', 'error': 'net::ERR_FAILED'}, {'url': 'https://fapi.binance.com/fapi/v1/openInterest', 'error': 'net::ERR_FAILED'}]",
+          "evidencia": [
+            {
+              "url": "https://api.binance.com/api/v3/ticker/24hr",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://api.binance.com/api/v3/klines",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://api.bybit.com/v5/market/tickers",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://api.rss2json.com/v1/api.json",
+              "http": 422
+            },
+            {
+              "url": "https://vortex-push.soobroon.workers.dev/mkt",
+              "http": 403
+            },
+            {
+              "url": "https://es.cointelegraph.com/rss",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://api.binance.com/api/v3/ticker/price",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://corsproxy.io/",
+              "http": 401
+            },
+            {
+              "url": "https://fapi.binance.com/futures/data/openInterestHist",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://fapi.binance.com/futures/data/globalLongShortAccountRatio",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://fapi.binance.com/fapi/v1/premiumIndex",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://fapi.binance.com/fapi/v1/openInterest",
+              "error": "net::ERR_FAILED"
+            },
+            {
+              "url": "https://thingproxy.freeboard.io/fetch/https://es.cointelegraph.com/rss",
+              "error": "net::ERR_NAME_NOT_RESOLVED"
+            }
+          ],
+          "entorno": {
+            "width": 390,
+            "height": 844
+          },
+          "gravedad": "media",
+          "estado": "investigando",
+          "responsable": "Auditor de Vortex",
+          "siguiente_paso": "Reproducir la conexión y comprobar si el proveedor de respaldo completa la función."
+        },
+        {
+          "aplicacion": "Vortex",
           "funcion": "brain-sync.yml",
           "esperado": "Ejecución reciente y sin fallo",
           "observado": {
@@ -7170,7 +7400,7 @@
             "estado_github": "completed",
             "conclusion": "success",
             "fecha": "2026-11-15T13:41:50Z",
-            "minutos_desde_inicio": 303,
+            "minutos_desde_inicio": 306,
             "umbral_minutos": 150,
             "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43720340088",
             "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -7187,7 +7417,7 @@
     {
       "agente": "novahub",
       "aplicacion": "Nova Hub",
-      "fecha": "2026-11-15T12:44:50.920493-06:00",
+      "fecha": "2026-11-15T12:47:28.476255-06:00",
       "resultado": "funciona",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -7198,7 +7428,7 @@
       "gravedad": "sin incidencia HTTP",
       "evidencia": {
         "http": 200,
-        "ms": 247,
+        "ms": 152,
         "bytes_muestreados": 630204,
         "sha256_muestra": "3bf86143a6986d6b4b632fcb588e13cf369678e047d92576728864d44e68f43f",
         "url_final": "https://soobroon-beep.github.io/Nova-HUB/",
@@ -7211,7 +7441,7 @@
       "componentes": {
         "integraciones": {
           "agente": "novahub",
-          "fecha": "2026-11-15T18:45:02.334663+00:00",
+          "fecha": "2026-11-15T18:47:39.509528+00:00",
           "flujos": [
             {
               "flujo": "brain-sync.yml",
@@ -7220,7 +7450,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T16:44:27Z",
-              "minutos_desde_inicio": 121,
+              "minutos_desde_inicio": 123,
               "umbral_minutos": 150,
               "url": "https://github.com/soobroon-beep/Nova-HUB/actions/runs/43737161121",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -7232,7 +7462,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T16:29:50Z",
-              "minutos_desde_inicio": 135,
+              "minutos_desde_inicio": 138,
               "umbral_minutos": 1800,
               "url": "https://github.com/soobroon-beep/Nova-HUB/actions/runs/43735781056",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -7245,7 +7475,7 @@
         },
         "codigo": {
           "agente": "novahub",
-          "fecha": "2026-11-15T18:44:51.232487+00:00",
+          "fecha": "2026-11-15T18:47:28.699681+00:00",
           "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
           "resultado": "funciona",
           "repositorio": "Nova-HUB",
@@ -7268,7 +7498,7 @@
         },
         "interfaz": {
           "agente": "novahub",
-          "fecha": "2026-11-15T18:45:24.336Z",
+          "fecha": "2026-11-15T18:47:57.107Z",
           "entorno": "Navegador anónimo sin sesión y con escrituras remotas bloqueadas",
           "politica": "No crear/borrar datos, no conectar cuentas, no enviar prompts a proveedores, no operar en exchanges.",
           "paginas": [
@@ -8974,7 +9204,7 @@
               ],
               "resultado": "funciona",
               "http": 200,
-              "carga_ms": 4216,
+              "carga_ms": 4096,
               "titulo": "NOVA HUB",
               "desbordamiento_horizontal": false,
               "renderizado": "funciona",
@@ -10669,7 +10899,7 @@
               ],
               "resultado": "funciona",
               "http": 200,
-              "carga_ms": 3889,
+              "carga_ms": 3893,
               "titulo": "NOVA HUB",
               "desbordamiento_horizontal": false,
               "renderizado": "funciona",
@@ -10691,7 +10921,7 @@
     {
       "agente": "neural",
       "aplicacion": "Neural Brain",
-      "fecha": "2026-11-15T12:45:50.592906-06:00",
+      "fecha": "2026-11-15T12:48:21.046079-06:00",
       "resultado": "no se pudo comprobar",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -10702,7 +10932,7 @@
       "gravedad": "sin incidencia HTTP",
       "evidencia": {
         "http": 200,
-        "ms": 138,
+        "ms": 85,
         "bytes_muestreados": 100891,
         "sha256_muestra": "30f2a2a386ba33531ae374945e3ca94bae88ba28cd20314b7671b23fdb0fcf8e",
         "url_final": "https://soobroon-beep.github.io/Neural-Brain-Claude/",
@@ -10715,7 +10945,7 @@
       "componentes": {
         "integraciones": {
           "agente": "neural",
-          "fecha": "2026-11-15T18:45:52.783670+00:00",
+          "fecha": "2026-11-15T18:48:23.232697+00:00",
           "flujos": [
             {
               "flujo": "brain-sync.yml",
@@ -10724,7 +10954,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T13:41:50Z",
-              "minutos_desde_inicio": 304,
+              "minutos_desde_inicio": 307,
               "umbral_minutos": 150,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43720340088",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -10736,7 +10966,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T16:44:27Z",
-              "minutos_desde_inicio": 121,
+              "minutos_desde_inicio": 124,
               "umbral_minutos": 150,
               "url": "https://github.com/soobroon-beep/Nova-HUB/actions/runs/43737161121",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -10748,7 +10978,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T16:27:13Z",
-              "minutos_desde_inicio": 139,
+              "minutos_desde_inicio": 141,
               "umbral_minutos": 1800,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43735548646",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -10761,7 +10991,7 @@
         },
         "interfaz": {
           "agente": "neural",
-          "fecha": "2026-11-15T18:46:11.586Z",
+          "fecha": "2026-11-15T18:48:40.064Z",
           "entorno": "Navegador anónimo sin sesión y con escrituras remotas bloqueadas",
           "politica": "No crear/borrar datos, no conectar cuentas, no enviar prompts a proveedores, no operar en exchanges.",
           "paginas": [
@@ -10887,7 +11117,7 @@
               ],
               "resultado": "no se pudo comprobar",
               "http": 200,
-              "carga_ms": 3877,
+              "carga_ms": 3669,
               "titulo": "Neural Brain",
               "desbordamiento_horizontal": false,
               "renderizado": "funciona",
@@ -11020,7 +11250,7 @@
               ],
               "resultado": "no se pudo comprobar",
               "http": 200,
-              "carga_ms": 3602,
+              "carga_ms": 3595,
               "titulo": "Neural Brain",
               "desbordamiento_horizontal": false,
               "renderizado": "funciona",
@@ -11380,7 +11610,7 @@
               ],
               "resultado": "no se pudo comprobar",
               "http": 200,
-              "carga_ms": 3714,
+              "carga_ms": 3673,
               "titulo": "NEURAL BRAIN",
               "desbordamiento_horizontal": false,
               "renderizado": "funciona",
@@ -11740,7 +11970,7 @@
               ],
               "resultado": "no se pudo comprobar",
               "http": 200,
-              "carga_ms": 3620,
+              "carga_ms": 3612,
               "titulo": "NEURAL BRAIN",
               "desbordamiento_horizontal": false,
               "renderizado": "funciona",
@@ -11756,7 +11986,7 @@
         },
         "codigo": {
           "agente": "neural",
-          "fecha": "2026-11-15T18:45:50.795682+00:00",
+          "fecha": "2026-11-15T18:48:21.189832+00:00",
           "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
           "resultado": "funciona",
           "repositorio": "Neural-Brain-Claude",
@@ -11785,7 +12015,7 @@
             "estado_github": "completed",
             "conclusion": "success",
             "fecha": "2026-11-15T13:41:50Z",
-            "minutos_desde_inicio": 304,
+            "minutos_desde_inicio": 307,
             "umbral_minutos": 150,
             "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43720340088",
             "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -11815,7 +12045,7 @@
     {
       "agente": "discord",
       "aplicacion": "Discord",
-      "fecha": "2026-11-15T12:45:53.922768-06:00",
+      "fecha": "2026-11-15T12:48:23.185637-06:00",
       "resultado": "no se pudo comprobar",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -11828,7 +12058,7 @@
       "componentes": {
         "integraciones": {
           "agente": "discord",
-          "fecha": "2026-11-15T18:45:54.477573+00:00",
+          "fecha": "2026-11-15T18:48:23.721946+00:00",
           "flujos": [
             {
               "flujo": "discord-screener.yml",
@@ -11837,7 +12067,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T14:22:05Z",
-              "minutos_desde_inicio": 264,
+              "minutos_desde_inicio": 266,
               "umbral_minutos": 600,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43723970981",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -11856,7 +12086,7 @@
     {
       "agente": "bots",
       "aplicacion": "Bots Vortex",
-      "fecha": "2026-11-15T12:46:03.091452-06:00",
+      "fecha": "2026-11-15T12:48:32.646904-06:00",
       "resultado": "no se pudo comprobar",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -11869,7 +12099,7 @@
       "componentes": {
         "integraciones": {
           "agente": "bots",
-          "fecha": "2026-11-15T18:46:09.754018+00:00",
+          "fecha": "2026-11-15T18:48:38.122635+00:00",
           "flujos": [
             {
               "flujo": "motor.yml",
@@ -11878,7 +12108,7 @@
               "estado_github": "in_progress",
               "conclusion": null,
               "fecha": "2026-11-15T14:52:19Z",
-              "minutos_desde_inicio": 234,
+              "minutos_desde_inicio": 236,
               "umbral_minutos": 360,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43726706409",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -11890,7 +12120,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T18:30:21Z",
-              "minutos_desde_inicio": 16,
+              "minutos_desde_inicio": 18,
               "umbral_minutos": 120,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43747124103",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -11903,7 +12133,7 @@
         },
         "codigo": {
           "agente": "bots",
-          "fecha": "2026-11-15T18:46:03.169534+00:00",
+          "fecha": "2026-11-15T18:48:32.702511+00:00",
           "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
           "resultado": "funciona",
           "repositorio": "Vortex-By-Nova-Nexus",
@@ -11951,7 +12181,7 @@
   ],
   "gerente": {
     "agente": "gerente",
-    "fecha": "2026-11-15T12:46:36.919593-06:00",
+    "fecha": "2026-11-15T12:49:03.099585-06:00",
     "resultado": "consolidado",
     "resumen": "Cinco auditorías organizadas y entregadas al propietario, que es el Jefe. Los bloqueos no se marcan como funcionamiento correcto.",
     "recepciones": [
@@ -11963,7 +12193,7 @@
           "integraciones",
           "codigo"
         ],
-        "fecha": "2026-11-15T12:46:36.919414-06:00",
+        "fecha": "2026-11-15T12:49:03.099400-06:00",
         "salud_recibida": true
       },
       {
@@ -11974,7 +12204,7 @@
           "codigo",
           "interfaz"
         ],
-        "fecha": "2026-11-15T12:46:36.919501-06:00",
+        "fecha": "2026-11-15T12:49:03.099481-06:00",
         "salud_recibida": true
       },
       {
@@ -11985,7 +12215,7 @@
           "interfaz",
           "codigo"
         ],
-        "fecha": "2026-11-15T12:46:36.919541-06:00",
+        "fecha": "2026-11-15T12:49:03.099524-06:00",
         "salud_recibida": true
       },
       {
@@ -11994,7 +12224,7 @@
         "tipos": [
           "integraciones"
         ],
-        "fecha": "2026-11-15T12:46:36.919568-06:00",
+        "fecha": "2026-11-15T12:49:03.099553-06:00",
         "salud_recibida": true
       },
       {
@@ -12004,7 +12234,7 @@
           "integraciones",
           "codigo"
         ],
-        "fecha": "2026-11-15T12:46:36.919591-06:00",
+        "fecha": "2026-11-15T12:49:03.099583-06:00",
         "salud_recibida": true
       }
     ],
@@ -12021,10 +12251,16 @@
   "jefe": {
     "agente": "jefe",
     "identidad": "Propietario humano · tú",
-    "fecha": "2026-11-15T12:46:45.452505-06:00",
+    "fecha": "2026-11-15T12:49:13.103946-06:00",
     "resultado": "reporte para ti · Jefe",
-    "resumen": "2 auditores sin fallos en las pruebas disponibles; 0 con fallos detectados; 3 bloqueados. Cobertura parcial: no se certifican todas las funciones privadas. El Gerente entrega este reporte al propietario, que es el Jefe.",
-    "cambios": [],
+    "resumen": "1 auditores sin fallos en las pruebas disponibles; 0 con fallos detectados; 4 bloqueados. Cobertura parcial: no se certifican todas las funciones privadas. El Gerente entrega este reporte al propietario, que es el Jefe.",
+    "cambios": [
+      {
+        "agente": "vortex",
+        "anterior": "funciona",
+        "actual": "no se pudo comprobar"
+      }
+    ],
     "entrega": "Publicado en data/latest.json para consulta en el panel; sin notificación externa.",
     "decisiones": [
       "Canal de notificación y horario diario/semanal.",
