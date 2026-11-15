@@ -44,3 +44,5 @@ El panel muestra próxima revisión prevista, trabajos en ejecución o en cola, 
 
 ## Pisos de la sala
 Planta baja: los siete puestos actuales de supervisión. Segundo piso: espacio arquitectónico vacío, reservado para futuros sistemas con funciones distintas. El selector cambia el grupo visible y la altura de cámara en la escena 3D. No crea agentes ni tareas ni concede herramientas o permisos. La vista de reportes mantiene los datos del equipo existente.
+
+La escena de oficina incluye ventanales con ciudad geométrica, tráfico decorativo, luminarias, robots más separados, gestos de escritura, saludo y recorridos cortos con tabletas. Los paquetes ilustran la jerarquía; las animaciones no indican que una auditoría esté ejecutándose. Se conserva la pausa, el movimiento reducido y el segundo piso sin agentes.
