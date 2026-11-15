@@ -134,7 +134,7 @@ function createScene(){const viewport=$('viewport');scene=new THREE.Scene();scen
  // Freestanding central report pedestal.
  box(scene,1.35,.15,1.05,material(0xbfb0d9),0,.18,3.20,.06);box(scene,1.1,.07,.85,white,0,.28,3.20,.035);const hologram=box(scene,.7,.65,.06,new THREE.MeshStandardMaterial({color:0xb29ae2,emissive:0x7e63b4,emissiveIntensity:.15,transparent:true,opacity:.7}),0,.73,3.2,.035);hologram.rotation.y=.12;
  agents.forEach(workstation);if(softwareRenderer){for(const a of agents){for(let n=0;n<3;n++){let shadow=mesh(new THREE.CircleGeometry(.48+n*.17,24),new THREE.MeshBasicMaterial({color:0x645478,transparent:true,opacity:.045,depthWrite:false}),scene,a.pos[0]+.2,.086+n*.001,a.pos[1]+.55);shadow.rotation.x=-Math.PI/2;shadow.scale.set(1.5,.8,1);shadow.castShadow=false;}}}
- for(let i=0;i<7;i++){let from=i<5?i:i===5?5:6,to=i<5?5:i===5?6:-1;let a=agents[from].pos,b=to<0?[0,7.3]:agents[to].pos;let c=new THREE.CubicBezierCurve3(new THREE.Vector3(a[0]+.4,1.2,a[1]+.6),new THREE.Vector3(a[0]*.8,2.3,a[1]+1.4),new THREE.Vector3(b[0]*.8,2.3,b[1]-.8),new THREE.Vector3(b[0]+.4,1.2,b[1]+.6));let path=mesh(new THREE.TubeGeometry(c,40,.014,6,false),new THREE.MeshBasicMaterial({color:agents[from].color,transparent:true,opacity:.40}),scene);path.castShadow=false;let packet=new THREE.Group();scene.add(packet);box(packet,.17,.12,.24,white,0,0,0,.025);box(packet,.09,.015,.09,new THREE.MeshBasicMaterial({color:agents[from].color}),0,.07,0,.005);routes.push({curve:c,packet,offset:i*.13});for(let n=1;n<3;n++){let extra=packet.clone();scene.add(extra);routes.push({curve:c,packet:extra,offset:i*.13+n/3});}}
+ for(let i=0;i<7;i++){let from=i<5?i:i===5?5:6,to=i<5?5:i===5?6:-1;let a=agents[from].pos,b=to<0?[0,7.3]:agents[to].pos;let c=new THREE.CubicBezierCurve3(new THREE.Vector3(a[0]+.4,1.2,a[1]+.6),new THREE.Vector3(a[0]*.8,2.3,a[1]+1.4),new THREE.Vector3(b[0]*.8,2.3,b[1]-.8),new THREE.Vector3(b[0]+.4,1.2,b[1]+.6));let path=mesh(new THREE.TubeGeometry(c,40,.014,6,false),new THREE.MeshBasicMaterial({color:agents[from].color,transparent:true,opacity:.40}),scene);path.castShadow=false;let packet=new THREE.Group();scene.add(packet);box(packet,.17,.12,.24,white,0,0,0,.025);box(packet,.09,.015,.09,new THREE.MeshBasicMaterial({color:agents[from].color}),0,.07,0,.005);routes.push({curve:c,packet,offset:i*.13});for(let n=1;n<(softwareRenderer?2:3);n++){let extra=packet.clone();scene.add(extra);routes.push({curve:c,packet:extra,offset:i*.13+n/3});}}
  createUpperFloor();$('loading').hidden=true;new ResizeObserver(resize).observe(viewport);resize();setupCamera();requestAnimationFrame(animate);}
 function createUpperFloor(){
  groundFloor=new THREE.Group();for(const child of [...scene.children])if(!child.isLight)groundFloor.add(child);scene.add(groundFloor);
@@ -157,7 +157,8 @@ function createUpperFloor(){
 function officeEnvironment(parent){
  // Silueta urbana y arquitectura: geometría local, sin imágenes ni servicios externos.
  const flat=(color)=>new THREE.MeshBasicMaterial({color});
- const solid=(w,h,d,color,x,y,z)=>{let o=mesh(new THREE.BoxGeometry(w,h,d),flat(color),parent,x,y,z);o.castShadow=false;return o;};
+ const beam=(w,h,d,mat,x,y,z)=>mesh(new THREE.BoxGeometry(w,h,d),mat,parent,x,y,z);
+ const solid=(w,h,d,color,x,y,z)=>{let o=mesh((softwareRenderer?new THREE.PlaneGeometry(w,h):new THREE.BoxGeometry(w,h,d)),flat(color),parent,x,y,z);o.castShadow=false;return o;};
  solid(44,18,.12,0xd7dce9,0,6,-20);
  solid(42,3,.15,0xe9d9dc,0,1.5,-19.8);
  const sun=mesh(new THREE.CircleGeometry(1.1,32),flat(0xf3d4b9),parent,8,6.5,-19.5);sun.castShadow=false;
@@ -169,13 +170,13 @@ function officeEnvironment(parent){
  }
  // Ventanales altos; se omite el cristal en el renderizador compatible para conservar nitidez.
  const frame=material(0x8e91aa,.35,.25),ivory=material(0xe9e6ef,.7);
- for(let x=-10;x<=10;x+=4){box(parent,.105,5.7,.14,frame,x,2.96,-8.7,.018);}
- box(parent,20.2,.14,.22,ivory,0,5.85,-8.7,.025);box(parent,20,.10,.13,frame,0,1.15,-8.6,.018);
+ for(let x=-10;x<=10;x+=4){beam(.105,5.7,.14,frame,x,2.96,-8.7,.018);}
+ beam(20.2,.14,.22,ivory,0,5.85,-8.7,.025);beam(20,.10,.13,frame,0,1.15,-8.6,.018);
  if(!softwareRenderer){const glass=new THREE.MeshBasicMaterial({color:0xc7e1ed,transparent:true,opacity:.085,side:THREE.DoubleSide,depthWrite:false});mesh(new THREE.PlaneGeometry(20,5.4),glass,parent,0,3,-8.66);}
  // Lateral abierto, columnas y luminarias suspendidas dejan ver a los robots.
- for(const x of [-9.8,9.8]){box(parent,.22,5.7,.22,ivory,x,2.95,-8.5,.035);}
+ for(const x of [-9.8,9.8]){beam(.22,5.7,.22,ivory,x,2.95,-8.5,.035);}
  for(const x of [-5,2,7]){solid(2.4,.065,.20,0xf8edda,x,4.4,-.7);solid(.025,1.35,.025,0xa9a4bd,x,5.1,-.7);}
- for(const x of [-8.7,8.7]){box(parent,.52,.65,.52,ivory,x,.4,-6.6,.09);for(let n=0;n<5;n++){let leaf=sphere(parent,.20,material(0x789d93),x+Math.sin(n*2)*.2,1.0+n*.15,-6.6+Math.cos(n)*.15);leaf.scale.set(.65,1.9,.65);}}
+ for(const x of [-8.7,8.7]){beam(.52,.65,.52,ivory,x,.4,-6.6,.09);for(let n=0;n<5;n++){let leaf=sphere(parent,.20,material(0x789d93),x+Math.sin(n*2)*.2,1.0+n*.15,-6.6+Math.cos(n)*.15);leaf.scale.set(.65,1.9,.65);}}
  // Tráfico lejano: decorativo, independiente de las métricas de las aplicaciones.
  solid(35,.12,1.0,0xa4adc3,0,.15,-11.2);
  for(let i=0;i<7;i++){let car=solid(.25,.11,.14,i%2?0xf9dfb0:0xe6edff,-16+i*4.7,.26,-10.9);cityTraffic.push({car,offset:i*.14,direction:i%2?1:-1});}
@@ -199,6 +200,6 @@ function animateRobot(r){
   boneBetween(arm.upper,arm.shoulder,elbow);boneBetween(arm.lower,elbow,hand);arm.elbow.position.set(...elbow);arm.hand.position.set(...hand);
  });
 }
-let lastFrame=0;function animate(ms){if(frameError)return;if(softwareRenderer&&lastFrame&&ms-lastFrame<110){requestAnimationFrame(animate);return;}let dt=lastFrame?Math.min((ms-lastFrame)/1000,.15):0;lastFrame=ms;if(!paused)t+=dt;distance=THREE.MathUtils.lerp(distance,targetDistance,.10);cameraFocusY=THREE.MathUtils.lerp(cameraFocusY,activeFloor*6,.16);updateCamera();robots.forEach(animateRobot);routes.forEach(r=>{let u=(t*.15+r.offset)%1;r.packet.position.copy(r.curve.getPointAt(u));r.packet.position.y+=Math.sin(u*Math.PI)*.18;r.packet.rotation.y=t*.7;});screenGroups.forEach((g,i)=>(g.userData.bars??[]).forEach((bar,j)=>bar.scale.x=.6+.4*Math.sin(t*2.1+i+j)));cityTraffic.forEach(({car,offset,direction})=>{car.position.x=direction*(((t*.025+offset)%1)*34-17);});renderer.render(scene,camera);let rect=$('viewport').getBoundingClientRect();labels.forEach((el,i)=>{let a=agents[i],p=new THREE.Vector3(a.pos[0],.05,a.pos[1]+1.65).project(camera);el.style.left=(p.x*.5+.5)*rect.width+'px';el.style.top=(-p.y*.5+.5)*rect.height+'px';el.style.opacity=p.z>1?'0':'1';});requestAnimationFrame(animate);}
+let lastFrame=0;function animate(ms){if(frameError)return;if(softwareRenderer&&lastFrame&&ms-lastFrame<170){requestAnimationFrame(animate);return;}let dt=lastFrame?Math.min((ms-lastFrame)/1000,.15):0;lastFrame=ms;if(!paused)t+=dt;distance=THREE.MathUtils.lerp(distance,targetDistance,.10);cameraFocusY=THREE.MathUtils.lerp(cameraFocusY,activeFloor*6,.16);updateCamera();robots.forEach(animateRobot);routes.forEach(r=>{let u=(t*.15+r.offset)%1;r.packet.position.copy(r.curve.getPointAt(u));r.packet.position.y+=Math.sin(u*Math.PI)*.18;r.packet.rotation.y=t*.7;});screenGroups.forEach((g,i)=>(g.userData.bars??[]).forEach((bar,j)=>bar.scale.x=.6+.4*Math.sin(t*2.1+i+j)));cityTraffic.forEach(({car,offset,direction})=>{car.position.x=direction*(((t*.025+offset)%1)*34-17);});renderer.render(scene,camera);let rect=$('viewport').getBoundingClientRect();labels.forEach((el,i)=>{let a=agents[i],p=new THREE.Vector3(a.pos[0],.05,a.pos[1]+1.65).project(camera);el.style.left=(p.x*.5+.5)*rect.width+'px';el.style.top=(-p.y*.5+.5)*rect.height+'px';el.style.opacity=p.z>1?'0':'1';});requestAnimationFrame(animate);}
 function updatePause(){$('pause').textContent=paused?'▷':'Ⅱ';$('pause').setAttribute('aria-label',paused?'Reanudar animación':'Pausar animación');$('pause').title=paused?'Reanudar animación':'Pausar animación';$('pause').setAttribute('aria-pressed',String(paused));}$('pause').onclick=()=>{paused=!paused;updatePause()};updatePause();$('camera').onclick=()=>{azimuth=.18;elevation=.66;resize();};let tourStep=0;$('tour').onclick=()=>{select(tourStep++%7);$('flow-message').textContent=selected<5?`${agents[selected].short} → Gerente · el movimiento ilustra la entrega de evidencia.`:selected===5?'Gerente → Jefe · validación de cinco auditores.':'Jefe → Tú · resumen en el panel; sin commits ni despliegues de agentes.';};
 try{createScene();select(0);}catch(error){frameError=true;$('loading').hidden=false;$('loading').textContent='No se pudo iniciar WebGL. Puedes consultar los agentes y reportes con los controles inferiores.';console.error(error);}
