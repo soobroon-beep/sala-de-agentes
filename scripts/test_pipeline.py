@@ -34,7 +34,16 @@ class Pipeline(unittest.TestCase):
  def test_report_copy_does_not_leak_inventory_or_modify_original(self):
   r=pipeline.validate(self.manager(self.rows()));r['auditores'][0]['componentes']={'interfaz':{'paginas':[{'inventario':[{'etiqueta':'control'}],'recorridos':[]}]}}
   compact,text=report_store.compact(r)
-  self.assertNotIn('inventario',compact['auditores'][0]['componentes']['interfaz']['paginas'][0]);self.assertIn('inventario',r['auditores'][0]['componentes']['interfaz']['paginas'][0]);self.assertLess(len(text),64000)
+  self.assertTrue(compact['auditores'][0]['componentes']['interfaz']['detalle_en_artefactos']);self.assertIn('inventario',r['auditores'][0]['componentes']['interfaz']['paginas'][0]);self.assertLess(len(text),64000)
+ def test_large_evidence_keeps_valid_delivery_and_receipts(self):
+  r=pipeline.validate(self.manager(self.rows()))
+  for a in r['auditores']:
+   a['componentes']={'interfaz':{'resultado':'falló','paginas':[{'inventario':['x'*20000]*30}]}}
+   a['hallazgos']=[{'observado':'á'*30000,'estado':'investigando'}]*25
+  r['jefe']['hallazgos']=r['auditores'][0]['hallazgos']
+  d,text=report_store.compact(r)
+  self.assertLess(len(text.encode()),64000);self.assertEqual(d['jefe']['validacion']['auditores_recibidos'],5)
+  self.assertIn('evidencia_completa',d);self.assertEqual(r['auditores'][0]['hallazgos'][0]['observado'],'á'*30000)
  def test_report_schedules_have_no_repository_or_deploy_write(self):
   workflow=(pipeline.ROOT/'.github/workflows/supervision.yml').read_text()
   self.assertNotIn('contents: write',workflow);self.assertNotIn('pages: write',workflow);self.assertNotIn('git push',workflow);self.assertNotIn('deploy-pages',workflow);self.assertNotIn('issues: write',workflow)

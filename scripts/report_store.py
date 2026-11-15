@@ -21,17 +21,31 @@ def history(limit=100):
   if len(checks)<100:break
  rows.sort(key=lambda x:x.get('generado',''),reverse=True);return rows[:limit]
 def compact(report):
+ # El panel recibe un índice explícito; los artefactos conservan el informe íntegro.
+ def brief(value,depth=0):
+  if isinstance(value,str):return value if len(value)<=400 else value[:400]+'… [detalle en artefactos]'
+  if isinstance(value,list):return [brief(x,depth+1) for x in value[:6]]+([{'detalle_en_artefactos':True,'elementos_adicionales':len(value)-6}] if len(value)>6 else [])
+  if isinstance(value,dict):
+   if depth>=5:return {'detalle_en_artefactos':True}
+   return {k:brief(v,depth+1) for k,v in value.items() if k not in ('inventario','detalle')}
+  return value
  d=copy.deepcopy(report)
+ d['evidencia_completa']={'ubicacion':report.get('url_ejecucion'),'seccion':'Artifacts / informe-jefe-y-recibo y auditor-*','panel':'Resumen acotado; consultar artefactos para evidencias y recorridos íntegros.'}
  for a in d.get('auditores',[]):
-  for p in a.get('componentes',{}).get('interfaz',{}).get('paginas',[]):
-   p['controles_inventariados']=len(p.pop('inventario',[]));p['recorridos']=p.get('recorridos',[])[:20];p['red_fallida']=p.get('red_fallida',[])[:12]
-  code=a.get('componentes',{}).get('codigo',{});code.pop('detalle',None)
+  components=a.pop('componentes',{})
+  a['componentes']={k:{'resultado':v.get('resultado'),'resumen':v.get('resumen'),'detalle_en_artefactos':True} for k,v in components.items()}
+  a['hallazgos']=brief(a.get('hallazgos',[]));a['evidencia']=brief(a.get('evidencia',{}))
+ for section in ('gerente','jefe'):
+  for key in ('hallazgos_consolidados','hallazgos','correlaciones'):
+   if key in d.get(section,{}):d[section][key]=brief(d[section][key])
  text=json.dumps(d,ensure_ascii=False,separators=(',',':'))
- if len(text)>60000:
-  for a in d.get('auditores',[]):
-   for p in a.get('componentes',{}).get('interfaz',{}).get('paginas',[]):p.pop('recorridos',None)
+ if len(text.encode('utf-8'))>60000:
+  d['auditores']=[{k:a[k] for k in ('agente','aplicacion','resultado','fecha','resumen','componentes') if k in a} for a in d['auditores']]
+  for section in ('gerente','jefe'):
+   for key in ('hallazgos_consolidados','hallazgos','correlaciones'):
+    if key in d.get(section,{}):d[section][key]=[{'detalle_en_artefactos':True}]
   text=json.dumps(d,ensure_ascii=False,separators=(',',':'))
- if len(text)>64000:raise ValueError('Informe demasiado grande; se conserva en artefactos, no se trunca silenciosamente.')
+ if len(text.encode('utf-8'))>64000:raise ValueError('Índice demasiado grande; informe completo conservado en artefactos.')
  return d,text
 def deliver(report):
  d,text=compact(report);lines=['# Informe del Jefe',report['jefe']['resumen'],'','| Aplicación | Estado |','|---|---|']
