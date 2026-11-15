@@ -57,6 +57,7 @@ def manager(rows):
   findings.extend(f for f in manual.get('hallazgos',[]) if f.get('agente')==a)
   base['componentes']=components;base['hallazgos']=findings;base['cobertura_completa']=False;base['resultado_http']=base['resultado']
   if any(r.get('resultado')=='falló' for r in components.values()):base['resultado']='falló';base['resumen']='Se detectaron fallos en las comprobaciones disponibles; ver hallazgos y evidencia.'
+  elif components.get('interfaz',{}).get('resultado')=='no se pudo comprobar':base['resultado']='no se pudo comprobar';base['resumen']='Renderizado comprobado, pero los recorridos no pudieron verificarse (por ejemplo, falta sesión). Ver cobertura y evidencia.'
   elif components:base['resumen']+=' Interfaz, código e integraciones: consultar cobertura; las funciones privadas siguen sin certificar.'
   output.append(base);receipts.append({'auditor':a,'reportes_recibidos':len(group),'tipos':list(components),'fecha':stamp(),'salud_recibida':any('funcion' in r for r in group)})
  return {'agente':'gerente','fecha':stamp(),'resultado':'consolidado','resumen':'Cinco auditorías organizadas y entregadas al propietario, que es el Jefe. Los bloqueos no se marcan como funcionamiento correcto.','auditores':output,'recepciones':receipts,'destinatario':'Propietario · Jefe','responsables':{a:'Auditor de '+v[0] for a,v in TARGETS.items()},'siguiente_paso':'Revisar hallazgos y conectar cuentas de prueba, telemetría y analítica faltantes.'}
