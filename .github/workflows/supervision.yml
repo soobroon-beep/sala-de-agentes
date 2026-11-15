@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: false
 permissions:
   contents: read
+  actions: read
 jobs:
   auditores:
     name: Auditor · ${{ matrix.agente }}
@@ -29,6 +30,8 @@ jobs:
         run: python3 scripts/functional.py "${{ matrix.agente }}" --output out
       - name: Revisar procesos de conexión y aprendizaje
         run: python3 scripts/integrations.py "${{ matrix.agente }}" out
+        env:
+          GH_READ_TOKEN: ${{ github.token }}
       - name: Instalar navegador de auditoría
         if: matrix.agente == 'vortex' || matrix.agente == 'novahub' || matrix.agente == 'neural'
         run: |

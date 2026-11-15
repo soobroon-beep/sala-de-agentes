@@ -13,7 +13,9 @@ def check(agent):
  for repo,flow,limit in CONFIG[agent]:
   url=BASE+repo+'/actions/workflows/'+flow+'/runs?per_page=10'
   try:
-   req=urllib.request.Request(url,headers={'User-Agent':'SalaAuditoria/3.0','Accept':'application/vnd.github+json'})
+   headers={'User-Agent':'SalaAuditoria/3.0','Accept':'application/vnd.github+json'}
+   if os.getenv('GH_READ_TOKEN'):headers['Authorization']='Bearer '+os.environ['GH_READ_TOKEN']
+   req=urllib.request.Request(url,headers=headers)
    with urllib.request.urlopen(req,timeout=15) as r:data=json.load(r)
    runs=data.get('workflow_runs') or []
    run=runs[0] if runs else None
@@ -22,7 +24,7 @@ def check(agent):
    age=(dt.datetime.now(dt.timezone.utc)-dt.datetime.fromisoformat(run['created_at'].replace('Z','+00:00'))).total_seconds()/60
    state='falló' if run['conclusion'] in ['failure','timed_out','action_required'] else 'no se pudo comprobar' if age>limit else 'funciona' if run['conclusion']=='success' or run['status']=='in_progress' else 'no se pudo comprobar'
    rows.append({'flujo':flow,'repositorio':repo,'resultado':state,'estado_github':run['status'],'conclusion':run['conclusion'],'fecha':run['created_at'],'minutos_desde_inicio':round(age),'umbral_minutos':limit,'url':run['html_url'],'cobertura':'Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje.'})
-  except Exception as e:rows.append({'flujo':flow,'repositorio':repo,'resultado':'no se pudo comprobar','motivo':type(e).__name__})
+  except Exception as e:rows.append({'flujo':flow,'repositorio':repo,'resultado':'no se pudo comprobar','motivo':('HTTP '+str(e.code)+'; revisar acceso o cuota de la API' if isinstance(e,urllib.error.HTTPError) else type(e).__name__)})
  return {'agente':agent,'fecha':dt.datetime.now(dt.timezone.utc).isoformat(),'flujos':rows,'bloqueos':['Sin fuente de analítica de visitantes conectada.','Sin acceso de lectura al estado privado actual de cada cerebro, bot y sesión.']}
 if __name__=='__main__':
  import sys
