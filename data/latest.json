@@ -1,16 +1,16 @@
 {
   "version": 3,
-  "generado": "2026-11-15T12:38:10.410235-06:00",
+  "generado": "2026-11-15T12:42:06.322015-06:00",
   "zona_horaria": "America/Mexico_City",
-  "ejecucion": "43747673157",
+  "ejecucion": "43748036578",
   "origen": "push",
-  "url_ejecucion": "https://github.com/soobroon-beep/sala-de-agentes/actions/runs/43747673157",
+  "url_ejecucion": "https://github.com/soobroon-beep/sala-de-agentes/actions/runs/43748036578",
   "operacion_completa_24_7": false,
   "auditores": [
     {
       "agente": "vortex",
       "aplicacion": "Vortex",
-      "fecha": "2026-11-15T12:36:09.820634-06:00",
+      "fecha": "2026-11-15T12:40:12.975853-06:00",
       "resultado": "funciona",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -21,7 +21,7 @@
       "gravedad": "sin incidencia HTTP",
       "evidencia": {
         "http": 200,
-        "ms": 94,
+        "ms": 418,
         "bytes_muestreados": 50651,
         "sha256_muestra": "a5e24f36cfb20c1dc5fb6827aa7a1965070fcc5671c58bdfcf9a00c8766daa86",
         "url_final": "https://soobroon-beep.github.io/Vortex-By-Nova-Nexus/",
@@ -32,9 +32,30 @@
       "resumen": "La página respondió HTTP 200 y contiene el identificador esperado. Interfaz, código e integraciones: consultar cobertura; las funciones privadas siguen sin certificar.",
       "observado": "HTTP 200; identificador presente: True",
       "componentes": {
+        "codigo": {
+          "agente": "vortex",
+          "fecha": "2026-11-15T18:40:13.457913+00:00",
+          "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
+          "resultado": "funciona",
+          "repositorio": "Vortex-By-Nova-Nexus",
+          "commit": "8e06eaf82e215cc16b85fe01cff0e0eac9dea513",
+          "pruebas": [
+            "tests/ai.test.js",
+            "tests/indicators.test.js",
+            "tests/news.test.js",
+            "tests/brain-sync.test.js"
+          ],
+          "salida": 0,
+          "resumen": "Pruebas de código satisfactorias; no certifican datos ni sesiones de producción.",
+          "evidencia": [
+            "ℹ tests 43",
+            "ℹ pass 43",
+            "ℹ fail 0"
+          ]
+        },
         "interfaz": {
           "agente": "vortex",
-          "fecha": "2026-11-15T18:36:31.081Z",
+          "fecha": "2026-11-15T18:40:35.817Z",
           "entorno": "Navegador anónimo sin sesión y con escrituras remotas bloqueadas",
           "politica": "No crear/borrar datos, no conectar cuentas, no enviar prompts a proveedores, no operar en exchanges.",
           "paginas": [
@@ -52,6 +73,22 @@
                   "error": "net::ERR_ABORTED"
                 },
                 {
+                  "url": "https://fapi.binance.com/fapi/v1/openInterest",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://fapi.binance.com/fapi/v1/premiumIndex",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://fapi.binance.com/futures/data/openInterestHist",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://fapi.binance.com/futures/data/globalLongShortAccountRatio",
+                  "error": "net::ERR_FAILED"
+                },
+                {
                   "url": "https://api.binance.com/api/v3/klines",
                   "error": "net::ERR_FAILED"
                 },
@@ -65,22 +102,6 @@
                 },
                 {
                   "url": "https://api.binance.com/api/v3/ticker/24hr",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://fapi.binance.com/futures/data/openInterestHist",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://fapi.binance.com/futures/data/globalLongShortAccountRatio",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://fapi.binance.com/fapi/v1/premiumIndex",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://fapi.binance.com/fapi/v1/openInterest",
                   "error": "net::ERR_FAILED"
                 },
                 {
@@ -158,6 +179,14 @@
                 {
                   "url": "https://api.binance.com/api/v3/ticker/price",
                   "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://api.allorigins.win/raw",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://corsproxy.io/",
+                  "http": 401
                 }
               ],
               "solicitudes_bloqueadas": 0,
@@ -181,8 +210,26 @@
                   "observado": "Cambió el contenido visible al navegar."
                 },
                 {
+                  "control": "Nova Bot Lab",
+                  "selector": "[data-side=\"botLabView\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
+                },
+                {
+                  "control": "Nexus Lens · mi cuenta",
+                  "selector": "[data-side=\"lensView\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
+                },
+                {
                   "control": "IA",
                   "selector": "[data-side=\"aiView\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
+                },
+                {
+                  "control": "Discord",
+                  "selector": "[data-side=\"discordView\"]",
                   "resultado": "funciona",
                   "observado": "Cambió el contenido visible al navegar."
                 },
@@ -250,7 +297,7 @@
                   "id": "splitRBtn",
                   "etiqueta": "Ocultar o mostrar panel derecho",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -307,7 +354,7 @@
                   "atributos": {
                     "data-side": "botLabView"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 11,
@@ -318,7 +365,7 @@
                   "atributos": {
                     "data-side": "lensView"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 12,
@@ -340,7 +387,7 @@
                   "atributos": {
                     "data-side": "discordView"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 14,
@@ -518,7 +565,7 @@
                 {
                   "indice": 33,
                   "id": "",
-                  "etiqueta": "₿BTCBitcoin64,618.20-2.07%",
+                  "etiqueta": "₿BTCBitcoin64,659.10-1.87%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -536,7 +583,7 @@
                 {
                   "indice": 35,
                   "id": "",
-                  "etiqueta": "ΞETHEthereum1,815.13-1.54%",
+                  "etiqueta": "ΞETHEthereum1,817.18-1.26%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -554,7 +601,7 @@
                 {
                   "indice": 37,
                   "id": "",
-                  "etiqueta": "◎SOLSolana70.96-2.51%",
+                  "etiqueta": "◎SOLSolana71.11-2.12%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -572,7 +619,7 @@
                 {
                   "indice": 39,
                   "id": "",
-                  "etiqueta": "◆BNBBNB590.80-0.08%",
+                  "etiqueta": "◆BNBBNB591.23+0.15%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -590,7 +637,7 @@
                 {
                   "indice": 41,
                   "id": "",
-                  "etiqueta": "✕XRPXRP0.9512-0.88%",
+                  "etiqueta": "✕XRPXRP0.9526-0.40%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -608,7 +655,7 @@
                 {
                   "indice": 43,
                   "id": "",
-                  "etiqueta": "ÐDOGEDogecoin0.0587-2.78%",
+                  "etiqueta": "ÐDOGEDogecoin0.0588-2.42%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -662,7 +709,7 @@
                 {
                   "indice": 49,
                   "id": "",
-                  "etiqueta": "₿BTCVol 2.3B64,613.07-1.94%✓",
+                  "etiqueta": "₿BTCVol 2.3B64,659.95-1.82%✓",
                   "tag": "DIV",
                   "visible": true,
                   "atributos": {},
@@ -671,7 +718,7 @@
                 {
                   "indice": 50,
                   "id": "",
-                  "etiqueta": "ΞETHVol 977M1,814.87-1.38%✓",
+                  "etiqueta": "ΞETHVol 976M1,816.77-1.20%✓",
                   "tag": "DIV",
                   "visible": true,
                   "atributos": {},
@@ -680,7 +727,7 @@
                 {
                   "indice": 51,
                   "id": "",
-                  "etiqueta": "◎SOLVol 397M70.94-2.41%✓",
+                  "etiqueta": "◎SOLVol 397M71.10-2.05%✓",
                   "tag": "DIV",
                   "visible": true,
                   "atributos": {},
@@ -689,7 +736,7 @@
                 {
                   "indice": 52,
                   "id": "",
-                  "etiqueta": "✕XRPVol 232M0.9510-0.69%✓",
+                  "etiqueta": "✕XRPVol 231M0.9527-0.31%✓",
                   "tag": "DIV",
                   "visible": true,
                   "atributos": {},
@@ -698,9 +745,9 @@
                 {
                   "indice": 53,
                   "id": "",
-                  "etiqueta": "ZZECVol 206M896.44+4.98%＋",
+                  "etiqueta": "ZZECVol 205M896.58+4.95%＋",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -709,25 +756,25 @@
                   "id": "",
                   "etiqueta": "Añadir ZEC a mi seguimiento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 55,
                   "id": "",
-                  "etiqueta": "◆BNBVol 112M590.75+0.05%✓",
+                  "etiqueta": "◆BNBVol 112M591.18+0.21%✓",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 56,
                   "id": "",
-                  "etiqueta": "NNEARVol 101M3.13+0.19%＋",
+                  "etiqueta": "NNEARVol 101M3.13+0.61%＋",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -736,16 +783,16 @@
                   "id": "",
                   "etiqueta": "Añadir NEAR a mi seguimiento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 58,
                   "id": "",
-                  "etiqueta": "HHYPEVol 83M66.57+1.39%＋",
+                  "etiqueta": "HHYPEVol 83M66.62+1.73%＋",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -754,25 +801,25 @@
                   "id": "",
                   "etiqueta": "Añadir HYPE a mi seguimiento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 60,
                   "id": "",
-                  "etiqueta": "ÐDOGEVol 79M0.0587-2.64%✓",
+                  "etiqueta": "ÐDOGEVol 79M0.0588-2.36%✓",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 61,
                   "id": "",
-                  "etiqueta": "UUNIVol 54M5.16+2.83%＋",
+                  "etiqueta": "UUNIVol 54M5.17+3.28%＋",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -781,7 +828,7 @@
                   "id": "",
                   "etiqueta": "Añadir UNI a mi seguimiento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -790,7 +837,7 @@
                   "id": "popMore",
                   "etiqueta": "Ver más",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -1069,7 +1116,7 @@
                   "id": "wlAddFab",
                   "etiqueta": "BTC ya está en Mi seguimiento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -3529,7 +3576,7 @@
                   "id": "closeSheet",
                   "etiqueta": "Cerrar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -3617,7 +3664,7 @@
                 {
                   "indice": 376,
                   "id": "",
-                  "etiqueta": "",
+                  "etiqueta": "¿Te digo cuál se mueve más?×",
                   "tag": "BUTTON",
                   "visible": false,
                   "atributos": {},
@@ -3626,46 +3673,20 @@
                 {
                   "indice": 377,
                   "id": "",
-                  "etiqueta": "Cerrar y seguir gratis",
-                  "tag": "BUTTON",
-                  "visible": true,
-                  "atributos": {},
-                  "cobertura": "Inventariado; acción no ejercitada"
-                },
-                {
-                  "indice": 378,
-                  "id": "",
-                  "etiqueta": "G Iniciar sesión con Google",
-                  "tag": "BUTTON",
-                  "visible": true,
-                  "atributos": {},
-                  "cobertura": "Inventariado; acción no ejercitada"
-                },
-                {
-                  "indice": 379,
-                  "id": "",
-                  "etiqueta": "Ver los planes",
-                  "tag": "BUTTON",
-                  "visible": true,
-                  "atributos": {},
-                  "cobertura": "Inventariado; acción no ejercitada"
-                },
-                {
-                  "indice": 380,
-                  "id": "",
-                  "etiqueta": "Seguir con el plan Gratis",
-                  "tag": "BUTTON",
-                  "visible": true,
+                  "etiqueta": "Cerrar mensaje",
+                  "tag": "SPAN",
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 }
               ],
               "resultado": "funciona",
               "http": 200,
-              "carga_ms": 4080,
+              "carga_ms": 4580,
               "titulo": "VORTEX · Powered by Nova Nexus",
               "desbordamiento_horizontal": false,
-              "cobertura": "6/381 controles inventariados con navegación ejercitada",
+              "renderizado": "funciona",
+              "cobertura": "9/378 controles inventariados con navegación ejercitada",
               "bloqueos": [
                 "Controles de guardar, borrar, comprar, operar, autenticarse, conectar y enviar datos no ejercitados.",
                 "IA y cerebros privados requieren cuenta de prueba autorizada.",
@@ -3706,32 +3727,32 @@
                   "http": 403
                 },
                 {
+                  "url": "https://api.binance.com/api/v3/klines",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://api.binance.com/api/v3/klines",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://api.binance.com/api/v3/klines",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://api.binance.com/api/v3/klines",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://api.binance.com/api/v3/klines",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://api.binance.com/api/v3/klines",
+                  "error": "net::ERR_FAILED"
+                },
+                {
                   "url": "https://api.rss2json.com/v1/api.json",
                   "http": 422
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
                 },
                 {
                   "url": "https://es.cointelegraph.com/rss",
@@ -3746,60 +3767,40 @@
                   "http": 401
                 },
                 {
+                  "url": "https://fapi.binance.com/fapi/v1/premiumIndex",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://fapi.binance.com/fapi/v1/openInterest",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://fapi.binance.com/futures/data/openInterestHist",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://fapi.binance.com/futures/data/globalLongShortAccountRatio",
+                  "error": "net::ERR_FAILED"
+                },
+                {
+                  "url": "https://vortex-push.soobroon.workers.dev/mkt",
+                  "http": 403
+                },
+                {
+                  "url": "https://vortex-push.soobroon.workers.dev/mkt",
+                  "http": 403
+                },
+                {
+                  "url": "https://vortex-push.soobroon.workers.dev/mkt",
+                  "http": 403
+                },
+                {
+                  "url": "https://vortex-push.soobroon.workers.dev/mkt",
+                  "http": 403
+                },
+                {
                   "url": "https://thingproxy.freeboard.io/fetch/https://es.cointelegraph.com/rss",
                   "error": "net::ERR_NAME_NOT_RESOLVED"
-                },
-                {
-                  "url": "https://api.codetabs.com/v1/proxy",
-                  "error": "net::ERR_ABORTED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
-                },
-                {
-                  "url": "https://api.binance.com/api/v3/klines",
-                  "error": "net::ERR_FAILED"
                 }
               ],
               "solicitudes_bloqueadas": 0,
@@ -3807,44 +3808,44 @@
                 {
                   "control": "Ajustes",
                   "selector": "#settingsBtn",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
                   "control": "Seguimiento",
                   "selector": "[data-view=\"watchView\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
                   "control": "Gráfico",
                   "selector": "[data-view=\"chartView\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
                   "control": "Noticias",
                   "selector": "[data-view=\"newsView\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
                   "control": "IA",
                   "selector": "[data-view=\"aiView\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
                   "control": "Screener",
                   "selector": "[data-view=\"screenerView\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
                   "control": "Lens",
                   "selector": "[data-view=\"lensView\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 }
               ],
               "inventario": [
@@ -3873,7 +3874,7 @@
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 3,
@@ -4166,7 +4167,7 @@
                 {
                   "indice": 33,
                   "id": "",
-                  "etiqueta": "₿BTCBitcoin64,647.90-2.03%",
+                  "etiqueta": "₿BTCBitcoin64,654.50-1.88%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4184,7 +4185,7 @@
                 {
                   "indice": 35,
                   "id": "",
-                  "etiqueta": "ΞETHEthereum1,815.84-1.50%",
+                  "etiqueta": "ΞETHEthereum1,817.18-1.26%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4202,7 +4203,7 @@
                 {
                   "indice": 37,
                   "id": "",
-                  "etiqueta": "◎SOLSolana71.03-2.42%",
+                  "etiqueta": "◎SOLSolana71.07-2.17%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4220,7 +4221,7 @@
                 {
                   "indice": 39,
                   "id": "",
-                  "etiqueta": "◆BNBBNB590.96-0.05%",
+                  "etiqueta": "◆BNBBNB591.08+0.13%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4238,7 +4239,7 @@
                 {
                   "indice": 41,
                   "id": "",
-                  "etiqueta": "✕XRPXRP0.9517-0.82%",
+                  "etiqueta": "✕XRPXRP0.9526-0.40%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4256,7 +4257,7 @@
                 {
                   "indice": 43,
                   "id": "",
-                  "etiqueta": "ÐDOGEDogecoin0.0587-2.75%",
+                  "etiqueta": "ÐDOGEDogecoin0.0588-2.44%",
                   "tag": "BUTTON",
                   "visible": true,
                   "atributos": {},
@@ -4276,7 +4277,7 @@
                   "id": "",
                   "etiqueta": "Hoy",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -4285,7 +4286,7 @@
                   "id": "",
                   "etiqueta": "Tendencia",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -4294,7 +4295,7 @@
                   "id": "",
                   "etiqueta": "Semana",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -4303,52 +4304,52 @@
                   "id": "",
                   "etiqueta": "Mes",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 49,
                   "id": "",
-                  "etiqueta": "₿BTCVol 2.3B64,646.00-1.92%✓",
+                  "etiqueta": "₿BTCVol 2.3B64,650.98-1.86%✓",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 50,
                   "id": "",
-                  "etiqueta": "ΞETHVol 977M1,815.67-1.36%✓",
+                  "etiqueta": "ΞETHVol 976M1,816.36-1.25%✓",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 51,
                   "id": "",
-                  "etiqueta": "◎SOLVol 397M71.02-2.32%✓",
+                  "etiqueta": "◎SOLVol 397M71.08-2.04%✓",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 52,
                   "id": "",
-                  "etiqueta": "✕XRPVol 232M0.9517-0.67%✓",
+                  "etiqueta": "✕XRPVol 231M0.9524-0.37%✓",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 53,
                   "id": "",
-                  "etiqueta": "ZZECVol 206M897.07+4.96%＋",
+                  "etiqueta": "ZZECVol 205M896.44+4.82%＋",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -4357,25 +4358,25 @@
                   "id": "",
                   "etiqueta": "Añadir ZEC a mi seguimiento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 55,
                   "id": "",
-                  "etiqueta": "◆BNBVol 112M590.96+0.06%✓",
+                  "etiqueta": "◆BNBVol 112M591.12+0.20%✓",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 56,
                   "id": "",
-                  "etiqueta": "NNEARVol 101M3.13+0.16%＋",
+                  "etiqueta": "NNEARVol 101M3.13+0.61%＋",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -4384,16 +4385,16 @@
                   "id": "",
                   "etiqueta": "Añadir NEAR a mi seguimiento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 58,
                   "id": "",
-                  "etiqueta": "HHYPEVol 83M66.61+1.43%＋",
+                  "etiqueta": "HHYPEVol 83M66.59+1.66%＋",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -4402,25 +4403,25 @@
                   "id": "",
                   "etiqueta": "Añadir HYPE a mi seguimiento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 60,
                   "id": "",
-                  "etiqueta": "ÐDOGEVol 79M0.0587-2.64%✓",
+                  "etiqueta": "ÐDOGEVol 79M0.0588-2.39%✓",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 61,
                   "id": "",
-                  "etiqueta": "UUNIVol 54M5.17+2.91%＋",
+                  "etiqueta": "UUNIVol 54M5.16+3.18%＋",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -4429,7 +4430,7 @@
                   "id": "",
                   "etiqueta": "Añadir UNI a mi seguimiento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -4438,7 +4439,7 @@
                   "id": "popMore",
                   "etiqueta": "Ver más",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -7034,7 +7035,7 @@
                   "atributos": {
                     "data-view": "watchView"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 352,
@@ -7045,7 +7046,7 @@
                   "atributos": {
                     "data-view": "chartView"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 353,
@@ -7056,7 +7057,7 @@
                   "atributos": {
                     "data-view": "newsView"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 354,
@@ -7067,7 +7068,7 @@
                   "atributos": {
                     "data-view": "aiView"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 355,
@@ -7078,7 +7079,7 @@
                   "atributos": {
                     "data-view": "screenerView"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 356,
@@ -7089,14 +7090,14 @@
                   "atributos": {
                     "data-view": "lensView"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 357,
                   "id": "closeSheet",
                   "etiqueta": "Cerrar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -7184,7 +7185,7 @@
                 {
                   "indice": 367,
                   "id": "",
-                  "etiqueta": "",
+                  "etiqueta": "¿Te digo cuál se mueve más?×",
                   "tag": "BUTTON",
                   "visible": false,
                   "atributos": {},
@@ -7193,46 +7194,20 @@
                 {
                   "indice": 368,
                   "id": "",
-                  "etiqueta": "Cerrar y seguir gratis",
-                  "tag": "BUTTON",
-                  "visible": true,
-                  "atributos": {},
-                  "cobertura": "Inventariado; acción no ejercitada"
-                },
-                {
-                  "indice": 369,
-                  "id": "",
-                  "etiqueta": "G Iniciar sesión con Google",
-                  "tag": "BUTTON",
-                  "visible": true,
-                  "atributos": {},
-                  "cobertura": "Inventariado; acción no ejercitada"
-                },
-                {
-                  "indice": 370,
-                  "id": "",
-                  "etiqueta": "Ver los planes",
-                  "tag": "BUTTON",
-                  "visible": true,
-                  "atributos": {},
-                  "cobertura": "Inventariado; acción no ejercitada"
-                },
-                {
-                  "indice": 371,
-                  "id": "",
-                  "etiqueta": "Seguir con el plan Gratis",
-                  "tag": "BUTTON",
-                  "visible": true,
+                  "etiqueta": "Cerrar mensaje",
+                  "tag": "SPAN",
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 }
               ],
               "resultado": "funciona",
               "http": 200,
-              "carga_ms": 3858,
+              "carga_ms": 3845,
               "titulo": "VORTEX · Powered by Nova Nexus",
               "desbordamiento_horizontal": false,
-              "cobertura": "0/372 controles inventariados con navegación ejercitada",
+              "renderizado": "funciona",
+              "cobertura": "7/369 controles inventariados con navegación ejercitada",
               "bloqueos": [
                 "Controles de guardar, borrar, comprar, operar, autenticarse, conectar y enviar datos no ejercitados.",
                 "IA y cerebros privados requieren cuenta de prueba autorizada.",
@@ -7244,7 +7219,7 @@
         },
         "integraciones": {
           "agente": "vortex",
-          "fecha": "2026-11-15T18:36:11.495646+00:00",
+          "fecha": "2026-11-15T18:40:15.871723+00:00",
           "flujos": [
             {
               "flujo": "brain-sync.yml",
@@ -7253,7 +7228,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T13:41:50Z",
-              "minutos_desde_inicio": 294,
+              "minutos_desde_inicio": 298,
               "umbral_minutos": 150,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43720340088",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -7265,7 +7240,7 @@
               "estado_github": "pending",
               "conclusion": null,
               "fecha": "2026-11-15T15:17:04Z",
-              "minutos_desde_inicio": 199,
+              "minutos_desde_inicio": 203,
               "umbral_minutos": 360,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43729004648",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -7274,27 +7249,6 @@
           "bloqueos": [
             "Sin fuente de analítica de visitantes conectada.",
             "Sin acceso de lectura al estado privado actual de cada cerebro, bot y sesión."
-          ]
-        },
-        "codigo": {
-          "agente": "vortex",
-          "fecha": "2026-11-15T18:36:09.981194+00:00",
-          "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
-          "resultado": "funciona",
-          "repositorio": "Vortex-By-Nova-Nexus",
-          "commit": "8e06eaf82e215cc16b85fe01cff0e0eac9dea513",
-          "pruebas": [
-            "tests/ai.test.js",
-            "tests/indicators.test.js",
-            "tests/news.test.js",
-            "tests/brain-sync.test.js"
-          ],
-          "salida": 0,
-          "resumen": "Pruebas de código satisfactorias; no certifican datos ni sesiones de producción.",
-          "evidencia": [
-            "ℹ tests 43",
-            "ℹ pass 43",
-            "ℹ fail 0"
           ]
         }
       },
@@ -7310,7 +7264,7 @@
             "estado_github": "completed",
             "conclusion": "success",
             "fecha": "2026-11-15T13:41:50Z",
-            "minutos_desde_inicio": 294,
+            "minutos_desde_inicio": 298,
             "umbral_minutos": 150,
             "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43720340088",
             "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -7331,7 +7285,7 @@
             "estado_github": "pending",
             "conclusion": null,
             "fecha": "2026-11-15T15:17:04Z",
-            "minutos_desde_inicio": 199,
+            "minutos_desde_inicio": 203,
             "umbral_minutos": 360,
             "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43729004648",
             "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -7348,7 +7302,7 @@
     {
       "agente": "novahub",
       "aplicacion": "Nova Hub",
-      "fecha": "2026-11-15T12:36:09.455856-06:00",
+      "fecha": "2026-11-15T12:40:12.192382-06:00",
       "resultado": "funciona",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -7359,7 +7313,7 @@
       "gravedad": "sin incidencia HTTP",
       "evidencia": {
         "http": 200,
-        "ms": 243,
+        "ms": 129,
         "bytes_muestreados": 630204,
         "sha256_muestra": "3bf86143a6986d6b4b632fcb588e13cf369678e047d92576728864d44e68f43f",
         "url_final": "https://soobroon-beep.github.io/Nova-HUB/",
@@ -7370,43 +7324,9 @@
       "resumen": "La página respondió HTTP 200 y contiene el identificador esperado. Interfaz, código e integraciones: consultar cobertura; las funciones privadas siguen sin certificar.",
       "observado": "HTTP 200; identificador presente: True",
       "componentes": {
-        "integraciones": {
-          "agente": "novahub",
-          "fecha": "2026-11-15T18:36:17.428555+00:00",
-          "flujos": [
-            {
-              "flujo": "brain-sync.yml",
-              "repositorio": "Nova-HUB",
-              "resultado": "funciona",
-              "estado_github": "completed",
-              "conclusion": "success",
-              "fecha": "2026-11-15T16:44:27Z",
-              "minutos_desde_inicio": 112,
-              "umbral_minutos": 150,
-              "url": "https://github.com/soobroon-beep/Nova-HUB/actions/runs/43737161121",
-              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
-            },
-            {
-              "flujo": "backup-firestore.yml",
-              "repositorio": "Nova-HUB",
-              "resultado": "funciona",
-              "estado_github": "completed",
-              "conclusion": "success",
-              "fecha": "2026-11-15T16:29:50Z",
-              "minutos_desde_inicio": 126,
-              "umbral_minutos": 1800,
-              "url": "https://github.com/soobroon-beep/Nova-HUB/actions/runs/43735781056",
-              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
-            }
-          ],
-          "bloqueos": [
-            "Sin fuente de analítica de visitantes conectada.",
-            "Sin acceso de lectura al estado privado actual de cada cerebro, bot y sesión."
-          ]
-        },
         "codigo": {
           "agente": "novahub",
-          "fecha": "2026-11-15T18:36:09.747310+00:00",
+          "fecha": "2026-11-15T18:40:12.400354+00:00",
           "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
           "resultado": "funciona",
           "repositorio": "Nova-HUB",
@@ -7427,9 +7347,43 @@
             "ℹ fail 0"
           ]
         },
+        "integraciones": {
+          "agente": "novahub",
+          "fecha": "2026-11-15T18:40:25.698584+00:00",
+          "flujos": [
+            {
+              "flujo": "brain-sync.yml",
+              "repositorio": "Nova-HUB",
+              "resultado": "funciona",
+              "estado_github": "completed",
+              "conclusion": "success",
+              "fecha": "2026-11-15T16:44:27Z",
+              "minutos_desde_inicio": 116,
+              "umbral_minutos": 150,
+              "url": "https://github.com/soobroon-beep/Nova-HUB/actions/runs/43737161121",
+              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
+            },
+            {
+              "flujo": "backup-firestore.yml",
+              "repositorio": "Nova-HUB",
+              "resultado": "funciona",
+              "estado_github": "completed",
+              "conclusion": "success",
+              "fecha": "2026-11-15T16:29:50Z",
+              "minutos_desde_inicio": 131,
+              "umbral_minutos": 1800,
+              "url": "https://github.com/soobroon-beep/Nova-HUB/actions/runs/43735781056",
+              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
+            }
+          ],
+          "bloqueos": [
+            "Sin fuente de analítica de visitantes conectada.",
+            "Sin acceso de lectura al estado privado actual de cada cerebro, bot y sesión."
+          ]
+        },
         "interfaz": {
           "agente": "novahub",
-          "fecha": "2026-11-15T18:36:32.230Z",
+          "fecha": "2026-11-15T18:40:46.664Z",
           "entorno": "Navegador anónimo sin sesión y con escrituras remotas bloqueadas",
           "politica": "No crear/borrar datos, no conectar cuentas, no enviar prompts a proveedores, no operar en exchanges.",
           "paginas": [
@@ -7444,12 +7398,6 @@
               "red_fallida": [],
               "solicitudes_bloqueadas": 0,
               "recorridos": [
-                {
-                  "control": "Abrir Asistente",
-                  "selector": "[data-view=\"ai\"]",
-                  "resultado": "funciona",
-                  "observado": "Cambió el contenido visible al navegar."
-                },
                 {
                   "control": "Dashboard",
                   "selector": "[data-dock=\"dashboard\"]",
@@ -7737,7 +7685,7 @@
                   "id": "",
                   "etiqueta": "Desfijar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -7746,7 +7694,7 @@
                   "id": "",
                   "etiqueta": "✓",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -7755,18 +7703,18 @@
                   "id": "",
                   "etiqueta": "Abrir Asistente",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "ai"
                   },
-                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
+                  "cobertura": "Inventariado; acción no ejercitada"
                 },
                 {
                   "indice": 25,
                   "id": "calPrev",
                   "etiqueta": "‹",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -7775,7 +7723,7 @@
                   "id": "calNext",
                   "etiqueta": "›",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8045,7 +7993,7 @@
                   "id": "tbPlus",
                   "etiqueta": "Crear",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8054,7 +8002,7 @@
                   "id": "noteCancel",
                   "etiqueta": "Cerrar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8063,7 +8011,7 @@
                   "id": "noteSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8072,7 +8020,7 @@
                   "id": "",
                   "etiqueta": "Negrita",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8081,7 +8029,7 @@
                   "id": "",
                   "etiqueta": "Cursiva",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8090,7 +8038,7 @@
                   "id": "",
                   "etiqueta": "Tachar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8099,7 +8047,7 @@
                   "id": "",
                   "etiqueta": "Subtítulo",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8108,7 +8056,7 @@
                   "id": "",
                   "etiqueta": "Lista con viñetas",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8117,7 +8065,7 @@
                   "id": "",
                   "etiqueta": "Lista numerada",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8126,7 +8074,7 @@
                   "id": "",
                   "etiqueta": "Lista de pendientes",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8135,7 +8083,7 @@
                   "id": "",
                   "etiqueta": "Quitar formato",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8144,7 +8092,7 @@
                   "id": "",
                   "etiqueta": "Color",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8153,7 +8101,7 @@
                   "id": "",
                   "etiqueta": "sellEtiquetas",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8162,7 +8110,7 @@
                   "id": "",
                   "etiqueta": "auto_awesomeGlow",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8405,7 +8353,7 @@
                   "id": "",
                   "etiqueta": "Carmesí",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8414,7 +8362,7 @@
                   "id": "",
                   "etiqueta": "Oro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8423,7 +8371,7 @@
                   "id": "",
                   "etiqueta": "Jade",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8432,7 +8380,7 @@
                   "id": "",
                   "etiqueta": "Negro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8441,7 +8389,7 @@
                   "id": "",
                   "etiqueta": "Violeta",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8450,7 +8398,7 @@
                   "id": "",
                   "etiqueta": "Azul",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8459,7 +8407,7 @@
                   "id": "",
                   "etiqueta": "Turquesa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8468,7 +8416,7 @@
                   "id": "",
                   "etiqueta": "Naranja",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8477,7 +8425,7 @@
                   "id": "",
                   "etiqueta": "Rosa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8486,7 +8434,7 @@
                   "id": "",
                   "etiqueta": "Piedra",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8504,7 +8452,7 @@
                   "id": "evCancel",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8513,7 +8461,7 @@
                   "id": "evSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8522,7 +8470,7 @@
                   "id": "",
                   "etiqueta": "Carmesí",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8531,7 +8479,7 @@
                   "id": "",
                   "etiqueta": "Oro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8540,7 +8488,7 @@
                   "id": "",
                   "etiqueta": "Jade",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8549,7 +8497,7 @@
                   "id": "",
                   "etiqueta": "Negro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8558,7 +8506,7 @@
                   "id": "",
                   "etiqueta": "Violeta",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8567,7 +8515,7 @@
                   "id": "",
                   "etiqueta": "Azul",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8576,7 +8524,7 @@
                   "id": "",
                   "etiqueta": "Turquesa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8585,7 +8533,7 @@
                   "id": "",
                   "etiqueta": "Naranja",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8594,7 +8542,7 @@
                   "id": "",
                   "etiqueta": "Rosa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8603,7 +8551,7 @@
                   "id": "",
                   "etiqueta": "Piedra",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8612,7 +8560,7 @@
                   "id": "",
                   "etiqueta": "◎Órbita",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8621,7 +8569,7 @@
                   "id": "",
                   "etiqueta": "✧Glow",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8630,7 +8578,7 @@
                   "id": "",
                   "etiqueta": "▤Stack",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8639,7 +8587,7 @@
                   "id": "",
                   "etiqueta": "✦Launch",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8648,7 +8596,7 @@
                   "id": "",
                   "etiqueta": "◉Pulse",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8657,7 +8605,7 @@
                   "id": "",
                   "etiqueta": "≋Wave",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8666,7 +8614,7 @@
                   "id": "",
                   "etiqueta": "╱Shimmer",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8675,7 +8623,7 @@
                   "id": "",
                   "etiqueta": "◒Aurora",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8684,7 +8632,7 @@
                   "id": "",
                   "etiqueta": "☄Cometa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8693,7 +8641,7 @@
                   "id": "",
                   "etiqueta": "⁙Partículas",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8702,7 +8650,7 @@
                   "id": "",
                   "etiqueta": "⌖Radar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8711,7 +8659,7 @@
                   "id": "",
                   "etiqueta": "◇Prisma",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8720,7 +8668,7 @@
                   "id": "",
                   "etiqueta": "◌Respirar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8729,7 +8677,7 @@
                   "id": "",
                   "etiqueta": "✳Destellos",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8738,7 +8686,7 @@
                   "id": "",
                   "etiqueta": "▥Escáner",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8747,7 +8695,7 @@
                   "id": "",
                   "etiqueta": "⊛Vórtice",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8756,7 +8704,7 @@
                   "id": "projCancel",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8765,7 +8713,7 @@
                   "id": "projSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8774,7 +8722,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8783,7 +8731,7 @@
                   "id": "habitSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8792,7 +8740,7 @@
                   "id": "",
                   "etiqueta": "Carmesí",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8801,7 +8749,7 @@
                   "id": "",
                   "etiqueta": "Oro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8810,7 +8758,7 @@
                   "id": "",
                   "etiqueta": "Jade",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8819,7 +8767,7 @@
                   "id": "",
                   "etiqueta": "Negro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8828,7 +8776,7 @@
                   "id": "",
                   "etiqueta": "Violeta",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8837,7 +8785,7 @@
                   "id": "",
                   "etiqueta": "Azul",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8846,7 +8794,7 @@
                   "id": "",
                   "etiqueta": "Turquesa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8855,7 +8803,7 @@
                   "id": "",
                   "etiqueta": "Naranja",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8864,7 +8812,7 @@
                   "id": "",
                   "etiqueta": "Rosa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8873,7 +8821,7 @@
                   "id": "",
                   "etiqueta": "Piedra",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8891,7 +8839,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8900,7 +8848,7 @@
                   "id": "blockSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8909,7 +8857,7 @@
                   "id": "",
                   "etiqueta": "Carmesí",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8918,7 +8866,7 @@
                   "id": "",
                   "etiqueta": "Oro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8927,7 +8875,7 @@
                   "id": "",
                   "etiqueta": "Jade",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8936,7 +8884,7 @@
                   "id": "",
                   "etiqueta": "Negro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8945,7 +8893,7 @@
                   "id": "",
                   "etiqueta": "Violeta",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8954,7 +8902,7 @@
                   "id": "",
                   "etiqueta": "Azul",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8963,7 +8911,7 @@
                   "id": "",
                   "etiqueta": "Turquesa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8972,7 +8920,7 @@
                   "id": "",
                   "etiqueta": "Naranja",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8981,7 +8929,7 @@
                   "id": "",
                   "etiqueta": "Rosa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8990,7 +8938,7 @@
                   "id": "",
                   "etiqueta": "Piedra",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -8999,7 +8947,7 @@
                   "id": "remCancel",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9008,7 +8956,7 @@
                   "id": "remSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9017,7 +8965,7 @@
                   "id": "qaCancel",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9026,7 +8974,7 @@
                   "id": "qaSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9035,7 +8983,7 @@
                   "id": "authSetupOk",
                   "etiqueta": "Entendido",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9141,10 +9089,11 @@
               ],
               "resultado": "funciona",
               "http": 200,
-              "carga_ms": 4161,
+              "carga_ms": 4283,
               "titulo": "NOVA HUB",
               "desbordamiento_horizontal": false,
-              "cobertura": "11/174 controles inventariados con navegación ejercitada",
+              "renderizado": "funciona",
+              "cobertura": "10/174 controles inventariados con navegación ejercitada",
               "bloqueos": [
                 "Controles de guardar, borrar, comprar, operar, autenticarse, conectar y enviar datos no ejercitados.",
                 "IA y cerebros privados requieren cuenta de prueba autorizada.",
@@ -9163,64 +9112,46 @@
               "solicitudes_bloqueadas": 0,
               "recorridos": [
                 {
-                  "control": "dashboard Dashboard",
-                  "selector": "[data-view=\"dashboard\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "control": "Calendario",
+                  "selector": "[data-tab=\"calendar\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
-                  "control": "calendar_month Calendario & Horario",
-                  "selector": "[data-view=\"calendar\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "control": "Notas",
+                  "selector": "[data-tab=\"notes\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
-                  "control": "sticky_note_2 Notas",
-                  "selector": "[data-view=\"notes\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "control": "rocket_launchProyectos",
+                  "selector": "[data-tab=\"projects\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
-                  "control": "rocket_launch Proyectos",
-                  "selector": "[data-view=\"projects\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "control": "Recordatorios",
+                  "selector": "[data-tab=\"reminders\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
-                  "control": "notifications_active Recordatorios",
-                  "selector": "[data-view=\"reminders\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "control": "Diario",
+                  "selector": "[data-tab=\"diary\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
-                  "control": "menu_book Diario",
-                  "selector": "[data-view=\"diary\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "control": "Hábitos",
+                  "selector": "[data-tab=\"habits\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 },
                 {
-                  "control": "local_fire_department Hábitos",
-                  "selector": "[data-view=\"habits\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
-                },
-                {
-                  "control": "light_mode Briefing diario",
-                  "selector": "[data-view=\"briefing\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
-                },
-                {
-                  "control": "auto_awesome IA Asistente",
-                  "selector": "[data-view=\"ai\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
-                },
-                {
-                  "control": "settings Ajustes",
-                  "selector": "[data-view=\"settings\"]",
-                  "resultado": "no se pudo comprobar",
-                  "observado": "locator.click: Timeout 3000ms exceeded."
+                  "control": "Ajustes",
+                  "selector": "[data-tab=\"settings\"]",
+                  "resultado": "funciona",
+                  "observado": "Cambió el contenido visible al navegar."
                 }
               ],
               "inventario": [
@@ -9229,7 +9160,7 @@
                   "id": "",
                   "etiqueta": "dashboard Dashboard",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "dashboard"
                   },
@@ -9240,7 +9171,7 @@
                   "id": "",
                   "etiqueta": "calendar_month Calendario & Horario",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "calendar"
                   },
@@ -9251,7 +9182,7 @@
                   "id": "",
                   "etiqueta": "sticky_note_2 Notas",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "notes"
                   },
@@ -9262,7 +9193,7 @@
                   "id": "",
                   "etiqueta": "rocket_launch Proyectos",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "projects"
                   },
@@ -9273,7 +9204,7 @@
                   "id": "",
                   "etiqueta": "notifications_active Recordatorios",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "reminders"
                   },
@@ -9284,7 +9215,7 @@
                   "id": "",
                   "etiqueta": "menu_book Diario",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "diary"
                   },
@@ -9295,7 +9226,7 @@
                   "id": "",
                   "etiqueta": "local_fire_department Hábitos",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "habits"
                   },
@@ -9306,7 +9237,7 @@
                   "id": "",
                   "etiqueta": "light_mode Briefing diario",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "briefing"
                   },
@@ -9317,7 +9248,7 @@
                   "id": "",
                   "etiqueta": "🌿 Zona Relax",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "relax"
                   },
@@ -9328,7 +9259,7 @@
                   "id": "",
                   "etiqueta": "auto_awesome IA Asistente",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "ai"
                   },
@@ -9339,7 +9270,7 @@
                   "id": "",
                   "etiqueta": "settings Ajustes",
                   "tag": "DIV",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "settings"
                   },
@@ -9449,7 +9380,7 @@
                   "id": "",
                   "etiqueta": "Desfijar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9458,7 +9389,7 @@
                   "id": "",
                   "etiqueta": "✓",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9467,7 +9398,7 @@
                   "id": "",
                   "etiqueta": "Abrir Asistente",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {
                     "data-view": "ai"
                   },
@@ -9478,7 +9409,7 @@
                   "id": "calPrev",
                   "etiqueta": "‹",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9487,7 +9418,7 @@
                   "id": "calNext",
                   "etiqueta": "›",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9626,7 +9557,7 @@
                   "id": "",
                   "etiqueta": "auto_awesomeIA rápida",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9635,7 +9566,7 @@
                   "id": "",
                   "etiqueta": "sticky_note_2Nueva nota",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9644,7 +9575,7 @@
                   "id": "",
                   "etiqueta": "rocket_launchNuevo proyecto",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9653,7 +9584,7 @@
                   "id": "",
                   "etiqueta": "notifications_activeRecordatorio",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9662,7 +9593,7 @@
                   "id": "",
                   "etiqueta": "calendar_monthEvento",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9671,7 +9602,7 @@
                   "id": "",
                   "etiqueta": "local_fire_departmentHábito",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9684,7 +9615,7 @@
                   "atributos": {
                     "data-tab": "calendar"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 46,
@@ -9695,7 +9626,7 @@
                   "atributos": {
                     "data-tab": "notes"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 47,
@@ -9706,7 +9637,7 @@
                   "atributos": {
                     "data-tab": "projects"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 48,
@@ -9717,7 +9648,7 @@
                   "atributos": {
                     "data-tab": "reminders"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 49,
@@ -9728,7 +9659,7 @@
                   "atributos": {
                     "data-tab": "diary"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 50,
@@ -9739,7 +9670,7 @@
                   "atributos": {
                     "data-tab": "habits"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 51,
@@ -9750,7 +9681,7 @@
                   "atributos": {
                     "data-tab": "settings"
                   },
-                  "cobertura": "Inventariado; acción no ejercitada"
+                  "cobertura": "Acción de navegación ejercitada; no prueba la función completa"
                 },
                 {
                   "indice": 52,
@@ -9766,7 +9697,7 @@
                   "id": "noteCancel",
                   "etiqueta": "Cerrar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9775,7 +9706,7 @@
                   "id": "noteSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9784,7 +9715,7 @@
                   "id": "",
                   "etiqueta": "Negrita",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9793,7 +9724,7 @@
                   "id": "",
                   "etiqueta": "Cursiva",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9802,7 +9733,7 @@
                   "id": "",
                   "etiqueta": "Tachar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9811,7 +9742,7 @@
                   "id": "",
                   "etiqueta": "Subtítulo",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9820,7 +9751,7 @@
                   "id": "",
                   "etiqueta": "Lista con viñetas",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9829,7 +9760,7 @@
                   "id": "",
                   "etiqueta": "Lista numerada",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9838,7 +9769,7 @@
                   "id": "",
                   "etiqueta": "Lista de pendientes",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9847,7 +9778,7 @@
                   "id": "",
                   "etiqueta": "Quitar formato",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9856,7 +9787,7 @@
                   "id": "",
                   "etiqueta": "Color",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9865,7 +9796,7 @@
                   "id": "",
                   "etiqueta": "sellEtiquetas",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -9874,7 +9805,7 @@
                   "id": "",
                   "etiqueta": "auto_awesomeGlow",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10117,7 +10048,7 @@
                   "id": "",
                   "etiqueta": "Carmesí",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10126,7 +10057,7 @@
                   "id": "",
                   "etiqueta": "Oro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10135,7 +10066,7 @@
                   "id": "",
                   "etiqueta": "Jade",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10144,7 +10075,7 @@
                   "id": "",
                   "etiqueta": "Negro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10153,7 +10084,7 @@
                   "id": "",
                   "etiqueta": "Violeta",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10162,7 +10093,7 @@
                   "id": "",
                   "etiqueta": "Azul",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10171,7 +10102,7 @@
                   "id": "",
                   "etiqueta": "Turquesa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10180,7 +10111,7 @@
                   "id": "",
                   "etiqueta": "Naranja",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10189,7 +10120,7 @@
                   "id": "",
                   "etiqueta": "Rosa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10198,7 +10129,7 @@
                   "id": "",
                   "etiqueta": "Piedra",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10216,7 +10147,7 @@
                   "id": "evCancel",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10225,7 +10156,7 @@
                   "id": "evSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10234,7 +10165,7 @@
                   "id": "",
                   "etiqueta": "Carmesí",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10243,7 +10174,7 @@
                   "id": "",
                   "etiqueta": "Oro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10252,7 +10183,7 @@
                   "id": "",
                   "etiqueta": "Jade",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10261,7 +10192,7 @@
                   "id": "",
                   "etiqueta": "Negro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10270,7 +10201,7 @@
                   "id": "",
                   "etiqueta": "Violeta",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10279,7 +10210,7 @@
                   "id": "",
                   "etiqueta": "Azul",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10288,7 +10219,7 @@
                   "id": "",
                   "etiqueta": "Turquesa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10297,7 +10228,7 @@
                   "id": "",
                   "etiqueta": "Naranja",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10306,7 +10237,7 @@
                   "id": "",
                   "etiqueta": "Rosa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10315,7 +10246,7 @@
                   "id": "",
                   "etiqueta": "Piedra",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10324,7 +10255,7 @@
                   "id": "",
                   "etiqueta": "◎Órbita",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10333,7 +10264,7 @@
                   "id": "",
                   "etiqueta": "✧Glow",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10342,7 +10273,7 @@
                   "id": "",
                   "etiqueta": "▤Stack",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10351,7 +10282,7 @@
                   "id": "",
                   "etiqueta": "✦Launch",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10360,7 +10291,7 @@
                   "id": "",
                   "etiqueta": "◉Pulse",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10369,7 +10300,7 @@
                   "id": "",
                   "etiqueta": "≋Wave",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10378,7 +10309,7 @@
                   "id": "",
                   "etiqueta": "╱Shimmer",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10387,7 +10318,7 @@
                   "id": "",
                   "etiqueta": "◒Aurora",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10396,7 +10327,7 @@
                   "id": "",
                   "etiqueta": "☄Cometa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10405,7 +10336,7 @@
                   "id": "",
                   "etiqueta": "⁙Partículas",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10414,7 +10345,7 @@
                   "id": "",
                   "etiqueta": "⌖Radar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10423,7 +10354,7 @@
                   "id": "",
                   "etiqueta": "◇Prisma",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10432,7 +10363,7 @@
                   "id": "",
                   "etiqueta": "◌Respirar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10441,7 +10372,7 @@
                   "id": "",
                   "etiqueta": "✳Destellos",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10450,7 +10381,7 @@
                   "id": "",
                   "etiqueta": "▥Escáner",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10459,7 +10390,7 @@
                   "id": "",
                   "etiqueta": "⊛Vórtice",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10468,7 +10399,7 @@
                   "id": "projCancel",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10477,7 +10408,7 @@
                   "id": "projSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10486,7 +10417,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10495,7 +10426,7 @@
                   "id": "habitSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10504,7 +10435,7 @@
                   "id": "",
                   "etiqueta": "Carmesí",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10513,7 +10444,7 @@
                   "id": "",
                   "etiqueta": "Oro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10522,7 +10453,7 @@
                   "id": "",
                   "etiqueta": "Jade",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10531,7 +10462,7 @@
                   "id": "",
                   "etiqueta": "Negro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10540,7 +10471,7 @@
                   "id": "",
                   "etiqueta": "Violeta",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10549,7 +10480,7 @@
                   "id": "",
                   "etiqueta": "Azul",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10558,7 +10489,7 @@
                   "id": "",
                   "etiqueta": "Turquesa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10567,7 +10498,7 @@
                   "id": "",
                   "etiqueta": "Naranja",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10576,7 +10507,7 @@
                   "id": "",
                   "etiqueta": "Rosa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10585,7 +10516,7 @@
                   "id": "",
                   "etiqueta": "Piedra",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10603,7 +10534,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10612,7 +10543,7 @@
                   "id": "blockSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10621,7 +10552,7 @@
                   "id": "",
                   "etiqueta": "Carmesí",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10630,7 +10561,7 @@
                   "id": "",
                   "etiqueta": "Oro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10639,7 +10570,7 @@
                   "id": "",
                   "etiqueta": "Jade",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10648,7 +10579,7 @@
                   "id": "",
                   "etiqueta": "Negro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10657,7 +10588,7 @@
                   "id": "",
                   "etiqueta": "Violeta",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10666,7 +10597,7 @@
                   "id": "",
                   "etiqueta": "Azul",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10675,7 +10606,7 @@
                   "id": "",
                   "etiqueta": "Turquesa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10684,7 +10615,7 @@
                   "id": "",
                   "etiqueta": "Naranja",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10693,7 +10624,7 @@
                   "id": "",
                   "etiqueta": "Rosa",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10702,7 +10633,7 @@
                   "id": "",
                   "etiqueta": "Piedra",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10711,7 +10642,7 @@
                   "id": "remCancel",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10720,7 +10651,7 @@
                   "id": "remSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10729,7 +10660,7 @@
                   "id": "qaCancel",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10738,7 +10669,7 @@
                   "id": "qaSave",
                   "etiqueta": "Guardar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10747,7 +10678,7 @@
                   "id": "authSetupOk",
                   "etiqueta": "Entendido",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -10853,10 +10784,11 @@
               ],
               "resultado": "funciona",
               "http": 200,
-              "carga_ms": 4027,
+              "carga_ms": 3882,
               "titulo": "NOVA HUB",
               "desbordamiento_horizontal": false,
-              "cobertura": "0/174 controles inventariados con navegación ejercitada",
+              "renderizado": "funciona",
+              "cobertura": "7/174 controles inventariados con navegación ejercitada",
               "bloqueos": [
                 "Controles de guardar, borrar, comprar, operar, autenticarse, conectar y enviar datos no ejercitados.",
                 "IA y cerebros privados requieren cuenta de prueba autorizada.",
@@ -10874,8 +10806,8 @@
     {
       "agente": "neural",
       "aplicacion": "Neural Brain",
-      "fecha": "2026-11-15T12:37:10.499809-06:00",
-      "resultado": "funciona",
+      "fecha": "2026-11-15T12:41:03.648194-06:00",
+      "resultado": "no se pudo comprobar",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
       "esperado": "HTTP 200 y título esperado",
@@ -10885,7 +10817,7 @@
       "gravedad": "sin incidencia HTTP",
       "evidencia": {
         "http": 200,
-        "ms": 120,
+        "ms": 76,
         "bytes_muestreados": 100891,
         "sha256_muestra": "30f2a2a386ba33531ae374945e3ca94bae88ba28cd20314b7671b23fdb0fcf8e",
         "url_final": "https://soobroon-beep.github.io/Neural-Brain-Claude/",
@@ -10893,58 +10825,30 @@
       },
       "cobertura": "No verifica botones, sesiones, IA, tráfico real ni lógica de negocio.",
       "url": "https://soobroon-beep.github.io/Neural-Brain-Claude/",
-      "resumen": "La página respondió HTTP 200 y contiene el identificador esperado. Interfaz, código e integraciones: consultar cobertura; las funciones privadas siguen sin certificar.",
+      "resumen": "Renderizado comprobado, pero los recorridos no pudieron verificarse (por ejemplo, falta sesión). Ver cobertura y evidencia.",
       "observado": "HTTP 200; identificador presente: True",
       "componentes": {
-        "integraciones": {
+        "codigo": {
           "agente": "neural",
-          "fecha": "2026-11-15T18:37:12.361393+00:00",
-          "flujos": [
-            {
-              "flujo": "brain-sync.yml",
-              "repositorio": "Vortex-By-Nova-Nexus",
-              "resultado": "no se pudo comprobar",
-              "estado_github": "completed",
-              "conclusion": "success",
-              "fecha": "2026-11-15T13:41:50Z",
-              "minutos_desde_inicio": 295,
-              "umbral_minutos": 150,
-              "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43720340088",
-              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
-            },
-            {
-              "flujo": "brain-sync.yml",
-              "repositorio": "Nova-HUB",
-              "resultado": "funciona",
-              "estado_github": "completed",
-              "conclusion": "success",
-              "fecha": "2026-11-15T16:44:27Z",
-              "minutos_desde_inicio": 113,
-              "umbral_minutos": 150,
-              "url": "https://github.com/soobroon-beep/Nova-HUB/actions/runs/43737161121",
-              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
-            },
-            {
-              "flujo": "brain-learn.yml",
-              "repositorio": "Vortex-By-Nova-Nexus",
-              "resultado": "funciona",
-              "estado_github": "completed",
-              "conclusion": "success",
-              "fecha": "2026-11-15T16:27:13Z",
-              "minutos_desde_inicio": 130,
-              "umbral_minutos": 1800,
-              "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43735548646",
-              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
-            }
+          "fecha": "2026-11-15T18:41:03.802411+00:00",
+          "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
+          "resultado": "funciona",
+          "repositorio": "Neural-Brain-Claude",
+          "commit": "66bffed6dcdd2cd31e4a38fc77f68b6638213531",
+          "pruebas": [
+            "tests/brain-learn.test.js"
           ],
-          "bloqueos": [
-            "Sin fuente de analítica de visitantes conectada.",
-            "Sin acceso de lectura al estado privado actual de cada cerebro, bot y sesión."
+          "salida": 0,
+          "resumen": "Pruebas de código satisfactorias; no certifican datos ni sesiones de producción.",
+          "evidencia": [
+            "ℹ tests 1",
+            "ℹ pass 1",
+            "ℹ fail 0"
           ]
         },
         "interfaz": {
           "agente": "neural",
-          "fecha": "2026-11-15T18:37:38.692Z",
+          "fecha": "2026-11-15T18:41:25.862Z",
           "entorno": "Navegador anónimo sin sesión y con escrituras remotas bloqueadas",
           "politica": "No crear/borrar datos, no conectar cuentas, no enviar prompts a proveedores, no operar en exchanges.",
           "paginas": [
@@ -11036,7 +10940,7 @@
                   "id": "nrClr",
                   "etiqueta": "Borrar la plática",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11045,7 +10949,7 @@
                   "id": "nrX",
                   "etiqueta": "Cerrar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11054,7 +10958,7 @@
                   "id": "nrMic",
                   "etiqueta": "Dictar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11063,16 +10967,17 @@
                   "id": "",
                   "etiqueta": "Enviar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 }
               ],
-              "resultado": "funciona",
+              "resultado": "no se pudo comprobar",
               "http": 200,
-              "carga_ms": 3713,
+              "carga_ms": 3710,
               "titulo": "Neural Brain",
               "desbordamiento_horizontal": false,
+              "renderizado": "funciona",
               "cobertura": "0/11 controles inventariados con navegación ejercitada",
               "bloqueos": [
                 "Controles de guardar, borrar, comprar, operar, autenticarse, conectar y enviar datos no ejercitados.",
@@ -11168,7 +11073,7 @@
                   "id": "nrClr",
                   "etiqueta": "Borrar la plática",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11177,7 +11082,7 @@
                   "id": "nrX",
                   "etiqueta": "Cerrar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11186,7 +11091,7 @@
                   "id": "nrMic",
                   "etiqueta": "Dictar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11195,16 +11100,17 @@
                   "id": "",
                   "etiqueta": "Enviar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 }
               ],
-              "resultado": "funciona",
+              "resultado": "no se pudo comprobar",
               "http": 200,
-              "carga_ms": 3623,
+              "carga_ms": 3610,
               "titulo": "Neural Brain",
               "desbordamiento_horizontal": false,
+              "renderizado": "funciona",
               "cobertura": "0/11 controles inventariados con navegación ejercitada",
               "bloqueos": [
                 "Controles de guardar, borrar, comprar, operar, autenticarse, conectar y enviar datos no ejercitados.",
@@ -11473,7 +11379,7 @@
                   "id": "",
                   "etiqueta": "Guardar nota",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11482,7 +11388,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11491,7 +11397,7 @@
                   "id": "",
                   "etiqueta": "Crear cerebro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11500,7 +11406,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11509,7 +11415,7 @@
                   "id": "",
                   "etiqueta": "Subir imagen",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11518,7 +11424,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11527,7 +11433,7 @@
                   "id": "viewer-delete",
                   "etiqueta": "delete Eliminar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11536,7 +11442,7 @@
                   "id": "",
                   "etiqueta": "Cerrar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11545,7 +11451,7 @@
                   "id": "confirm-ok",
                   "etiqueta": "Confirmar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11554,16 +11460,17 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 }
               ],
-              "resultado": "funciona",
+              "resultado": "no se pudo comprobar",
               "http": 200,
-              "carga_ms": 3691,
+              "carga_ms": 3620,
               "titulo": "NEURAL BRAIN",
               "desbordamiento_horizontal": false,
+              "renderizado": "funciona",
               "cobertura": "0/36 controles inventariados con navegación ejercitada",
               "bloqueos": [
                 "Controles de guardar, borrar, comprar, operar, autenticarse, conectar y enviar datos no ejercitados.",
@@ -11832,7 +11739,7 @@
                   "id": "",
                   "etiqueta": "Guardar nota",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11841,7 +11748,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11850,7 +11757,7 @@
                   "id": "",
                   "etiqueta": "Crear cerebro",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11859,7 +11766,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11868,7 +11775,7 @@
                   "id": "",
                   "etiqueta": "Subir imagen",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11877,7 +11784,7 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11886,7 +11793,7 @@
                   "id": "viewer-delete",
                   "etiqueta": "delete Eliminar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11895,7 +11802,7 @@
                   "id": "",
                   "etiqueta": "Cerrar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11904,7 +11811,7 @@
                   "id": "confirm-ok",
                   "etiqueta": "Confirmar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 },
@@ -11913,16 +11820,17 @@
                   "id": "",
                   "etiqueta": "Cancelar",
                   "tag": "BUTTON",
-                  "visible": true,
+                  "visible": false,
                   "atributos": {},
                   "cobertura": "Inventariado; acción no ejercitada"
                 }
               ],
-              "resultado": "funciona",
+              "resultado": "no se pudo comprobar",
               "http": 200,
-              "carga_ms": 3632,
+              "carga_ms": 3614,
               "titulo": "NEURAL BRAIN",
               "desbordamiento_horizontal": false,
+              "renderizado": "funciona",
               "cobertura": "0/36 controles inventariados con navegación ejercitada",
               "bloqueos": [
                 "Controles de guardar, borrar, comprar, operar, autenticarse, conectar y enviar datos no ejercitados.",
@@ -11931,24 +11839,52 @@
               ]
             }
           ],
-          "resultado": "funciona"
+          "resultado": "no se pudo comprobar"
         },
-        "codigo": {
+        "integraciones": {
           "agente": "neural",
-          "fecha": "2026-11-15T18:37:10.698050+00:00",
-          "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
-          "resultado": "funciona",
-          "repositorio": "Neural-Brain-Claude",
-          "commit": "66bffed6dcdd2cd31e4a38fc77f68b6638213531",
-          "pruebas": [
-            "tests/brain-learn.test.js"
+          "fecha": "2026-11-15T18:41:05.163474+00:00",
+          "flujos": [
+            {
+              "flujo": "brain-sync.yml",
+              "repositorio": "Vortex-By-Nova-Nexus",
+              "resultado": "no se pudo comprobar",
+              "estado_github": "completed",
+              "conclusion": "success",
+              "fecha": "2026-11-15T13:41:50Z",
+              "minutos_desde_inicio": 299,
+              "umbral_minutos": 150,
+              "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43720340088",
+              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
+            },
+            {
+              "flujo": "brain-sync.yml",
+              "repositorio": "Nova-HUB",
+              "resultado": "funciona",
+              "estado_github": "completed",
+              "conclusion": "success",
+              "fecha": "2026-11-15T16:44:27Z",
+              "minutos_desde_inicio": 117,
+              "umbral_minutos": 150,
+              "url": "https://github.com/soobroon-beep/Nova-HUB/actions/runs/43737161121",
+              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
+            },
+            {
+              "flujo": "brain-learn.yml",
+              "repositorio": "Vortex-By-Nova-Nexus",
+              "resultado": "funciona",
+              "estado_github": "completed",
+              "conclusion": "success",
+              "fecha": "2026-11-15T16:27:13Z",
+              "minutos_desde_inicio": 134,
+              "umbral_minutos": 1800,
+              "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43735548646",
+              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
+            }
           ],
-          "salida": 0,
-          "resumen": "Pruebas de código satisfactorias; no certifican datos ni sesiones de producción.",
-          "evidencia": [
-            "ℹ tests 1",
-            "ℹ pass 1",
-            "ℹ fail 0"
+          "bloqueos": [
+            "Sin fuente de analítica de visitantes conectada.",
+            "Sin acceso de lectura al estado privado actual de cada cerebro, bot y sesión."
           ]
         }
       },
@@ -11964,7 +11900,7 @@
             "estado_github": "completed",
             "conclusion": "success",
             "fecha": "2026-11-15T13:41:50Z",
-            "minutos_desde_inicio": 295,
+            "minutos_desde_inicio": 299,
             "umbral_minutos": 150,
             "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43720340088",
             "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -11994,7 +11930,7 @@
     {
       "agente": "discord",
       "aplicacion": "Discord",
-      "fecha": "2026-11-15T12:37:24.737783-06:00",
+      "fecha": "2026-11-15T12:41:14.829724-06:00",
       "resultado": "no se pudo comprobar",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -12007,7 +11943,7 @@
       "componentes": {
         "integraciones": {
           "agente": "discord",
-          "fecha": "2026-11-15T18:37:24.986905+00:00",
+          "fecha": "2026-11-15T18:41:15.077740+00:00",
           "flujos": [
             {
               "flujo": "discord-screener.yml",
@@ -12016,7 +11952,7 @@
               "estado_github": "completed",
               "conclusion": "success",
               "fecha": "2026-11-15T14:22:05Z",
-              "minutos_desde_inicio": 255,
+              "minutos_desde_inicio": 259,
               "umbral_minutos": 600,
               "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43723970981",
               "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
@@ -12035,7 +11971,7 @@
     {
       "agente": "bots",
       "aplicacion": "Bots Vortex",
-      "fecha": "2026-11-15T12:37:32.490863-06:00",
+      "fecha": "2026-11-15T12:41:27.370287-06:00",
       "resultado": "no se pudo comprobar",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -12046,43 +11982,9 @@
       "cobertura": "No verifica botones, sesiones, IA, tráfico real ni lógica de negocio.",
       "resumen": "Bloqueado: falta inventario operativo y telemetría por bot. Interfaz, código e integraciones: consultar cobertura; las funciones privadas siguen sin certificar.",
       "componentes": {
-        "integraciones": {
-          "agente": "bots",
-          "fecha": "2026-11-15T18:37:38.951001+00:00",
-          "flujos": [
-            {
-              "flujo": "motor.yml",
-              "repositorio": "Vortex-By-Nova-Nexus",
-              "resultado": "no se pudo comprobar",
-              "estado_github": "pending",
-              "conclusion": null,
-              "fecha": "2026-11-15T15:17:04Z",
-              "minutos_desde_inicio": 201,
-              "umbral_minutos": 360,
-              "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43729004648",
-              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
-            },
-            {
-              "flujo": "bots-status.yml",
-              "repositorio": "Vortex-By-Nova-Nexus",
-              "resultado": "funciona",
-              "estado_github": "completed",
-              "conclusion": "success",
-              "fecha": "2026-11-15T18:30:21Z",
-              "minutos_desde_inicio": 7,
-              "umbral_minutos": 120,
-              "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43747124103",
-              "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
-            }
-          ],
-          "bloqueos": [
-            "Sin fuente de analítica de visitantes conectada.",
-            "Sin acceso de lectura al estado privado actual de cada cerebro, bot y sesión."
-          ]
-        },
         "codigo": {
           "agente": "bots",
-          "fecha": "2026-11-15T18:37:32.561798+00:00",
+          "fecha": "2026-11-15T18:41:27.420308+00:00",
           "entorno": "Código público clonado; simulación sin credenciales ni órdenes",
           "resultado": "funciona",
           "repositorio": "Vortex-By-Nova-Nexus",
@@ -12102,6 +12004,28 @@
             "ℹ pass 39",
             "ℹ fail 0"
           ]
+        },
+        "integraciones": {
+          "agente": "bots",
+          "fecha": "2026-11-15T18:41:34.021138+00:00",
+          "flujos": [
+            {
+              "flujo": "motor.yml",
+              "repositorio": "Vortex-By-Nova-Nexus",
+              "resultado": "no se pudo comprobar",
+              "motivo": "HTTPError"
+            },
+            {
+              "flujo": "bots-status.yml",
+              "repositorio": "Vortex-By-Nova-Nexus",
+              "resultado": "no se pudo comprobar",
+              "motivo": "HTTPError"
+            }
+          ],
+          "bloqueos": [
+            "Sin fuente de analítica de visitantes conectada.",
+            "Sin acceso de lectura al estado privado actual de cada cerebro, bot y sesión."
+          ]
         }
       },
       "hallazgos": [
@@ -12113,13 +12037,22 @@
             "flujo": "motor.yml",
             "repositorio": "Vortex-By-Nova-Nexus",
             "resultado": "no se pudo comprobar",
-            "estado_github": "pending",
-            "conclusion": null,
-            "fecha": "2026-11-15T15:17:04Z",
-            "minutos_desde_inicio": 201,
-            "umbral_minutos": 360,
-            "url": "https://github.com/soobroon-beep/Vortex-By-Nova-Nexus/actions/runs/43729004648",
-            "cobertura": "Estado de ejecución; no certifica llegada de cada documento ni la calidad del aprendizaje."
+            "motivo": "HTTPError"
+          },
+          "entorno": "GitHub Actions",
+          "gravedad": "media",
+          "estado": "pendiente de decisión",
+          "responsable": "Auditor de Bots Vortex"
+        },
+        {
+          "aplicacion": "Bots Vortex",
+          "funcion": "bots-status.yml",
+          "esperado": "Ejecución reciente y sin fallo",
+          "observado": {
+            "flujo": "bots-status.yml",
+            "repositorio": "Vortex-By-Nova-Nexus",
+            "resultado": "no se pudo comprobar",
+            "motivo": "HTTPError"
           },
           "entorno": "GitHub Actions",
           "gravedad": "media",
@@ -12151,7 +12084,7 @@
   ],
   "gerente": {
     "agente": "gerente",
-    "fecha": "2026-11-15T12:38:02.630855-06:00",
+    "fecha": "2026-11-15T12:41:54.621197-06:00",
     "resultado": "consolidado",
     "resumen": "Cinco auditorías organizadas y entregadas al propietario, que es el Jefe. Los bloqueos no se marcan como funcionamiento correcto.",
     "recepciones": [
@@ -12159,33 +12092,33 @@
         "auditor": "vortex",
         "reportes_recibidos": 4,
         "tipos": [
+          "codigo",
           "interfaz",
-          "integraciones",
-          "codigo"
+          "integraciones"
         ],
-        "fecha": "2026-11-15T12:38:02.630600-06:00",
+        "fecha": "2026-11-15T12:41:54.620976-06:00",
         "salud_recibida": true
       },
       {
         "auditor": "novahub",
         "reportes_recibidos": 4,
         "tipos": [
-          "integraciones",
           "codigo",
+          "integraciones",
           "interfaz"
         ],
-        "fecha": "2026-11-15T12:38:02.630724-06:00",
+        "fecha": "2026-11-15T12:41:54.621057-06:00",
         "salud_recibida": true
       },
       {
         "auditor": "neural",
         "reportes_recibidos": 4,
         "tipos": [
-          "integraciones",
+          "codigo",
           "interfaz",
-          "codigo"
+          "integraciones"
         ],
-        "fecha": "2026-11-15T12:38:02.630777-06:00",
+        "fecha": "2026-11-15T12:41:54.621107-06:00",
         "salud_recibida": true
       },
       {
@@ -12194,17 +12127,17 @@
         "tipos": [
           "integraciones"
         ],
-        "fecha": "2026-11-15T12:38:02.630814-06:00",
+        "fecha": "2026-11-15T12:41:54.621160-06:00",
         "salud_recibida": true
       },
       {
         "auditor": "bots",
         "reportes_recibidos": 3,
         "tipos": [
-          "integraciones",
-          "codigo"
+          "codigo",
+          "integraciones"
         ],
-        "fecha": "2026-11-15T12:38:02.630853-06:00",
+        "fecha": "2026-11-15T12:41:54.621194-06:00",
         "salud_recibida": true
       }
     ],
@@ -12221,10 +12154,16 @@
   "jefe": {
     "agente": "jefe",
     "identidad": "Propietario humano · tú",
-    "fecha": "2026-11-15T12:38:10.410272-06:00",
+    "fecha": "2026-11-15T12:42:06.322053-06:00",
     "resultado": "reporte para ti · Jefe",
-    "resumen": "3 auditores sin fallos en las pruebas disponibles; 0 con fallos detectados; 2 bloqueados. Cobertura parcial: no se certifican todas las funciones privadas. El Gerente entrega este reporte al propietario, que es el Jefe.",
-    "cambios": [],
+    "resumen": "2 auditores sin fallos en las pruebas disponibles; 0 con fallos detectados; 3 bloqueados. Cobertura parcial: no se certifican todas las funciones privadas. El Gerente entrega este reporte al propietario, que es el Jefe.",
+    "cambios": [
+      {
+        "agente": "neural",
+        "anterior": "funciona",
+        "actual": "no se pudo comprobar"
+      }
+    ],
     "entrega": "Publicado en data/latest.json para consulta en el panel; sin notificación externa.",
     "decisiones": [
       "Canal de notificación y horario diario/semanal.",
