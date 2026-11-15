@@ -9,6 +9,7 @@ if not token:print('Notificaciones bloqueadas: sin credencial del repositorio.')
 def call(method,suffix,body=None):
  req=urllib.request.Request('https://api.github.com/repos/'+repo+suffix,method=method,data=json.dumps(body).encode() if body else None,headers={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json','User-Agent':'SalaAuditoria/3.0'})
  with urllib.request.urlopen(req,timeout=20) as r:return json.load(r)
+alerts=sorted({(a['aplicacion'],a['funcion'],a['estado']):a for a in alerts}.values(),key=lambda a:(a['aplicacion'],a['funcion']))
 fingerprint=hashlib.sha256(json.dumps(alerts,sort_keys=True).encode()).hexdigest()
 issues=call('GET','/issues?state=all&per_page=100');issue=next((x for x in issues if x.get('title')==marker),None)
 if not alerts and not issue:print('Sin incidencias que notificar.');raise SystemExit(0)

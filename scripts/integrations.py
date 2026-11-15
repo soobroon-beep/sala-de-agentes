@@ -11,11 +11,13 @@ CONFIG={
 def check(agent):
  rows=[]
  for repo,flow,limit in CONFIG[agent]:
-  url=BASE+repo+'/actions/workflows/'+flow+'/runs?per_page=1'
+  url=BASE+repo+'/actions/workflows/'+flow+'/runs?per_page=10'
   try:
    req=urllib.request.Request(url,headers={'User-Agent':'SalaAuditoria/3.0','Accept':'application/vnd.github+json'})
    with urllib.request.urlopen(req,timeout=15) as r:data=json.load(r)
-   run=(data.get('workflow_runs') or [None])[0]
+   runs=data.get('workflow_runs') or []
+   run=runs[0] if runs else None
+   if flow=='motor.yml':run=next((x for x in runs if x.get('status')=='in_progress'),run)
    if not run:rows.append({'flujo':flow,'repositorio':repo,'resultado':'no se pudo comprobar','motivo':'No hay ejecuciones.'});continue
    age=(dt.datetime.now(dt.timezone.utc)-dt.datetime.fromisoformat(run['created_at'].replace('Z','+00:00'))).total_seconds()/60
    state='falló' if run['conclusion'] in ['failure','timed_out','action_required'] else 'no se pudo comprobar' if age>limit else 'funciona' if run['conclusion']=='success' or run['status']=='in_progress' else 'no se pudo comprobar'
