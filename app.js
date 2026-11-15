@@ -2,15 +2,15 @@ import * as THREE from './vendor/three.module.js';
 import { SVGRenderer } from './vendor/SVGRenderer.js';
 const $=id=>document.getElementById(id);
 const agents=[
-{id:'vortex',name:'Auditor de Vortex',short:'Vortex',initials:'VX',color:0x9e96d8,pos:[-6,1.5],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Revisa disponibilidad, navegación, gráficos, APIs y regresiones de Vortex.',scope:'HTTP, navegación pública en escritorio y móvil, pruebas aisladas de IA/indicadores y estado de procesos. Funciones privadas pendientes.'},
-{id:'apps',name:'Auditor de Apps',short:'Apps',initials:'AP',color:0x7fc8c6,pos:[-6,6],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Supervisa Nova HUB, INKBOT PRO, INKBOT VIDEO y Moldes Gabys. Cada aplicación conserva sus evidencias y bloqueos.',scope:'Cuatro páginas públicas, navegación permitida y pruebas aisladas de Nova HUB. Guardar y recargar datos reales requiere una cuenta de prueba.'},
-{id:'neural',name:'Auditor de Neural Brain',short:'Neural Brain',initials:'NB',color:0xc6a1ce,pos:[0,6],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Comprueba disponibilidad y prepara la revisión de aprendizaje, procesamiento e integraciones de IA.',scope:'Interfaz de Neural-Brain-Claude y Neural-Brain; aprendizaje y sincronización por metadatos. Resultados de IA y sincronización privada no comprobados.'},
-{id:'discord',name:'Auditor de Discord',short:'Discord',initials:'DC',color:0x8da8da,pos:[6,6],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Revisa bots e integraciones de Discord sin enviar mensajes a miembros ni modificar permisos.',scope:'Lectura directa del servidor pendiente. El token de este repositorio no da acceso a los repositorios privados de bots.'},
-{id:'bots',name:'Auditor de bots de Vortex',short:'Bots Vortex',initials:'BT',color:0xdeb185,pos:[6,1.5],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Audita cada bot, sus tareas y fallos silenciosos. Las operaciones financieras se revisan solo mediante lectura.',scope:'Pruebas aisladas de stop loss, take profit, paper trading y riesgo. Metadatos del motor e inventario puntual; telemetría continua privada pendiente.'},
-{id:'gerente',name:'Gerente',short:'Gerente',initials:'GR',color:0x93bba9,pos:[-2,-2],role:'NIVEL 2 · REPORTA AL JEFE',mission:'Consolida las cinco auditorías, mantiene sus evidencias y separa fallos de revisiones bloqueadas.',scope:'Consolidación automática de los cinco reportes. Análisis de tendencias avanzado y asignación de incidencias pendientes.'},
-{id:'jefe',name:'Jefe',short:'Jefe',initials:'JF',color:0xcdb784,pos:[3,-5],role:'NIVEL 1 · ENTREGA AL PROPIETARIO',mission:'Valida el reporte del Gerente, comprueba recibos y evidencia, identifica conexiones entre aplicaciones y te entrega el resumen ejecutivo.',scope:'Informe validado para el panel a las 09:00 y 21:00; tendencias los lunes a las 09:00. Alertas solo críticas confirmadas y recuperaciones.'}];
+{id:'vortex',name:'Auditor de Vortex',short:'Vortex',initials:'VX',color:0x9670ff,pos:[-6,1],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Revisa disponibilidad, navegación, gráficos, APIs y regresiones de Vortex.',scope:'HTTP, navegación pública en escritorio y móvil, pruebas aisladas de IA/indicadores y estado de procesos. Funciones privadas pendientes.'},
+{id:'apps',name:'Auditor de Apps',short:'Apps',initials:'AP',color:0x27c5aa,pos:[-5.5,6],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Supervisa Nova HUB, INKBOT PRO, INKBOT VIDEO y Moldes Gabys. Cada aplicación conserva sus evidencias y bloqueos.',scope:'Cuatro páginas públicas, navegación permitida y pruebas aisladas de Nova HUB. Guardar y recargar datos reales requiere una cuenta de prueba.'},
+{id:'neural',name:'Auditor de Neural Brain',short:'Neural Brain',initials:'NB',color:0xed80b5,pos:[0,7.1],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Comprueba disponibilidad y prepara la revisión de aprendizaje, procesamiento e integraciones de IA.',scope:'Interfaz de Neural-Brain-Claude y Neural-Brain; aprendizaje y sincronización por metadatos. Resultados de IA y sincronización privada no comprobados.'},
+{id:'discord',name:'Auditor de Discord',short:'Discord',initials:'DC',color:0x559cf1,pos:[5.6,6],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Revisa bots e integraciones de Discord sin enviar mensajes a miembros ni modificar permisos.',scope:'Lectura directa del servidor pendiente. El token de este repositorio no da acceso a los repositorios privados de bots.'},
+{id:'bots',name:'Auditor de bots de Vortex',short:'Bots Vortex',initials:'BT',color:0xf0ae4d,pos:[6,1],role:'NIVEL 3 · REPORTA AL GERENTE',mission:'Audita cada bot, sus tareas y fallos silenciosos. Las operaciones financieras se revisan solo mediante lectura.',scope:'Pruebas aisladas de stop loss, take profit, paper trading y riesgo. Metadatos del motor e inventario puntual; telemetría continua privada pendiente.'},
+{id:'gerente',name:'Gerente',short:'Gerente',initials:'GR',color:0x72cda0,pos:[0,.6],role:'NIVEL 2 · REPORTA AL JEFE',mission:'Consolida las cinco auditorías, mantiene sus evidencias y separa fallos de revisiones bloqueadas.',scope:'Consolidación automática de los cinco reportes. Análisis de tendencias avanzado y asignación de incidencias pendientes.'},
+{id:'jefe',name:'Jefe',short:'Jefe',initials:'JF',color:0xd2b378,pos:[3.4,-5.7],role:'NIVEL 1 · ENTREGA AL PROPIETARIO',mission:'Valida el reporte del Gerente, comprueba recibos y evidencia, identifica conexiones entre aplicaciones y te entrega el resumen ejecutivo.',scope:'Informe validado para el panel a las 09:00 y 21:00; tendencias los lunes a las 09:00. Alertas solo críticas confirmadas y recuperaciones.'}];
 let activeFloor=0,groundFloor,upperFloor,cameraFocusY=0,motionRate=1.35,nightMode=false;
-let selected=0,latest=null,reportHistory=[],currentRun=null,currentJobs=[],loadingData=false,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,t=0;let scene,camera,renderer,robots=[],labels=[],routes=[],rings=[],screenGroups=[],cityTraffic=[],frameError=false,softwareRenderer=false;
+let selected=0,latest=null,reportHistory=[],currentRun=null,currentJobs=[],loadingData=false,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,t=0;let scene,camera,renderer,robots=[],labels=[],routes=[],rings=[],screenGroups=[],cityTraffic=[],archiveSlots=[],frameError=false,softwareRenderer=false;
 function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function date(s){return s?new Intl.DateTimeFormat('es-MX',{timeZone:'America/Mexico_City',dateStyle:'short',timeStyle:'short'}).format(new Date(s)):'Sin registro';}
 function resultFor(a){if(a.id==='gerente')return latest?.gerente;if(a.id==='jefe')return latest?.jefe;return latest?.auditores?.find(x=>x.agente===a.id);}
@@ -46,7 +46,7 @@ function setFloor(level){
  $('room-heading').textContent=level?'Un nuevo piso. Más posibilidades.':'Una sala. Siete agentes.';
  $('room-description').textContent=level?'Un espacio reservado para el siguiente equipo que quieras crear.':'Cada revisión tiene un responsable. Cada hallazgo, un siguiente paso.';
  $('floor-description').textContent=level?'Segundo piso · 0 agentes · sin tareas asignadas':'Siete agentes · auditoría y monitoreo';
- for(const id of ['team-levels','current-team','labels'])$(id).hidden=level===1;
+ for(const id of ['team-levels','current-team','labels','flow-legend'])$(id).hidden=level===1;
  $('future-caption').hidden=level===0;$('future-plan').hidden=level===0;$('detail').hidden=level===1;document.querySelector('.mini-route').hidden=level===1;
  $('tour').disabled=level===1;$('tour').title=level?'No hay agentes en este piso':'Recorrer los siete agentes';
  $('flow-message').textContent=level?'Segundo piso reservado. Sin agentes activos ni automatizaciones.':'Auditores → Gerente → Jefe → Tú. Comprobaciones reales; movimiento ilustrativo.';
@@ -130,11 +130,48 @@ function createScene(){const viewport=$('viewport');scene=new THREE.Scene();scen
  // Low cutaway rear walls preserve the view and avoid covering agents.
  box(scene,20,.72,.18,material(0x929fb5),0,.42,-8.7,.06);box(scene,.18,.72,18,material(0x929fb5),-9.95,.42,.3,.06);
  box(scene,10.3,.025,.07,material(0xb2a1d8),0,.8,-7.05,.01);for(let i=0;i<5;i++){box(scene,.55,.11,.55,material(0xc8c1dc),-6.1+i*3.1,.15,-6.25,.04);}
- // Freestanding central report pedestal.
- box(scene,1.35,.15,1.05,material(0xbfb0d9),0,.18,3.20,.06);box(scene,1.1,.07,.85,white,0,.28,3.20,.035);const hologram=box(scene,.7,.65,.06,new THREE.MeshStandardMaterial({color:0xb29ae2,emissive:0x7e63b4,emissiveIntensity:.15,transparent:true,opacity:.7}),0,.73,3.2,.035);hologram.rotation.y=.12;
+ // El Gerente recibe los documentos en el centro; los colores se conservan al archivarlos.
+ createArchiveHub();createChiefOffice();
  agents.forEach(workstation);if(softwareRenderer){for(const a of agents){for(let n=0;n<3;n++){let shadow=mesh(new THREE.CircleGeometry(.48+n*.17,24),new THREE.MeshBasicMaterial({color:0x645478,transparent:true,opacity:.045,depthWrite:false}),scene,a.pos[0]+.2,.086+n*.001,a.pos[1]+.55);shadow.rotation.x=-Math.PI/2;shadow.scale.set(1.5,.8,1);shadow.castShadow=false;}}}
- for(let i=0;i<7;i++){let from=i<5?i:i===5?5:6,to=i<5?5:i===5?6:-1;let a=agents[from].pos,b=to<0?[0,7.3]:agents[to].pos;let c=new THREE.CubicBezierCurve3(new THREE.Vector3(a[0]+.4,1.2,a[1]+.6),new THREE.Vector3(a[0]*.8,2.3,a[1]+1.4),new THREE.Vector3(b[0]*.8,2.3,b[1]-.8),new THREE.Vector3(b[0]+.4,1.2,b[1]+.6));let path=mesh(new THREE.TubeGeometry(c,40,.014,6,false),new THREE.MeshBasicMaterial({color:agents[from].color,transparent:true,opacity:.40}),scene);path.castShadow=false;let packet=new THREE.Group();scene.add(packet);box(packet,.17,.12,.24,white,0,0,0,.025);box(packet,.09,.015,.09,new THREE.MeshBasicMaterial({color:agents[from].color}),0,.07,0,.005);routes.push({curve:c,packet,offset:i*.13});for(let n=1;n<(softwareRenderer?2:3);n++){let extra=packet.clone();scene.add(extra);routes.push({curve:c,packet:extra,offset:i*.13+n/3});}}
+ for(let i=0;i<6;i++){
+  const from=i,to=i<5?5:6,a=agents[from].pos,b=agents[to].pos;
+  const end=new THREE.Vector3(b[0]-.55,1.35,b[1]+.28),start=new THREE.Vector3(a[0]+.5,1.35,a[1]+.6);
+  const curve=new THREE.CubicBezierCurve3(start,new THREE.Vector3(start.x*.7,2.0,start.z*.75),new THREE.Vector3(end.x,2.0,end.z+.8),end);
+  const path=mesh(new THREE.TubeGeometry(curve,28,.021,4,false),new THREE.MeshBasicMaterial({color:agents[from].color,transparent:true,opacity:.38}),scene);path.castShadow=false;
+  for(let n=0;n<2;n++){const packet=createFile(agents[from].color);scene.add(packet);routes.push({curve,packet,offset:i*.16+n*.5,auditor:i<5?i:null,end,archive:i<5?archiveSlots[i].target:null});}
+ }
  createUpperFloor();$('loading').hidden=true;new ResizeObserver(resize).observe(viewport);resize();setupCamera();requestAnimationFrame(animate);}
+function createFile(color){
+ const g=new THREE.Group(),paint=new THREE.MeshBasicMaterial({color});
+ mesh(new THREE.BoxGeometry(.45,.56,.065),paint,g);mesh(new THREE.BoxGeometry(.11,.10,.02),white,g,.15,.20,.045);
+ for(let j=0;j<3;j++)mesh(new THREE.BoxGeometry(.28-j*.035,.02,.015),white,g,-.025,.10-j*.085,.048);
+ return g;
+}
+function createArchiveHub(){
+ const hub=agents[5].pos;
+ let rug=mesh(new THREE.CircleGeometry(2.1,48),new THREE.MeshBasicMaterial({color:0x9dbdb4,transparent:true,opacity:.32}),scene,hub[0],.094,hub[1]+.45);rug.rotation.x=-Math.PI/2;
+ box(scene,.72,.12,.55,dark,hub[0]-.65,1.26,hub[1]+.20,.035);
+ // Cinco bandejas: una por auditor. La animación no cuenta archivos reales.
+ box(scene,.83,1.5,.65,material(0x344b63),hub[0]+1.72,.86,hub[1]+.45,.055);
+ for(let i=0;i<5;i++){
+  const y=.35+i*.245;box(scene,.68,.025,.58,silver,hub[0]+1.72,y-.07,hub[1]+.45,.008);
+  const folder=createFile(agents[i].color);folder.scale.set(.80,.40,1);folder.position.set(hub[0]+1.72,y,hub[1]+.73);scene.add(folder);
+  const indicator=sphere(scene,.045,new THREE.MeshBasicMaterial({color:agents[i].color}),hub[0]+2.02,y,hub[1]+.82);
+  archiveSlots.push({folder,indicator,target:new THREE.Vector3(hub[0]+1.72,y,hub[1]+.73),baseY:y});
+ }
+ const legend=$('flow-legend');legend.innerHTML='<span class="legend-title">ENVÍO Y ARCHIVO ILUSTRATIVOS</span>'+agents.slice(0,5).map(a=>`<span><i style="background:#${a.color.toString(16).padStart(6,'0')}"></i>${a.short}</span>`).join('')+'<b>→ Gerente → Jefe</b>';
+}
+function createChiefOffice(){
+ const steel=material(0x8094ae),wall=material(0xc9d6e4),warm=material(0xb3a185);
+ box(scene,8,.055,5.1,material(0xabbace),3.3,.105,-5.75,.025);
+ box(scene,.12,.55,5.15,wall,-.7,.40,-5.75,.025);box(scene,5.9,.55,.12,wall,4.4,.40,-3.18,.025);
+ for(const x of [-.7,7.3])box(scene,.075,2.65,.075,steel,x,1.48,-8.2,.012);
+ box(scene,8,.08,.10,steel,3.3,2.79,-8.2,.012);
+ if(!softwareRenderer){const glass=new THREE.MeshBasicMaterial({color:0xb7d8e9,transparent:true,opacity:.12,side:THREE.DoubleSide,depthWrite:false});mesh(new THREE.PlaneGeometry(7.9,2.5),glass,scene,3.3,1.5,-8.17);}
+ // Entrada lateral abierta y un mueble del despacho.
+ box(scene,1.1,1.0,.45,warm,6.25,.68,-7.65,.045);for(let i=0;i<3;i++)box(scene,.23,.3,.15,material(agents[i].color),5.95+i*.3,1.35,-7.63,.02);
+ let label=document.createElement('div');label.id='office-label';label.className='office-label';label.textContent='OFICINA DEL JEFE';$('labels').append(label);
+}
 function createUpperFloor(){
  groundFloor=new THREE.Group();for(const child of [...scene.children])if(!child.isLight)groundFloor.add(child);scene.add(groundFloor);
  upperFloor=new THREE.Group();upperFloor.position.y=6;upperFloor.visible=false;scene.add(upperFloor);
@@ -198,7 +235,7 @@ let azimuth=.18,elevation=.60,distance=25,targetDistance=25;function updateCamer
 function resize(){if(!renderer)return;let r=$('viewport').getBoundingClientRect();if(!r.width||!r.height)return;renderer.setSize(r.width,r.height);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();let narrow=r.width<550;targetDistance=narrow?42:34;distance=targetDistance;updateCamera();}
 function setupCamera(){let dragging=false,startX=0,startY=0,moved=false;const el=$('viewport');el.addEventListener('pointerdown',e=>{dragging=true;moved=false;startX=e.clientX;startY=e.clientY;el.setPointerCapture(e.pointerId);el.classList.add('dragging')});el.addEventListener('pointermove',e=>{if(!dragging)return;let dx=e.clientX-startX,dy=e.clientY-startY;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;azimuth=THREE.MathUtils.clamp(azimuth-dx*.006,-.7,.7);elevation=THREE.MathUtils.clamp(elevation+dy*.004,.53,1.05);startX=e.clientX;startY=e.clientY;updateCamera();});el.addEventListener('pointerup',e=>{dragging=false;el.classList.remove('dragging');if(!moved&&activeFloor===0){let rect=el.getBoundingClientRect(),ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1),camera);let hits=ray.intersectObjects(robots.map(r=>r.group),true);if(hits.length){let object=hits[0].object;while(object){let i=robots.findIndex(r=>r.group===object);if(i>=0){select(i);break;}object=object.parent;}}}});el.addEventListener('pointercancel',()=>{dragging=false;el.classList.remove('dragging')});el.addEventListener('wheel',e=>{e.preventDefault();targetDistance=THREE.MathUtils.clamp(targetDistance+e.deltaY*.015,24,45)},{passive:false});}
 function animateRobot(r){
- const i=r.index,p=t+i*1.7,cycle=(t+i*4.1)%28,walk=cycle>13&&cycle<20,progression=walk?Math.sin((cycle-13)/7*Math.PI):0;
+ const i=r.index,p=t+i*1.7,cycle=(t+i*4.1)%28,walk=i<5&&cycle>13&&cycle<20,progression=walk?Math.sin((cycle-13)/7*Math.PI):0;
  const direction=i%2?1:-1; r.group.position.x=r.baseX+progression*direction*1.0;r.group.position.z=r.baseZ+progression*.55;
  r.group.rotation.y=walk?direction*.35:Math.sin(p*.7)*.13;
  r.root.position.y=.06+Math.sin(p*1.9)*.022+(walk?Math.abs(Math.sin(p*8))*.06:0);r.root.rotation.z=Math.sin(p*.9)*.045;r.torso.rotation.x=.04+Math.sin(p*1.1)*.045;
@@ -213,6 +250,11 @@ function animateRobot(r){
   boneBetween(arm.upper,arm.shoulder,elbow);boneBetween(arm.lower,elbow,hand);arm.elbow.position.set(...elbow);arm.hand.position.set(...hand);
  });
 }
-let lastFrame=0;function animate(ms){if(frameError)return;if(softwareRenderer&&lastFrame&&ms-lastFrame<170){requestAnimationFrame(animate);return;}let dt=lastFrame?Math.min((ms-lastFrame)/1000,.4):0;lastFrame=ms;if(!paused)t+=dt*motionRate;distance=THREE.MathUtils.lerp(distance,targetDistance,.10);cameraFocusY=THREE.MathUtils.lerp(cameraFocusY,activeFloor*6,.16);updateCamera();robots.forEach(animateRobot);routes.forEach(r=>{let u=(t*.15+r.offset)%1;r.packet.position.copy(r.curve.getPointAt(u));r.packet.position.y+=Math.sin(u*Math.PI)*.18;r.packet.rotation.y=t*.7;});screenGroups.forEach((g,i)=>(g.userData.bars??[]).forEach((bar,j)=>bar.scale.x=.6+.4*Math.sin(t*2.1+i+j)));cityTraffic.forEach(({car,offset,direction})=>{car.position.x=direction*(((t*.025+offset)%1)*34-17);});renderer.render(scene,camera);let rect=$('viewport').getBoundingClientRect();labels.forEach((el,i)=>{let a=agents[i],p=new THREE.Vector3(a.pos[0],.05,a.pos[1]+1.65).project(camera);el.style.left=(p.x*.5+.5)*rect.width+'px';el.style.top=(-p.y*.5+.5)*rect.height+'px';el.style.opacity=p.z>1?'0':'1';});if(softwareRenderer)setTimeout(()=>requestAnimationFrame(animate),180);else requestAnimationFrame(animate);}
+let lastFrame=0;function animate(ms){if(frameError)return;if(softwareRenderer&&lastFrame&&ms-lastFrame<170){requestAnimationFrame(animate);return;}let dt=lastFrame?Math.min((ms-lastFrame)/1000,.4):0;lastFrame=ms;if(!paused)t+=dt*motionRate;distance=THREE.MathUtils.lerp(distance,targetDistance,.10);cameraFocusY=THREE.MathUtils.lerp(cameraFocusY,activeFloor*6,.16);updateCamera();robots.forEach(animateRobot);routes.forEach(r=>{
+ const phase=(t*.075+r.offset)%1;
+ if(r.archive&&phase>.68){const v=Math.min(1,(phase-.68)/.27);r.packet.position.lerpVectors(r.end,r.archive,v);r.packet.position.y+=Math.sin(v*Math.PI)*.55;r.packet.scale.setScalar(1-v*.3);r.packet.visible=phase<.95;}
+ else{const u=r.archive?phase/.68:phase;r.packet.position.copy(r.curve.getPointAt(u));r.packet.scale.setScalar(1);r.packet.visible=true;}
+ r.packet.rotation.y=.18+Math.sin(t+r.offset)*.10;r.packet.rotation.z=Math.sin(t*1.2+r.offset)*.04;
+ });archiveSlots.forEach((slot,i)=>{const phase=(t*.075+i*.16)%1,receiving=phase>.88&&phase<.99;slot.indicator.scale.setScalar(receiving?1.65:1);slot.folder.position.y=slot.baseY+(receiving?Math.sin((phase-.88)/.11*Math.PI)*.075:0);});screenGroups.forEach((g,i)=>(g.userData.bars??[]).forEach((bar,j)=>bar.scale.x=.6+.4*Math.sin(t*2.1+i+j)));cityTraffic.forEach(({car,offset,direction})=>{car.position.x=direction*(((t*.025+offset)%1)*34-17);});renderer.render(scene,camera);let rect=$('viewport').getBoundingClientRect();labels.forEach((el,i)=>{let a=agents[i],p=new THREE.Vector3(a.pos[0],.05,a.pos[1]+1.65).project(camera);el.style.left=(p.x*.5+.5)*rect.width+'px';el.style.top=(-p.y*.5+.5)*rect.height+'px';el.style.opacity=p.z>1?'0':'1';});const officeLabel=$('office-label');if(officeLabel){let p=new THREE.Vector3(3.4,2.5,-7.6).project(camera);officeLabel.style.left=(p.x*.5+.5)*rect.width+'px';officeLabel.style.top=(-p.y*.5+.5)*rect.height+'px';}if(softwareRenderer)setTimeout(()=>requestAnimationFrame(animate),180);else requestAnimationFrame(animate);}
 function updatePause(){$('pause').textContent=paused?'▷':'Ⅱ';$('pause').setAttribute('aria-label',paused?'Reanudar animación':'Pausar animación');$('pause').title=paused?'Reanudar animación':'Pausar animación';$('pause').setAttribute('aria-pressed',String(paused));}$('pause').onclick=()=>{paused=!paused;updatePause()};updatePause();$('camera').onclick=()=>{azimuth=.18;elevation=.60;resize();};let tourStep=0;$('tour').onclick=()=>{select(tourStep++%7);$('flow-message').textContent=selected<5?`${agents[selected].short} → Gerente · el movimiento ilustra la entrega de evidencia.`:selected===5?'Gerente → Jefe · validación de cinco auditores.':'Jefe → Tú · resumen en el panel; sin commits ni despliegues de agentes.';};
 try{createScene();select(0);}catch(error){frameError=true;$('loading').hidden=false;$('loading').textContent='No se pudo iniciar WebGL. Puedes consultar los agentes y reportes con los controles inferiores.';console.error(error);}

@@ -49,3 +49,6 @@ La escena de oficina incluye ventanales con ciudad geométrica, tráfico decorat
 
 ## Interfaz y calidad visual
 Interfaz compacta en azul profundo, fondos y tarjetas con mayor contraste, controles de ambiente atardecer/noche y ritmo activo/suave. La ciudad se dibuja una vez en alta resolución y se reutiliza como fondo; evita miles de polígonos en el modo compatible. WebGL usa materiales con capa de acabado, bordes suaves, sombras filtradas y mayor resolución. Las animaciones respetan pausa y movimiento reducido.
+
+## Distribución y documentos de colores
+Los cinco auditores rodean al Gerente, situado al centro. Cada auditor conserva un color propio en su robot, sus documentos y la bandeja de archivo correspondiente. Los archivos recorren la ruta al Gerente y después entran en las bandejas; el Gerente remite un consolidado al Jefe, que tiene un despacho separado al fondo. Todo ese archivado es ilustrativo, no crea archivos ni modifica los reportes persistentes. No se muestran contadores inventados.
