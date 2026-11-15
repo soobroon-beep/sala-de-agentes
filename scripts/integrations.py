@@ -4,7 +4,7 @@ from pathlib import Path
 BASE='https://api.github.com/repos/soobroon-beep/'
 CONFIG={
 'vortex':[('Vortex-By-Nova-Nexus','brain-sync.yml',150),('Vortex-By-Nova-Nexus','motor.yml',360)],
-'novahub':[('Nova-HUB','brain-sync.yml',150),('Nova-HUB','backup-firestore.yml',1800)],
+'apps':[('Nova-HUB','brain-sync.yml',150),('Nova-HUB','backup-firestore.yml',1800)],
 'neural':[('Vortex-By-Nova-Nexus','brain-sync.yml',150),('Nova-HUB','brain-sync.yml',150),('Vortex-By-Nova-Nexus','brain-learn.yml',1800)],
 'bots':[('Vortex-By-Nova-Nexus','motor.yml',360),('Vortex-By-Nova-Nexus','bots-status.yml',120)],
 'discord':[('Vortex-By-Nova-Nexus','discord-screener.yml',600)]}

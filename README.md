@@ -1,32 +1,38 @@
 # Sala de agentes · Nova Nexus
 
-Sala 3D con siete robots articulados, sombras, piso y cámara frontal, selección de agentes y reportes en español. Motor Three.js 0.170.0 incluido localmente con su licencia MIT.
+La sala existente conserva su escena 3D y siete puestos, reorganizados en tres niveles:
+1. Jefe: valida evidencia, correlaciona aplicaciones y entrega al propietario.
+2. Gerente: consolida, deduplica y verifica la llegada de cinco auditorías.
+3. Auditores: Vortex, Bots de Vortex, Neural Brain, Apps y Discord.
 
-## Qué funciona
-- Sondeos HTTPS de las páginas públicas de Vortex, Nova Hub y Neural Brain, sin escrituras en las aplicaciones.
-- Cinco trabajos auditores separados, Gerente que consolida y Jefe que prepara el reporte. Discord y bots Vortex registran su bloqueo de acceso, no resultados inventados.
-- `data/latest.json`, historial de 300 revisiones, evidencias por ejecución en GitHub Actions y control de concurrencia. Dos fallos en revisiones distintas confirman una incidencia HTTP y dos éxitos verifican recuperación.
-- GitHub Actions solicita una revisión cada cinco minutos. GitHub puede retrasar o suspender programaciones; no es un servicio con garantía de tiempo real.
-- El panel consulta el último reporte cada minuto mientras está abierto y señala registros atrasados. La animación es ilustrativa y nunca genera métricas.
+El Auditor de Apps cubre Nova HUB, INKBOT PRO, INKBOT VIDEO y Moldes Gabys. NovaQ no se incorpora ni se trata como alias de Nova HUB sin confirmar su URL y alcance.
 
-## Lo pendiente
-No hay siete modelos de IA conectados: los siete roles ejecutan reglas deterministas. No se comprueban aún botones, sesiones, recorridos de navegador, resultados de IA, tráfico real ni bots individuales. Discord no tiene conector de lectura privada. No hay notificaciones externas ni informes diario/semanal entregados. Tampoco monitor externo del propio sistema. Por eso no se declara activo el monitoreo completo 24/7.
+## Horarios — America/Mexico_City
+- Ligera: cada hora, minuto 17. Salud HTTP y metadatos de procesos disponibles.
+- Completa: 09:00 y 21:00. Añade navegador anónimo en escritorio/móvil y pruebas de código aisladas.
+- Semanal: lunes 09:00. Revisión ligera y tendencias del historial realmente disponible; muestra cuántas muestras se utilizaron.
+- Discord: pendiente el lector autorizado por eventos. No se consume un bucle frecuente sin conexión ni se simula lectura de mensajes.
 
-## Publicación
-El workflow `.github/workflows/supervision.yml` revisa las aplicaciones y publica `dist/` en GitHub Pages. La opción Pages del repositorio debe estar configurada en **GitHub Actions**. No se guardan tokens ni datos privados en este repositorio. Solo se publican respuestas de sondeos de URLs públicas; no se almacenan cuerpos de páginas.
+GitHub Actions puede retrasar ejecuciones. No se declara el alcance completo activo 24/7 hasta verificar ronda programada, entrega y fuentes privadas necesarias.
 
-## Desarrollo local
-Python 3.12 o posterior. Para recopilar evidencias locales: `python3 scripts/monitor.py local`. Para preparar el sitio: `python3 scripts/package_site.py`. Servir `dist/` con un servidor HTTP local; los módulos JavaScript no se abren directamente con file://.
+## Permisos y entrega
+Los auditores y el Gerente solo tienen lectura del repositorio. El Jefe tiene `checks: write` únicamente para registrar informes en GitHub Checks. Ningún trabajo de auditoría tiene `contents: write`, `pages: write` ni permisos de moderación. No se ejecutan commits, pushes, compras, órdenes financieras, cambios de estrategia ni despliegues desde los auditores.
 
-## Accesibilidad y movimiento
-Controles de teclado para elegir los siete agentes, pausar, restaurar cámara y recorrer la cadena. La preferencia de movimiento reducido pausa la animación inicialmente. La cámara permanece por encima del piso y del lado frontal; no invierte los personajes.
+Los reportes completos se conservan como artefactos de Actions durante 90 días. El resumen con evidencia pública se registra en el check «Sala · informe del Jefe». El panel lee esa API pública sin credenciales. No necesita un despliegue para actualizar los informes. Los archivos antiguos de data/ se conservan como historial anterior; no se usan como fuente en vivo.
 
-## Seguridad y cobertura
-Pruebas GET de lectura con User-Agent `SalaAuditoria/2.0` y cabecera `X-Synthetic-Monitor: sala-de-agentes`. Estas señales deben excluirse explícitamente en la fuente de analítica antes de afirmar separación de tráfico. No hay órdenes financieras, cambios de roles, mensajes a miembros ni modificaciones de producción. Presupuesto de IA: 0, al no haber modelos conectados. Costos de alojamiento y acciones: no medidos por este panel.
+El workflow `publicar-panel.yml` es independiente, solo manual y para una solicitud expresa del propietario. El workflow de auditoría no lo puede disparar. Publicar una modificación autorizada de la sala no concede a sus agentes permiso de publicar cambios en las aplicaciones.
 
-## Actualización: auditoría horaria y propietario como Jefe
-La programación pasa a una vez por hora, minuto 17 UTC (minuto 17 de cada hora en America/Mexico_City). Los trabajos de auditoría realizan HTTP, pruebas aisladas del código, lectura de metadatos de procesos y navegación anónima en escritorio/móvil para los tres proyectos web. La navegación usa una lista permitida e inventaría el resto de controles como no comprobados. Se bloquean escrituras remotas y no se envían prompts de IA a proveedores. Neural-Brain-Claude es la versión que usa el aprendizaje; también se visita Neural-Brain.
+## Honestidad y límites
+Cada punto lleva FUNCIONA / FALLÓ / NO SE PUDO COMPROBAR y su alcance. Un HTTP 200 no prueba botones, IA ni persistencia. Los controles no ejercitados permanecen identificados como no comprobados; no se fuerzan acciones de guardar, borrar, comprar o autenticar.
 
-El Gerente conserva recibos de los reportes de cada auditor y entrega el consolidado al propietario, que es el Jefe. El panel muestra hallazgos por aplicación/función con evidencia y estado. Los avisos se agrupan en una incidencia de GitHub asignada al propietario; su recepción depende de las preferencias de notificación de su cuenta. No hay todavía un canal Discord/WhatsApp/correo conectado desde la sala.
+Las pruebas de sincronización, respaldo, stop loss, take profit y riesgo son simulaciones aisladas. No certifican la ejecución de cada sesión privada ni de órdenes en exchanges. No hay modelo de IA conectado ni entrenamiento automático de esta sala: las responsabilidades se implementan con reglas deterministas, presupuesto de modelos 0.
 
-`data/revision-manual.json` conserva evidencias públicas puntuales. No se interpreta como telemetría actual. Las operaciones reales, la privacidad y el contenido de mensajes de Discord no se publican en este sitio público. Una suite de simulación satisfactoria no certifica ejecución de stop loss/take profit en exchanges.
+Pendientes: cuentas/entornos de prueba, telemetría privada por cerebro y bot, fuente de analítica real, conector de Discord y confirmación de NovaQ. No se publican mensajes, correos, montos ni credenciales. Para consultar evidencias privadas hará falta un canal con control de acceso.
+
+Solo dos respuestas HTTP 5xx en intentos separados pueden generar un crítico de disponibilidad. Los errores de autenticación, cuotas, transporte y proveedores se distinguen de una caída confirmada. La recuperación requiere dos rondas consecutivas correctas. Los hallazgos medios o pendientes aparecen en los resúmenes, no generan issues repetidos.
+
+## Validación
+`python3 -m unittest discover -s scripts -p 'test_*.py' -v`
+`python3 scripts/package_site.py`
+
+Abrir el sitio con un servidor HTTP; no con file://. Three.js está incluido con licencia MIT. Se respeta movimiento reducido y hay una vista compatible sin WebGL.

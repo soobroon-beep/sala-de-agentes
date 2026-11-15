@@ -24,7 +24,7 @@ class DeliveryReceipts(unittest.TestCase):
   self.assertTrue(all(r['reportes_recibidos']==4 and r['salud_recibida'] for r in manager['recepciones']))
   self.assertTrue(all(r['resultado_http']=='funciona' and len(r['componentes'])==3 for r in manager['auditores']))
   report=monitor.chief(manager)
-  self.assertEqual(report['jefe']['identidad'],'Propietario humano · tú')
+  self.assertEqual(report['jefe']['identidad'],'Agente validador · nivel 1')
   self.assertEqual(report['cadencia_minutos'],60)
 class NetworkCoverage(unittest.TestCase):
  def test_provider_error_is_visible_without_claiming_app_outage(self):

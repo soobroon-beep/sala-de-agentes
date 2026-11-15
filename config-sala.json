@@ -1,0 +1,20 @@
+{
+  "version": 4,
+  "zona_horaria": "America/Mexico_City",
+  "canal": "panel de la sala",
+  "horarios": {"ligera": "cada hora, minuto 17", "completa": ["09:00", "21:00"], "semanal": "lunes 09:00"},
+  "estados": ["FUNCIONA", "FALLÓ", "NO SE PUDO COMPROBAR"],
+  "severidades": ["Crítico", "Alto", "Medio", "Bajo"],
+  "puestos": [
+    {"id":"jefe", "nivel":1, "nombre":"Jefe", "funcion":"Validar al Gerente, correlacionar aplicaciones y entregar el resumen al propietario.", "herramientas":["leer reportes", "registrar informe autorizado"], "prohibe":["commits", "deploys", "órdenes", "cambios en producción"]},
+    {"id":"gerente", "nivel":2, "nombre":"Gerente", "funcion":"Consolidar cinco auditorías, verificar recibos, deduplicar y priorizar.", "herramientas":["leer artefactos", "escribir reporte local"], "prohibe":["modificar aplicaciones", "publicar código", "operar bots"]},
+    {"id":"vortex", "nivel":3, "nombre":"Auditor de Vortex", "funcion":"Interfaz, consola, disponibilidad y APIs públicas.", "herramientas":["GET HTTPS", "navegador anónimo de solo lectura", "pruebas aisladas"]},
+    {"id":"bots", "nivel":3, "nombre":"Auditor de Bots de Vortex", "funcion":"Estado, actividad, pausas y errores de bots, sin órdenes ni cambios.", "herramientas":["metadatos públicos de procesos", "pruebas de simulación"]},
+    {"id":"neural", "nivel":3, "nombre":"Auditor de Neural Brain", "funcion":"Evidencias de aprendizaje y conexiones con las aplicaciones.", "herramientas":["GET HTTPS", "metadatos públicos de procesos", "pruebas aisladas"]},
+    {"id":"apps", "nivel":3, "nombre":"Auditor de Apps", "funcion":"Nova HUB, INKBOT PRO, INKBOT VIDEO y Moldes Gabys.", "herramientas":["GET HTTPS", "navegación pública", "sincronización y respaldo simulados"]},
+    {"id":"discord", "nivel":3, "nombre":"Auditor de Discord", "funcion":"Bots, spam, acoso y enlaces sospechosos; nunca moderar ni borrar.", "herramientas":["metadatos públicos de integraciones"], "bloqueo":"Sin conector autorizado de mensajes y miembros. Revisión por eventos pendiente; no se ejecuta un bucle vacío."}
+  ],
+  "pendientes": ["Acceso de prueba a funciones privadas y guardado real", "Telemetría continua por bot y cerebro", "Conector de lectura de Discord", "Fuente de analítica real", "Confirmar si NovaQ forma parte del alcance: no se asume que sea Nova HUB"],
+  "datos_privados": "No se incluyen mensajes de Discord, correos, montos ni credenciales en informes públicos.",
+  "ia": {"habilitada": false, "presupuesto_modelos": 0, "analisis_actual": "Reglas deterministas con evidencia; no se simulan conversaciones entre modelos."}
+}

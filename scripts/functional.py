@@ -3,7 +3,7 @@ import argparse,datetime as dt,json,re,subprocess
 from pathlib import Path
 TESTS={
 'vortex':('Vortex-By-Nova-Nexus',['tests/ai.test.js','tests/indicators.test.js','tests/news.test.js','tests/brain-sync.test.js']),
-'novahub':('Nova-HUB',['tests/sync.test.js','tests/backup.test.js','tests/brain-sync.test.js','tests/briefing.test.js']),
+'apps':('Nova-HUB',['tests/sync.test.js','tests/backup.test.js','tests/brain-sync.test.js','tests/briefing.test.js']),
 'neural':('Neural-Brain-Claude',['tests/brain-learn.test.js']),
 'bots':('Vortex-By-Nova-Nexus',['tests/botlab.test.js','tests/botlab-paper.test.js','tests/botlab-risk.test.js','tests/botlab-retrain.test.js','tests/botlab-brain.test.js','tests/botlab-coach.test.js'])}
 def run(agent,out):

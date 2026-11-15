@@ -1,11 +1,17 @@
-name: Sala · auditorías y reportes
+name: Sala · auditar y reportar (sin modificar producción)
 on:
   schedule:
     - cron: '17 * * * *'
+    - cron: '0 3,15 * * *'
+    - cron: '0 15 * * 1'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths-ignore: ['data/**', 'README.md']
+    inputs:
+      ronda:
+        description: Tipo de revisión
+        type: choice
+        required: true
+        default: completa
+        options: [ligera, completa, semanal]
 concurrency:
   group: sala-supervision
   cancel-in-progress: false
@@ -13,113 +19,108 @@ permissions:
   contents: read
   actions: read
 jobs:
+  plan:
+    name: Programador · America/Mexico_City
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      ronda: ${{ steps.tipo.outputs.ronda }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - id: tipo
+        run: python3 scripts/pipeline.py plan
+        env:
+          SALA_CRON: ${{ github.event.schedule }}
+          SALA_RONDA: ${{ inputs.ronda || 'completa' }}
   auditores:
     name: Auditor · ${{ matrix.agente }}
+    needs: plan
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 18
     strategy:
       fail-fast: false
       max-parallel: 2
       matrix:
-        agente: [vortex, novahub, neural, discord, bots]
+        agente: [vortex, bots, neural, apps, discord]
+    env:
+      SALA_RONDA: ${{ needs.plan.outputs.ronda }}
     steps:
       - uses: actions/checkout@v4
-      - run: python3 scripts/monitor.py auditor --agent "${{ matrix.agente }}" --output out
-      - name: Pruebas de código aisladas
-        if: matrix.agente != 'discord'
-        run: python3 scripts/functional.py "${{ matrix.agente }}" --output out
-      - name: Revisar procesos de conexión y aprendizaje
+        with:
+          persist-credentials: false
+      - name: Salud de las aplicaciones públicas
+        run: python3 scripts/pipeline.py auditor --agent "${{ matrix.agente }}" --output out
+      - name: Procesos y conexiones de solo lectura
         run: python3 scripts/integrations.py "${{ matrix.agente }}" out
         env:
           GH_READ_TOKEN: ${{ github.token }}
-      - name: Instalar navegador de auditoría
-        if: matrix.agente == 'vortex' || matrix.agente == 'novahub' || matrix.agente == 'neural'
+      - name: Pruebas aisladas (solo ronda completa)
+        if: needs.plan.outputs.ronda == 'completa' && matrix.agente != 'discord'
+        run: python3 scripts/functional.py "${{ matrix.agente }}" --output out
+      - name: Preparar navegador (solo ronda completa)
+        if: needs.plan.outputs.ronda == 'completa' && (matrix.agente == 'vortex' || matrix.agente == 'apps' || matrix.agente == 'neural')
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.65.1
           npx playwright install --with-deps chromium
-      - name: Navegación anónima en computadora y móvil
-        if: matrix.agente == 'vortex' || matrix.agente == 'novahub' || matrix.agente == 'neural'
+      - name: Recorridos anónimos sin escrituras remotas
+        if: needs.plan.outputs.ronda == 'completa' && (matrix.agente == 'vortex' || matrix.agente == 'apps' || matrix.agente == 'neural')
         run: node scripts/browser-audit.cjs "${{ matrix.agente }}" out
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: auditor-${{ matrix.agente }}
           path: out/*.json
-          retention-days: 7
+          retention-days: 90
   gerente:
-    name: Gerente · consolidar evidencia
-    needs: auditores
-    if: always()
+    name: Nivel 2 · Gerente · consolidar y verificar recibos
+    needs: [plan, auditores]
+    if: always() && needs.plan.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    env:
+      SALA_RONDA: ${{ needs.plan.outputs.ronda }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           pattern: auditor-*
           path: reports
           merge-multiple: true
-      - run: python3 scripts/monitor.py gerente --input reports --output out
+      - run: python3 scripts/pipeline.py gerente --input reports --output out
       - uses: actions/upload-artifact@v4
         with:
           name: gerente
           path: out/gerente.json
-          retention-days: 7
+          retention-days: 90
   jefe:
-    name: Gerente → tú (Jefe) · publicar reporte
+    name: Nivel 1 · Jefe · validar y entregar al propietario
     needs: gerente
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     permissions:
-      contents: write
-      issues: write
+      contents: read
+      actions: read
+      checks: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
           name: gerente
           path: reports
-      - run: python3 scripts/monitor.py jefe --input reports
-      - name: Aviso de incidencias para el propietario
-        continue-on-error: true
-        run: python3 scripts/notify.py
+      - name: Validar, priorizar y registrar informe para el panel
+        run: python3 scripts/pipeline.py jefe --input reports --output out
         env:
-          GH_TOKEN: ${{ github.token }}
-      - name: Guardar historial y último reporte
-        run: |
-          git config user.name "Sala de agentes"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/latest.json data/history.json
-          git diff --cached --quiet || git commit -m "Registrar revisión y reporte del Jefe"
-          git push
+          GH_REPORT_TOKEN: ${{ github.token }}
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: reporte-jefe
-          path: data/*.json
-          retention-days: 7
-  publicar-panel:
-    name: Publicar panel 3D y reporte
-    needs: jefe
-    runs-on: ubuntu-latest
-    timeout-minutes: 8
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-      - run: python3 scripts/package_site.py
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-      - name: Desplegar GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: informe-jefe-y-recibo
+          path: out/*.json
+          retention-days: 90
