@@ -13,5 +13,10 @@
     "fecha": "2026-11-15T12:20:06.320710-06:00",
     "ejecucion": "43746092943",
     "resumen": "3 páginas cumplen el sondeo HTTP; 0 comprobaciones fallaron; 2 auditores no pudieron comprobar su objetivo. Pruebas funcionales y entrega externa pendientes."
+  },
+  {
+    "fecha": "2026-11-15T12:21:12.658034-06:00",
+    "ejecucion": "43746212547",
+    "resumen": "3 páginas cumplen el sondeo HTTP; 0 comprobaciones fallaron; 2 auditores no pudieron comprobar su objetivo. Pruebas funcionales y entrega externa pendientes."
   }
 ]
