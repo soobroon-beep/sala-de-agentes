@@ -1,16 +1,16 @@
 {
   "version": 2,
-  "generado": "2026-11-15T12:13:24.391428-06:00",
+  "generado": "2026-11-15T12:17:30.636851-06:00",
   "zona_horaria": "America/Mexico_City",
-  "ejecucion": "preparacion-local",
-  "origen": "ejecucion local verificable",
-  "url_ejecucion": null,
+  "ejecucion": "43745857092",
+  "origen": "push",
+  "url_ejecucion": "https://github.com/soobroon-beep/sala-de-agentes/actions/runs/43745857092",
   "operacion_completa_24_7": false,
   "auditores": [
     {
       "agente": "vortex",
       "aplicacion": "Vortex",
-      "fecha": "2026-11-15T12:13:11.906802-06:00",
+      "fecha": "2026-11-15T12:17:00.348766-06:00",
       "resultado": "funciona",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -21,7 +21,7 @@
       "gravedad": "sin incidencia HTTP",
       "evidencia": {
         "http": 200,
-        "ms": 5189,
+        "ms": 212,
         "bytes_muestreados": 50651,
         "sha256_muestra": "a5e24f36cfb20c1dc5fb6827aa7a1965070fcc5671c58bdfcf9a00c8766daa86",
         "url_final": "https://soobroon-beep.github.io/Vortex-By-Nova-Nexus/",
@@ -35,7 +35,7 @@
     {
       "agente": "novahub",
       "aplicacion": "Nova Hub",
-      "fecha": "2026-11-15T12:13:17.096258-06:00",
+      "fecha": "2026-11-15T12:16:59.210940-06:00",
       "resultado": "funciona",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -46,7 +46,7 @@
       "gravedad": "sin incidencia HTTP",
       "evidencia": {
         "http": 200,
-        "ms": 3797,
+        "ms": 139,
         "bytes_muestreados": 630204,
         "sha256_muestra": "3bf86143a6986d6b4b632fcb588e13cf369678e047d92576728864d44e68f43f",
         "url_final": "https://soobroon-beep.github.io/Nova-HUB/",
@@ -60,7 +60,7 @@
     {
       "agente": "neural",
       "aplicacion": "Neural Brain",
-      "fecha": "2026-11-15T12:13:20.893418-06:00",
+      "fecha": "2026-11-15T12:17:05.723261-06:00",
       "resultado": "funciona",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -71,7 +71,7 @@
       "gravedad": "sin incidencia HTTP",
       "evidencia": {
         "http": 200,
-        "ms": 3498,
+        "ms": 115,
         "bytes_muestreados": 89386,
         "sha256_muestra": "9103d8be4de93256528d9e2e4c4650db95457d85c2fe4a114bb589cd596fbacd",
         "url_final": "https://soobroon-beep.github.io/Neural-Brain/",
@@ -85,7 +85,7 @@
     {
       "agente": "discord",
       "aplicacion": "Discord",
-      "fecha": "2026-11-15T12:13:24.391060-06:00",
+      "fecha": "2026-11-15T12:17:14.077083-06:00",
       "resultado": "no se pudo comprobar",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -99,7 +99,7 @@
     {
       "agente": "bots",
       "aplicacion": "Bots Vortex",
-      "fecha": "2026-11-15T12:13:24.391088-06:00",
+      "fecha": "2026-11-15T12:17:13.163622-06:00",
       "resultado": "no se pudo comprobar",
       "entorno": "producción pública · solo lectura",
       "funcion": "Entrega del documento HTML",
@@ -113,7 +113,7 @@
   ],
   "gerente": {
     "agente": "gerente",
-    "fecha": "2026-11-15T12:13:24.391116-06:00",
+    "fecha": "2026-11-15T12:17:22.525881-06:00",
     "resultado": "consolidado",
     "resumen": "Cinco auditores consolidados; cada bloqueo conserva su motivo. No se presume funcionamiento de lo no comprobado.",
     "responsables": {
@@ -127,36 +127,10 @@
   },
   "jefe": {
     "agente": "jefe",
-    "fecha": "2026-11-15T12:13:24.391519-06:00",
+    "fecha": "2026-11-15T12:17:30.636891-06:00",
     "resultado": "reporte preparado",
     "resumen": "3 páginas cumplen el sondeo HTTP; 0 comprobaciones fallaron; 2 auditores no pudieron comprobar su objetivo. Pruebas funcionales y entrega externa pendientes.",
-    "cambios": [
-      {
-        "agente": "vortex",
-        "anterior": "sin revisión",
-        "actual": "funciona"
-      },
-      {
-        "agente": "novahub",
-        "anterior": "sin revisión",
-        "actual": "funciona"
-      },
-      {
-        "agente": "neural",
-        "anterior": "sin revisión",
-        "actual": "funciona"
-      },
-      {
-        "agente": "discord",
-        "anterior": "sin revisión",
-        "actual": "no se pudo comprobar"
-      },
-      {
-        "agente": "bots",
-        "anterior": "sin revisión",
-        "actual": "no se pudo comprobar"
-      }
-    ],
+    "cambios": [],
     "entrega": "Publicado en data/latest.json para consulta en el panel; sin notificación externa.",
     "decisiones": [
       "Canal de notificación y horario diario/semanal.",
