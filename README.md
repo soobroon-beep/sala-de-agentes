@@ -23,3 +23,10 @@ Controles de teclado para elegir los siete agentes, pausar, restaurar cámara y 
 
 ## Seguridad y cobertura
 Pruebas GET de lectura con User-Agent `SalaAuditoria/2.0` y cabecera `X-Synthetic-Monitor: sala-de-agentes`. Estas señales deben excluirse explícitamente en la fuente de analítica antes de afirmar separación de tráfico. No hay órdenes financieras, cambios de roles, mensajes a miembros ni modificaciones de producción. Presupuesto de IA: 0, al no haber modelos conectados. Costos de alojamiento y acciones: no medidos por este panel.
+
+## Actualización: auditoría horaria y propietario como Jefe
+La programación pasa a una vez por hora, minuto 17 UTC (minuto 17 de cada hora en America/Mexico_City). Los trabajos de auditoría realizan HTTP, pruebas aisladas del código, lectura de metadatos de procesos y navegación anónima en escritorio/móvil para los tres proyectos web. La navegación usa una lista permitida e inventaría el resto de controles como no comprobados. Se bloquean escrituras remotas y no se envían prompts de IA a proveedores. Neural-Brain-Claude es la versión que usa el aprendizaje; también se visita Neural-Brain.
+
+El Gerente conserva recibos de los reportes de cada auditor y entrega el consolidado al propietario, que es el Jefe. El panel muestra hallazgos por aplicación/función con evidencia y estado. Los avisos se agrupan en una incidencia de GitHub asignada al propietario; su recepción depende de las preferencias de notificación de su cuenta. No hay todavía un canal Discord/WhatsApp/correo conectado desde la sala.
+
+`data/revision-manual.json` conserva evidencias públicas puntuales. No se interpreta como telemetría actual. Las operaciones reales, la privacidad y el contenido de mensajes de Discord no se publican en este sitio público. Una suite de simulación satisfactoria no certifica ejecución de stop loss/take profit en exchanges.

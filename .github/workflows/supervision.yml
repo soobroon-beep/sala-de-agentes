@@ -1,7 +1,7 @@
 name: Sala · auditorías y reportes
 on:
   schedule:
-    - cron: '2-57/5 * * * *'
+    - cron: '17 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -15,7 +15,7 @@ jobs:
   auditores:
     name: Auditor · ${{ matrix.agente }}
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       max-parallel: 2
@@ -24,7 +24,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 scripts/monitor.py auditor --agent "${{ matrix.agente }}" --output out
+      - name: Pruebas de código aisladas
+        if: matrix.agente != 'discord'
+        run: python3 scripts/functional.py "${{ matrix.agente }}" --output out
+      - name: Revisar procesos de conexión y aprendizaje
+        run: python3 scripts/integrations.py "${{ matrix.agente }}" out
+      - name: Instalar navegador de auditoría
+        if: matrix.agente == 'vortex' || matrix.agente == 'novahub' || matrix.agente == 'neural'
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.65.1
+          npx playwright install --with-deps chromium
+      - name: Navegación anónima en computadora y móvil
+        if: matrix.agente == 'vortex' || matrix.agente == 'novahub' || matrix.agente == 'neural'
+        run: node scripts/browser-audit.cjs "${{ matrix.agente }}" out
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: auditor-${{ matrix.agente }}
           path: out/*.json
@@ -49,12 +63,13 @@ jobs:
           path: out/gerente.json
           retention-days: 7
   jefe:
-    name: Jefe · publicar reporte
+    name: Gerente → tú (Jefe) · publicar reporte
     needs: gerente
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
       contents: write
+      issues: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,6 +79,11 @@ jobs:
           name: gerente
           path: reports
       - run: python3 scripts/monitor.py jefe --input reports
+      - name: Aviso de incidencias para el propietario
+        continue-on-error: true
+        run: python3 scripts/notify.py
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Guardar historial y último reporte
         run: |
           git config user.name "Sala de agentes"
