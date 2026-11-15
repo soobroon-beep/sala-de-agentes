@@ -1,0 +1,99 @@
+name: Sala · auditorías y reportes
+on:
+  schedule:
+    - cron: '2-57/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ['data/**', 'README.md']
+concurrency:
+  group: sala-supervision
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  auditores:
+    name: Auditor · ${{ matrix.agente }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        agente: [vortex, novahub, neural, discord, bots]
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/monitor.py auditor --agent "${{ matrix.agente }}" --output out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: auditor-${{ matrix.agente }}
+          path: out/*.json
+          retention-days: 7
+  gerente:
+    name: Gerente · consolidar evidencia
+    needs: auditores
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: auditor-*
+          path: reports
+          merge-multiple: true
+      - run: python3 scripts/monitor.py gerente --input reports --output out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gerente
+          path: out/gerente.json
+          retention-days: 7
+  jefe:
+    name: Jefe · publicar reporte
+    needs: gerente
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: gerente
+          path: reports
+      - run: python3 scripts/monitor.py jefe --input reports
+      - name: Guardar historial y último reporte
+        run: |
+          git config user.name "Sala de agentes"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/latest.json data/history.json
+          git diff --cached --quiet || git commit -m "Registrar revisión y reporte del Jefe"
+          git push
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reporte-jefe
+          path: data/*.json
+          retention-days: 7
+  publicar-panel:
+    name: Publicar panel 3D y reporte
+    needs: jefe
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - run: python3 scripts/package_site.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Desplegar GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
