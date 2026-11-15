@@ -45,6 +45,10 @@ def manager(rows):
     components['interfaz']=r
     for page in r['paginas']:
      for error in page.get('errores_js',[]):findings.append({'aplicacion':v[0],'funcion':'JavaScript de interfaz','entorno':page.get('viewport'),'esperado':'Sin excepciones JavaScript','observado':error,'pasos':['Abrir '+page.get('url',''),'Navegar con los controles permitidos del inventario'],'gravedad':'media','estado':'investigando','responsable':'Auditor de '+v[0]})
+     network=[x for x in page.get('red_fallida',[]) if x.get('error')!='net::ERR_ABORTED']
+     if network:
+      unique=list({(x.get('url'),x.get('http'),x.get('error')):x for x in network}.values())
+      findings.append({'aplicacion':v[0],'funcion':'APIs y solicitudes de red','esperado':'Los proveedores responden o se comprueba la recuperación con un respaldo','observado':'Se observaron solicitudes fallidas desde el ejecutor de pruebas. Puede tratarse de restricciones del proveedor o del entorno; no se confirma una caída general. Rutas: '+str(unique[:12]),'evidencia':unique,'entorno':page.get('viewport'),'gravedad':'media','estado':'investigando','responsable':'Auditor de '+v[0],'siguiente_paso':'Reproducir la conexión y comprobar si el proveedor de respaldo completa la función.'})
      if page.get('desbordamiento_horizontal'):findings.append({'aplicacion':v[0],'funcion':'Diseño adaptable','esperado':'Sin desbordamiento horizontal','observado':'El documento excede el ancho de la pantalla','entorno':page.get('viewport'),'gravedad':'baja','estado':'investigando','responsable':'Auditor de '+v[0]})
    elif 'pruebas' in r or 'bloqueo' in r:
     components['codigo']=r
@@ -57,6 +61,7 @@ def manager(rows):
   findings.extend(f for f in manual.get('hallazgos',[]) if f.get('agente')==a)
   base['componentes']=components;base['hallazgos']=findings;base['cobertura_completa']=False;base['resultado_http']=base['resultado']
   if any(r.get('resultado')=='falló' for r in components.values()):base['resultado']='falló';base['resumen']='Se detectaron fallos en las comprobaciones disponibles; ver hallazgos y evidencia.'
+  elif any(f.get('funcion')=='APIs y solicitudes de red' for f in findings):base['resultado']='no se pudo comprobar';base['resumen']='Navegación comprobada, pero hubo solicitudes de red fallidas. Falta verificar los respaldos o restricciones del ejecutor; consulta los hallazgos.'
   elif components.get('interfaz',{}).get('resultado')=='no se pudo comprobar':base['resultado']='no se pudo comprobar';base['resumen']='Renderizado comprobado, pero los recorridos no pudieron verificarse (por ejemplo, falta sesión). Ver cobertura y evidencia.'
   elif components:base['resumen']+=' Interfaz, código e integraciones: consultar cobertura; las funciones privadas siguen sin certificar.'
   output.append(base);receipts.append({'auditor':a,'reportes_recibidos':len(group),'tipos':list(components),'fecha':stamp(),'salud_recibida':any('funcion' in r for r in group)})

@@ -26,4 +26,10 @@ class DeliveryReceipts(unittest.TestCase):
   report=monitor.chief(manager)
   self.assertEqual(report['jefe']['identidad'],'Propietario humano · tú')
   self.assertEqual(report['cadencia_minutos'],60)
+class NetworkCoverage(unittest.TestCase):
+ def test_provider_error_is_visible_without_claiming_app_outage(self):
+  m=monitor.manager([{'agente':'vortex','aplicacion':'Vortex','resultado':'funciona','funcion':'HTTP','resumen':'OK'}, {'agente':'vortex','resultado':'funciona','paginas':[{'viewport':{'width':390},'red_fallida':[{'url':'https://provider.example/data','http':403}]}]}])
+  a=m['auditores'][0]
+  self.assertEqual(a['resultado'],'no se pudo comprobar')
+  self.assertTrue(any(f['funcion']=='APIs y solicitudes de red' for f in a['hallazgos']))
 if __name__=='__main__':unittest.main()
