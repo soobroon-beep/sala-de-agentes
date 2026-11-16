@@ -2,7 +2,7 @@
   "version": 4,
   "zona_horaria": "America/Mexico_City",
   "canal": "panel de la sala",
-  "horarios": {"ligera": "cada hora, minuto 17", "completa": ["09:00", "21:00"], "semanal": "lunes 09:00"},
+  "horarios": {"ligera": "cada hora, minuto 23", "completa": ["09:00", "21:00"], "semanal": "lunes 09:00"},
   "estados": ["FUNCIONA", "FALLÓ", "NO SE PUDO COMPROBAR"],
   "severidades": ["Crítico", "Alto", "Medio", "Bajo"],
   "puestos": [

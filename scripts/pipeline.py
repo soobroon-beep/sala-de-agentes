@@ -83,9 +83,17 @@ if __name__=='__main__':
  elif a.mode=='gerente':save(out/'gerente.json',consolidate(a.input))
  else:
   manager=monitor.read(Path(a.input)/'gerente.json',{});previous=[]
-  try:previous=report_store.history(200 if manager.get('ronda')=='semanal' else 1)
+  try:previous=report_store.history(200 if manager.get('ronda')=='semanal' else 40)
   except Exception as e:print('Historial previo no disponible:',type(e).__name__)
   result=validate(manager,previous[0] if previous else None,previous)
   result['jefe']['historial_previo_disponible']=bool(previous)
+  scheduled=next((r for r in previous if r.get('origen')=='schedule'),None)
+  result['monitor']={'ultima_programada':scheduled.get('generado') if scheduled else None,'vigilante_externo':'Configurado en ChatGPT; primera ejecución pendiente de verificar.','umbral_atraso_minutos':90,'diagnostico':'La entrega previa se completó. Los huecos sin ejecución no prueban una caída de las aplicaciones.'}
+  result['telemetria']={a['agente']:a.get('componentes',{}).get('telemetria',{}) for a in result['auditores'] if a['agente'] in ('bots','neural')}
+  for agent,current in result['telemetria'].items():
+   prior=(previous[0].get('telemetria',{}).get(agent,{}) if previous else {})
+   old={b['alias']:b for b in prior.get('telemetria',{}).get('cerebros',[])}
+   brains=current.get('telemetria',{}).get('cerebros',[])
+   current['comparacion']={'muestra_anterior':prior.get('fecha_fuente'),'aprendizajes_actualizados':sum(bool(b.get('ultimo_aprendizaje') and b['alias'] in old and b['ultimo_aprendizaje']>(old[b['alias']].get('ultimo_aprendizaje') or '')) for b in brains) if old else None,'alcance':'Cambios de fecha registrada; no demuestra mejora de calidad.'}
   save(out/'reporte-jefe.json',result)
   receipt=report_store.deliver(result);save(out/'entrega.json',receipt);print(json.dumps(receipt,ensure_ascii=False))

@@ -28,7 +28,7 @@ class Pipeline(unittest.TestCase):
  def test_medium_findings_do_not_alert(self):
   r=pipeline.validate(self.manager(self.rows()));self.assertFalse(r['jefe']['alertas_inmediatas'])
  def test_light_and_complete_schedule(self):
-  cases=[('17 * * * *','ligera'),('0 3,15 * * *','completa'),('0 15 * * 1','semanal')]
+  cases=[('23 * * * *','ligera'),('0 3,15 * * *','completa'),('0 15 * * 1','semanal')]
   for cron,expected in cases:
    with patch.dict(os.environ,{'GITHUB_EVENT_NAME':'schedule','SALA_CRON':cron}):self.assertEqual(pipeline.plan(),expected)
  def test_report_copy_does_not_leak_inventory_or_modify_original(self):

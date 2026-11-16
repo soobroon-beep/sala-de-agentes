@@ -57,3 +57,10 @@ Los cinco auditores rodean al Gerente, situado al centro. Cada auditor conserva 
 El cambio de piso recorre tres tramos con aceleración y frenado suaves: salida del ventanal, vista exterior del edificio con ascenso/descenso y entrada al nivel de destino. Incluye indicador de fase, botón para omitir y cambio inmediato cuando se prefiere movimiento reducido. La pausa de robots no impide navegar.
 
 El panel «Esquema visual» explica cuatro pasos de cada responsabilidad mediante iconos y conexiones de colores. Está etiquetado como esquema, no como telemetría. Debajo muestra el resultado y la fecha del informe real disponible; nunca grafica aprendizajes ni cantidades inventadas. El segundo piso permanece vacío.
+
+
+### Telemetría y vigilancia del monitor
+
+El recolector `sala-telemetry.yml` de Vortex consulta Firestore por lectura con su conexión existente; no ejecuta motores, conectores de escritura, aprendizaje ni órdenes. Publica un índice sanitizado en GitHub Checks: alias HMAC de bots/cerebros, estados, fechas y conteos; nunca montos, correos, textos privados ni credenciales. La sala lo lee en cada ronda con `scripts/telemetry.py`. Muestras mayores a 90 minutos quedan sin comprobar. Una lectura recibida no certifica que un bot opere correctamente ni que un aprendizaje mejore su calidad. Los cambios de fecha se comparan con la muestra previa.
+
+La revisión ligera se volvió a registrar al minuto 23 de cada hora; GitHub puede retrasarla u omitirla. El panel separa la antigüedad del informe de la salud de las apps. Se configuró un vigilante horario independiente en ChatGPT para avisos por falta de entrega de más de 90 minutos; su primera ejecución debe verificarse por separado. La causa exacta de huecos del cron no está demostrada. Las entregas manuales no se presentan como prueba de puntualidad del cron.

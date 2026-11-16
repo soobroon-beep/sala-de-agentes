@@ -46,7 +46,7 @@ def manager(rows):
   if row.get('agente') in grouped:grouped[row['agente']].append(row)
  output=[];receipts=[]
  for a,v in TARGETS.items():
-  group=grouped[a];base=next((r.copy() for r in group if not any(k in r for k in ['paginas','pruebas','flujos','bloqueo'])),None)
+  group=grouped[a];base=next((r.copy() for r in group if not any(k in r for k in ['paginas','pruebas','flujos','bloqueo','telemetria'])),None)
   if base is None:base={'agente':a,'aplicacion':v[0],'fecha':stamp(),'resultado':'no se pudo comprobar','resumen':'El auditor no entregó su reporte de salud; revisar ejecución.'}
   components={};findings=[]
   for r in group:
@@ -64,6 +64,13 @@ def manager(rows):
       finding.update(aplicacion=page.get('aplicacion',v[0]),fecha=r.get('fecha',base.get('fecha',stamp())),url=page.get('url'),naturaleza='hecho confirmado' if finding['funcion']!='APIs y solicitudes de red' else 'inferencia')
       finding.setdefault('pasos',['Abrir '+page.get('url',''),'Ejecutar navegación permitida en '+str(page.get('viewport',{}))])
       finding.setdefault('evidencia',{'observado':finding.get('observado'),'url':page.get('url')})
+   elif 'telemetria' in r:
+    components['telemetria']=r
+    for bot in r.get('telemetria',{}).get('bots',[]):
+     if bot.get('errores_observados',0) or bot.get('protecciones_paper_ausentes',0):findings.append({'aplicacion':v[0],'funcion':'Estado persistido de '+bot['alias'],'esperado':'Sin errores registrados y protecciones presentes en posiciones paper observadas','observado':{'errores_observados':bot.get('errores_observados',0),'protecciones_paper_ausentes':bot.get('protecciones_paper_ausentes',0)},'evidencia':r.get('fuente'),'gravedad':'media','estado':'investigando','responsable':'Auditor de Bots Vortex','siguiente_paso':'Revisar la sesión de prueba correspondiente; el registro no confirma un fallo actual ni autoriza órdenes.'})
+    for conn in r.get('telemetria',{}).get('conexiones',[]):
+     if conn.get('sincronizacion_minutos') is not None and conn['sincronizacion_minutos']>90:findings.append({'aplicacion':'Neural Brain','funcion':'Sincronización con '+conn['aplicacion'],'esperado':'Registro de sincronización de menos de 90 minutos','observado':conn,'evidencia':r.get('fuente'),'gravedad':'media','estado':'investigando','responsable':'Auditor de Neural Brain','siguiente_paso':'Comparar con el conector; no forzar sincronización ni modificar datos.'})
+    if r.get('resultado')!='funciona':findings.append({'aplicacion':v[0],'funcion':'Telemetría de servidor','esperado':'Muestra reciente y lectura verificable','observado':r.get('resumen'),'evidencia':{'fuente':r.get('fuente'),'bloqueos':r.get('bloqueos',[])},'gravedad':'media','estado':'pendiente de decisión','responsable':'Auditor de '+v[0],'siguiente_paso':'Verificar el recolector y sus permisos de solo lectura.'})
    elif 'pruebas' in r or 'bloqueo' in r:
     components['codigo']=r
     if r.get('resultado')=='falló':findings.append({'aplicacion':v[0],'funcion':'Pruebas de código','esperado':'Suite satisfactoria','observado':r.get('detalle',r.get('evidencia',[])),'entorno':'Simulación aislada','gravedad':'alta' if a=='bots' else 'media','estado':'investigando','responsable':'Auditor de '+v[0]})

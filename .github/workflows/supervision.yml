@@ -1,7 +1,7 @@
 name: Sala · auditar y reportar (sin modificar producción)
 on:
   schedule:
-    - cron: '17 * * * *'
+    - cron: '23 * * * *'
     - cron: '0 3,15 * * *'
     - cron: '0 15 * * 1'
   workflow_dispatch:
@@ -54,6 +54,11 @@ jobs:
         run: python3 scripts/pipeline.py auditor --agent "${{ matrix.agente }}" --output out
       - name: Procesos y conexiones de solo lectura
         run: python3 scripts/integrations.py "${{ matrix.agente }}" out
+        env:
+          GH_READ_TOKEN: ${{ github.token }}
+      - name: Leer telemetría sanitizada de bots y cerebros
+        if: matrix.agente == 'bots' || matrix.agente == 'neural'
+        run: python3 scripts/telemetry.py "${{ matrix.agente }}" out
         env:
           GH_READ_TOKEN: ${{ github.token }}
       - name: Pruebas aisladas (solo ronda completa)
