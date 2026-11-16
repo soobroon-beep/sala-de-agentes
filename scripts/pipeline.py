@@ -88,7 +88,7 @@ if __name__=='__main__':
   result=validate(manager,previous[0] if previous else None,previous)
   result['jefe']['historial_previo_disponible']=bool(previous)
   scheduled=next((r for r in previous if r.get('origen')=='schedule'),None)
-  result['monitor']={'ultima_programada':scheduled.get('generado') if scheduled else None,'vigilante_externo':'Configurado en ChatGPT; primera ejecución pendiente de verificar.','umbral_atraso_minutos':90,'diagnostico':'La entrega previa se completó. Los huecos sin ejecución no prueban una caída de las aplicaciones.'}
+  result['monitor']={'ultima_programada':scheduled.get('generado') if scheduled else None,'vigilante_externo':'Creado en ChatGPT; primera ejecución falló, entrega no comprobada.','umbral_atraso_minutos':90,'diagnostico':'La entrega previa se completó. Los huecos sin ejecución no prueban una caída de las aplicaciones.'}
   result['telemetria']={a['agente']:a.get('componentes',{}).get('telemetria',{}) for a in result['auditores'] if a['agente'] in ('bots','neural')}
   for agent,current in result['telemetria'].items():
    prior=(previous[0].get('telemetria',{}).get(agent,{}) if previous else {})
