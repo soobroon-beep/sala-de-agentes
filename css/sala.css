@@ -174,3 +174,17 @@ input[type=range]{padding:0;height:26px;background:transparent;border:none;accen
 .roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px}.rl{display:grid;grid-template-columns:30px 1fr;grid-template-rows:auto auto;column-gap:8px;text-align:left;padding:8px;border-radius:12px;border:1px solid var(--line);background:var(--glass2);cursor:pointer}
 .rl img{grid-row:1/3;width:30px;height:30px;object-fit:contain}.rl b{font-size:12.5px}.rl small{color:var(--mut);font-size:10.5px;line-height:1.25}.rl.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
 .tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}.tl{display:grid;grid-template-columns:18px 1fr;column-gap:8px;text-align:left;padding:9px;border-radius:12px;border:1px solid var(--line);background:var(--glass2);cursor:pointer}.tl svg{grid-row:1/3;margin-top:2px}.tl b{font-size:12.5px}.tl small{color:var(--mut);font-size:11px;line-height:1.3}.tl.on{border-color:rgba(124,92,255,.6);background:rgba(124,92,255,.12)}
+
+/* ───────── Memoria compartida ───────── */
+.mhub{position:relative;height:300px;margin-bottom:14px;overflow:hidden;border-radius:26px}.mh-l{position:absolute;inset:0;width:100%;height:100%}
+.mh-p{fill:none;stroke:color-mix(in srgb,var(--c) 45%,transparent);stroke-width:1.6;stroke-dasharray:3 7;animation:flow 2s linear infinite;animation-delay:var(--d)}
+.mh-n{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}.mh-n b{font-family:var(--fh);font-size:14px;margin-top:4px}.mh-n small{color:var(--mut);font-size:11px}
+.mh-n .av{animation:float 5s ease-in-out infinite;border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}.mh-n.on .av{box-shadow:0 0 0 1px var(--c),0 0 26px color-mix(in srgb,var(--c) 45%,transparent)}
+.mh-core{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%);width:100px;height:100px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(14,18,30,.6);border:1px solid rgba(124,92,255,.35);box-shadow:0 0 40px rgba(124,92,255,.15)}
+.mh-core img{width:34px;height:34px}.mh-core b{font-family:var(--fh);font-size:20px;line-height:1.1}.mh-core small{color:var(--mut);font-size:10.5px}
+.mtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.mtools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.mtools select{width:auto}
+.mpane{display:flex;flex-direction:column;gap:10px}.mlog header .ib{margin-left:auto;width:28px;height:28px;font-size:18px;color:var(--mut)}
+.mform textarea{min-height:140px}.mproj ul{margin:4px 0;padding-left:18px;color:#c9cfdc;font-size:13px}.mproj p{margin:0}
+.mcon{padding:14px 16px;border-left:2px solid var(--c)}.mcon header{display:flex;gap:10px;align-items:center;margin-bottom:6px}.mcon header b{font-family:var(--fh);font-size:16px;display:block}.mcon header small{color:var(--mut)}
+.mcon ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}.mcon li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#d6dbe7}.mcon li i{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:11.5px;background:color-mix(in srgb,var(--c) 25%,transparent);color:var(--c)}
+.mcon li .btn{margin:4px 0 0;display:inline-flex}

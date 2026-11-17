@@ -23,7 +23,8 @@
   function mergeStore(a, b) {
     const del = Object.assign({}, a.deleted, b.deleted), pick = (x, y) => (x.updatedAt || x.at || 0) >= (y.updatedAt || y.at || 0) ? x : y;
     const un = (xs, ys) => { const m = new Map(); for (const x of [...xs, ...ys]) m.set(x.id, m.has(x.id) ? pick(m.get(x.id), x) : x); return [...m.values()].filter(x => !(del[x.id] >= (x.updatedAt || x.at || 0))); };
-    return {v: 2, rooms: un(a.rooms || [], b.rooms || []), runs: un(a.runs || [], b.runs || []).sort((x, y) => y.at - x.at).slice(0, 20), deleted: del};
+    const mem = !a.mem ? b.mem : !b.mem ? a.mem : ((b.mem.updatedAt || 0) > (a.mem.updatedAt || 0) ? b.mem : a.mem); // llave de la memoria compartida
+    return {v: 2, rooms: un(a.rooms || [], b.rooms || []), runs: un(a.runs || [], b.runs || []).sort((x, y) => y.at - x.at).slice(0, 20), deleted: del, mem: mem || null};
   }
   function save() {
     S.runs = S.runs.slice(0, 20); try { localStorage.setItem(LS, JSON.stringify(S)); } catch { S.runs = S.runs.slice(0, 8); try { localStorage.setItem(LS, JSON.stringify(S)); } catch {} }
@@ -61,6 +62,8 @@
         <h2>${esc(r.name)}</h2><p>${esc(r.desc || '')}</p>
         <div class="chips"><span>${r.agents.length} agentes</span><span>${r.final === 'proposal' ? 'Propone bots' : 'Entrega un informe'}</span>${r.agents.some(a => a.tool) ? '<span>Datos reales</span>' : ''}</div>
         <a class="btn pri" href="#/sala/${encodeURIComponent(r.id)}">${ic('play', 16)}Entrar a la sala</a></article>`).join('')}
+        <a class="card glass" href="#/memoria" style="--c:#fb923c"><div class="card-top"><div class="stack"><span class="av" style="--c:#fb923c;width:38px;height:38px"><img src="icons/bots/cometa.png" alt=""></span><span class="av" style="--c:#20bf9f;width:38px;height:38px"><img src="icons/bots/robot.png" alt=""></span><span class="av" style="--c:#548fff;width:38px;height:38px"><img src="icons/bots/estrella.png" alt=""></span></div></div>
+          <h2>Memoria compartida</h2><p>Claude, ChatGPT y Gemini leen qué estás creando y guardan lo que avanzan, para no volver a explicarles el contexto.</p><div class="chips"><span>3 IAs</span><span>Bitácora y proyectos</span></div><span class="btn pri">${ic('open', 16)}Abrir memoria</span></a>
         <a class="card glass new" href="#/editor/nueva"><span class="plus">${ic('plus', 26)}</span><h2>Crear sala</h2><p>Arma tu propio equipo: nombre, papel e instrucciones de cada agente, quién revisa a quién y qué datos usan.</p></a>
       </div>
       <p class="foot">IA: ${esc(AI.label())}. Las pruebas de bots son simulaciones con datos históricos; nada envía órdenes reales.</p></section>`;
@@ -285,9 +288,10 @@
   /* ───────── Rutas ───────── */
   function route() {
     const h = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
-    $$('[data-nav]').forEach(a => a.classList.toggle('on', (h[0] || '') === '' ? a.dataset.nav === 'home' : h[0] === 'historial' && a.dataset.nav === 'history'));
+    $$('[data-nav]').forEach(a => a.classList.toggle('on', (h[0] || '') === '' ? a.dataset.nav === 'home' : (h[0] === 'historial' && a.dataset.nav === 'history') || (h[0] === 'memoria' && a.dataset.nav === 'mem')));
     if (h[0] === 'sala' && h[1]) { if (!$('.room') || !live || live.room.id !== h[1] || (h[2] || null) !== (live.replay ? live.replay.id : null)) roomView(h[1], h[2]); else paintPanel(); }
     else if (h[0] === 'historial') history();
+    else if (h[0] === 'memoria') window.SalaMem.render({view: () => view, state: () => S, save, toast, user: () => C.user()});
     else if (h[0] === 'editor') { if (h[1] === 'nueva' && draft && draft._for === 'nueva' && !$('.edit')) { draft = null; } editor(h[1] || 'nueva'); }
     else home();
   }
