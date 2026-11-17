@@ -58,7 +58,7 @@
     risk.capital = 10000; risk.riskPct = +inputs.riskPct || 2; risk.maxLeverage = Math.max(1, Math.min(+inputs.maxLev || 5, +risk.maxLeverage || +inputs.maxLev || 5));
     risk.minBars = Math.max(3, +risk.minBars || 0);
     if (!risk.sl) errs.push('Falta el stop loss ("sl")'); if (!risk.tp && !risk.trail) errs.push('Falta take profit ("tp") o trailing ("trail")');
-    const spec = L.normalizeSpec(Object.assign({}, d, o, {v: 1, name: String(o.name || 'Bot de la Sala').slice(0, 40), symbol: coins[0], interval: inputs.interval || '1h', risk}));
+    const spec = L.normalizeSpec(Object.assign({}, d, o, {v: 1, name: String(inputs.botName || o.name || 'Bot de la Sala').slice(0, 40), symbol: coins[0], interval: inputs.interval || '1h', risk}));
     if (coins.length >= 2) spec.basket = coins; else delete spec.basket;
     if (inputs.sides && inputs.sides !== 'ia') spec.sides = inputs.sides;
     if (spec.sides === 'long') spec.entry.short = [], spec.exit.short = []; if (spec.sides === 'short') spec.entry.long = [], spec.exit.long = [];
@@ -120,7 +120,7 @@ ${r.perSymbol ? 'Por moneda: ' + r.perSymbol.map(p => `${base(p.symbol)} ${p.n} 
   function buildProposal(ctx) {
     const judge = ctx.msgs.filter(m => m.verdict === 'aprobado').slice(-1)[0], b = ctx.bt, m = b.metrics, h = Math.abs([...ctx.spec.name].reduce((a, c) => a * 31 + c.charCodeAt(0) | 0, 7));
     return {id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), at: Date.now(), room: ctx.room.name, name: ctx.spec.name, status: 'nueva',
-      desc: String(judge ? judge.text : '').slice(0, 600), goal: String(ctx.inputs.goal || '').slice(0, 300), spec: ctx.spec, look: {color: COL[h % COL.length], icon: LOOK[h % LOOK.length]},
+      desc: String(judge ? judge.text : '').slice(0, 600), goal: String(ctx.inputs.goal || '').slice(0, 300), spec: ctx.spec, look: ctx.inputs.look && LOOK.includes(ctx.inputs.look.icon) ? {color: ctx.inputs.look.color || COL[0], icon: ctx.inputs.look.icon} : {color: COL[h % COL.length], icon: LOOK[h % LOOK.length]},
       metrics: {n: m.n, retPct: +num(m.retPct), winRate: m.winRate == null ? null : +num(m.winRate, 1), profitFactor: m.profitFactor == null ? null : +num(m.profitFactor), maxDDPct: +num(m.maxDDPct), valRet: +num(b.segments.val.retPct), testRet: +num(b.segments.test.retPct), bhRet: b.buyHold ? +num(b.buyHold.retPct) : null},
       verdict: b.verdict.text, rounds: ctx.round, team: ctx.msgs.filter(x => x.verdict).slice(-3).map(x => `${x.fromName}: ${x.verdict}`)};
   }

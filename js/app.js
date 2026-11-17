@@ -86,25 +86,34 @@
   }
   const syncBar = () => { const r = !!(live && live.running); $$('[data-a="stop"]').forEach(b => { b.hidden = !r; }); const d = $('.live-dot'); if (d) d.hidden = !r; };
 
+  const lookPicker = (look, attrs) => `<div class="lookp" ${attrs}><div class="lookp-prev">${av(look, 54)}</div><div class="lookp-c"><div class="icg">${R.ICONS.map(k => `<button type="button" class="icb ${k === look.icon ? 'on' : ''}" data-icon="${k}" style="--c:${look.color}" aria-label="${k}"><img src="icons/bots/${k}.png" alt=""></button>`).join('')}</div>
+    <div class="sw">${R.COLORS.map(c => `<button type="button" class="swc ${c === look.color ? 'on' : ''}" style="--c:${c}" data-color="${c}" aria-label="Color ${c}"></button>`).join('')}</div></div></div>`;
   function inputHTML(room, vals) {
+    const help = f => f.help ? `<small class="hlp">${esc(f.help)}</small>` : '';
     return room.inputs.map(f => { const v = vals && vals[f.id] != null ? vals[f.id] : f.def;
-      if (f.type === 'textarea') return `<label class="fld"><span>${esc(f.label)}</span><textarea name="${f.id}" rows="3" placeholder="${esc(f.placeholder || '')}">${esc(v)}</textarea></label>`;
+      if (f.type === 'textarea') return `<label class="fld"><span>${esc(f.label)}</span>${help(f)}<textarea name="${f.id}" rows="3" placeholder="${esc(f.placeholder || '')}">${esc(v)}</textarea></label>`;
+      if (f.type === 'text') return `<label class="fld"><span>${esc(f.label)}</span>${help(f)}<input name="${f.id}" maxlength="40" placeholder="${esc(f.placeholder || '')}" value="${esc(v)}"></label>`;
       if (f.type === 'select') return `<label class="fld half"><span>${esc(f.label)}</span><select name="${f.id}">${f.options.map(o => `<option value="${o[0]}" ${o[0] === v ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select></label>`;
-      if (f.type === 'number') return `<label class="fld half"><span>${esc(f.label)}</span><input name="${f.id}" type="number" min="${f.min}" max="${f.max}" step="${f.step}" value="${esc(v)}" inputmode="decimal"></label>`;
-      if (f.type === 'coins') return `<div class="fld"><span>${esc(f.label)} <small>(hasta 8)</small></span><div class="coins" data-f="${f.id}">${(v || []).map(c => `<button type="button" class="coin" data-a="rmCoin" data-c="${esc(c)}">${esc(c.replace(/USDT$/, ''))}${ic('x', 12)}</button>`).join('')}<input class="coin-in" placeholder="+ moneda" maxlength="10" aria-label="Agregar moneda"></div></div>`;
+      if (f.type === 'pills') return `<div class="fld"><span>${esc(f.label)}</span>${help(f)}<div class="pills" data-f="${f.id}">${f.options.map(o => `<button type="button" class="pl ${o[0] === v ? 'on' : ''}" data-v="${o[0]}">${esc(o[1])}</button>`).join('')}</div></div>`;
+      if (f.type === 'style') return `<div class="fld"><span>${esc(f.label)}</span>${help(f)}<div class="styles" data-f="${f.id}">${f.options.map(o => `<button type="button" class="stc ${o[0] === v ? 'on' : ''}" data-v="${o[0]}"><img src="icons/bots/${o[3] || 'robot'}.png" alt=""><b>${esc(o[1])}</b><small>${esc(o[2])}</small></button>`).join('')}</div></div>`;
+      if (f.type === 'range' || f.type === 'number') return `<label class="fld"><span>${esc(f.label)} <b class="rv" data-for="${f.id}">${esc(v)}${esc(f.unit || '')}</b></span>${help(f)}<input name="${f.id}" type="range" min="${f.min}" max="${f.max}" step="${f.step}" value="${esc(v)}" data-unit="${esc(f.unit || '')}"></label>`;
+      if (f.type === 'look') return `<div class="fld"><span>${esc(f.label)}</span>${help(f)}${lookPicker(v, `data-f="${f.id}" data-icon-v="${esc(v.icon)}" data-color-v="${esc(v.color)}"`)}</div>`;
+      if (f.type === 'coins') return `<div class="fld"><span>${esc(f.label)}</span>${help(f)}<div class="coins" data-f="${f.id}">${(v || []).map(c => `<button type="button" class="coin" data-a="rmCoin" data-c="${esc(c)}">${esc(c.replace(/USDT$/, ''))}${ic('x', 12)}</button>`).join('')}<input class="coin-in" placeholder="+ moneda" maxlength="10" aria-label="Agregar moneda"></div>${f.quick ? `<div class="quick">${f.quick.map(c => `<button type="button" class="qk" data-a="qkCoin" data-c="${c}">+ ${c.replace(/USDT$/, '')}</button>`).join('')}</div>` : ''}</div>`;
       return '';
     }).join('');
   }
   function readInputs(room) {
     const o = {}; for (const f of room.inputs) {
       if (f.type === 'coins') o[f.id] = $$(`.coins[data-f="${f.id}"] .coin`).map(b => b.dataset.c);
-      else { const el = $(`[name="${f.id}"]`); o[f.id] = el ? (f.type === 'number' ? Math.max(f.min, Math.min(f.max, +el.value || f.def)) : el.value.trim()) : f.def; }
+      else if (f.type === 'pills' || f.type === 'style') { const on = $(`[data-f="${f.id}"] .on`); o[f.id] = on ? on.dataset.v : f.def; }
+      else if (f.type === 'look') { const el = $(`.lookp[data-f="${f.id}"]`); o[f.id] = el ? {icon: el.dataset.iconV, color: el.dataset.colorV} : f.def; }
+      else { const el = $(`[name="${f.id}"]`); o[f.id] = el ? (f.type === 'number' || f.type === 'range' ? Math.max(f.min, Math.min(f.max, +el.value || f.def)) : el.value.trim()) : f.def; }
     } return o;
   }
   function paintPanel() {
     const P = $('#panel'); if (!P || !live) return; const room = live.room, ev = live.events;
     if (!ev.length && !live.running) {
-      P.innerHTML = `<div class="setup"><h3>Pedido para el equipo</h3><form id="ask">${inputHTML(room, live.inputs)}<button class="btn pri wide" type="submit">${ic('play', 16)}Iniciar sesión de agentes</button></form>
+      P.innerHTML = `<div class="setup"><h3>${room.kind === 'bots' ? 'Diseña tu bot' : 'Pedido para el equipo'}</h3>${room.kind === 'bots' ? '<p class="intro">Elige cómo quieres tu bot. El equipo lo diseña, lo prueba con datos reales y, si pasa todos los filtros, te llega a Nova Bot Lab.</p>' : ''}<form id="ask">${inputHTML(room, live.inputs)}<button class="btn pri wide" type="submit">${ic('play', 16)}Iniciar sesión de agentes</button></form>
         <h3 class="mt">El equipo</h3><ol class="team">${room.flow.map(id => room.agents.find(a => a.id === id)).filter(Boolean).map(a => `<li>${av(a, 30)}<div><b>${esc(a.name)}</b><small>${esc(a.role)}${a.tool ? ' · ' + {market: 'datos del mercado', backtest: 'backtest real', bots: 'tus bots'}[a.tool] : ''}${a.back ? ' · puede regresar el trabajo a ' + esc((room.agents.find(x => x.id === a.back) || {}).name || '') : ''}</small></div></li>`).join('')}</ol></div>`;
       return;
     }
@@ -143,7 +152,7 @@
   }
 
   async function start(room, inputs) {
-    if (!inputs.goal && room.inputs.some(f => f.id === 'goal')) { toast('Escribe tu pedido para el equipo'); return; }
+    if (!inputs.goal && room.inputs.some(f => f.id === 'goal') && !room.inputs.some(f => f.type === 'style')) { toast('Escribe tu pedido para el equipo'); return; }
     if (room.inputs.some(f => f.type === 'coins') && !(inputs.coins || []).length) { toast('Agrega al menos una moneda'); return; }
     try { await AI.boot(); } catch (e) { toast(e.message); return; }
     const ctrl = new AbortController(), run = {id: 'r' + Date.now().toString(36), room: room.id, roomName: room.name, at: Date.now(), inputs, events: [], outcome: null};
@@ -172,30 +181,73 @@
       ${S.runs.length ? `<div class="hlist">${S.runs.map(r => { const o = OUT[r.outcome] || [r.outcome || '—', '']; const room = roomById(r.room); return `<a class="hrow glass" href="#/sala/${encodeURIComponent(r.room)}/${r.id}"><div class="stack">${room ? room.flow.slice(0, 5).map(id => av(room.agents.find(a => a.id === id), 26)).join('') : ''}</div><div><b>${esc(r.title || r.roomName)}</b><small>${esc(r.roomName)} · ${when(r.at)}</small></div><span class="pill ${o[1]}">${esc(o[0])}</span></a>`; }).join('')}</div>` : '<p class="empty glass">Todavía no hay sesiones. Entra a una sala y dale un pedido al equipo.</p>'}</section>`;
   }
 
-  /* ───────── Editor de salas propias ───────── */
-  let draft = null;
+  /* ───────── Asistente para crear salas y agentes (paso a paso, con explicaciones) ───────── */
+  let draft = null, wz = {step: 1, ag: null, agDraft: null};
+  const STEPS = [['Propósito', 'Para qué es tu sala'], ['Equipo', 'Quiénes trabajan'], ['Revisión', 'Quién revisa a quién'], ['Listo', 'Vista previa y guardar']];
+  const toolInfo = {'': ['Sin herramienta', 'Solo piensa con lo que le dicen sus compañeros.', 'motor'], market: ['Datos del mercado', 'Lee velas reales de las monedas que elijas (tendencia, volatilidad, niveles).', 'chart'], bots: ['Mis bots de Nova Bot Lab', 'Lee tus bots y sus resultados para comparar.', 'bots']};
+  const newId = () => 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   function editor(id) {
-    if (!draft || draft._for !== id) { const r = id !== 'nueva' && S.rooms.find(x => x.id === id); draft = r ? JSON.parse(JSON.stringify(r)) : {id: 'u' + Date.now().toString(36), name: '', desc: '', color: R.COLORS[1], icon: 'ovni', maxRounds: 2, ask: '',
-      agents: [{id: 'a1', name: 'Agente 1', role: 'Investigador', icon: 'satelite', color: '#22d3ee', prompt: '', tool: ''}, {id: 'a2', name: 'Agente 2', role: 'Crítico', icon: 'alien', color: '#f06b79', prompt: '', tool: ''}, {id: 'a3', name: 'Agente 3', role: 'Jefe', icon: 'estrella', color: '#a3e635', prompt: '', tool: '', back: 'a1'}]}; draft._for = id; }
-    const d = draft, own = S.rooms.some(x => x.id === d.id), opts = (arr, v) => arr.map(x => `<option ${x === v ? 'selected' : ''}>${x}</option>`).join('');
-    view.innerHTML = `<section class="edit"><div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${own ? 'Editar sala' : 'Nueva sala'}</h1><small>Los agentes hablan en el orden de la lista. Un agente con «revisa y regresa a» puede devolver el trabajo.</small></div></div>
-      <div class="glass box"><label class="fld"><span>Nombre de la sala</span><input data-k="name" value="${esc(d.name)}" placeholder="Ej.: Sala de contenido de tatuajes"></label>
-        <label class="fld"><span>Para qué sirve</span><input data-k="desc" value="${esc(d.desc)}" placeholder="Una línea"></label>
-        <label class="fld"><span>Pregunta que te hará al iniciar</span><input data-k="ask" value="${esc(d.ask || '')}" placeholder="Ej.: ¿Qué tatuaje vamos a promocionar?"></label>
-        <div class="row"><label class="fld half"><span>Icono</span><select data-k="icon">${opts(R.ICONS, d.icon)}</select></label><label class="fld half"><span>Rondas máximas de revisión</span><input data-k="maxRounds" type="number" min="1" max="4" value="${d.maxRounds || 2}"></label></div>
-        <div class="sw">${R.COLORS.map(c => `<button type="button" class="swc ${c === d.color ? 'on' : ''}" style="--c:${c}" data-a="roomColor" data-c="${c}" aria-label="Color ${c}"></button>`).join('')}</div></div>
-      <h3 class="mt">Agentes</h3>
-      ${d.agents.map((a, i) => `<div class="glass box ag" data-i="${i}" style="--c:${a.color}"><div class="ag-h">${av(a, 40)}<b>${i + 1}. ${esc(a.name || 'Agente')}</b><div class="sp"></div>
-          <button class="ib" data-a="agUp" data-i="${i}" ${i ? '' : 'disabled'} title="Subir">${ic('up', 16)}</button><button class="ib" data-a="agDown" data-i="${i}" ${i < d.agents.length - 1 ? '' : 'disabled'} title="Bajar">${ic('down', 16)}</button><button class="ib" data-a="agDel" data-i="${i}" ${d.agents.length > 2 ? '' : 'disabled'} title="Quitar">${ic('trash', 16)}</button></div>
-        <div class="row"><label class="fld half"><span>Nombre</span><input data-ag="name" value="${esc(a.name)}" maxlength="24"></label><label class="fld half"><span>Papel</span><input data-ag="role" value="${esc(a.role)}" maxlength="40"></label></div>
-        <label class="fld"><span>Instrucciones (qué hace, cómo piensa, qué entrega)</span><textarea data-ag="prompt" rows="4" placeholder="Eres … Tu trabajo es …">${esc(a.prompt)}</textarea></label>
-        <div class="row"><label class="fld third"><span>Icono</span><select data-ag="icon">${opts(R.ICONS, a.icon)}</select></label><label class="fld third"><span>Herramienta</span><select data-ag="tool">${Object.entries(R.TOOLS).map(([k, v]) => `<option value="${k}" ${k === (a.tool || '') ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
-          <label class="fld third"><span>Revisa y regresa a</span><select data-ag="back"><option value="">— no revisa —</option>${d.agents.filter((_, j) => j < i).map(b => `<option value="${b.id}" ${b.id === a.back ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select></label></div>
-        <div class="sw">${R.COLORS.map(c => `<button type="button" class="swc ${c === a.color ? 'on' : ''}" style="--c:${c}" data-a="agColor" data-i="${i}" data-c="${c}" aria-label="Color ${c}"></button>`).join('')}</div></div>`).join('')}
-      ${d.agents.length < 8 ? `<button class="btn ghost wide" data-a="agAdd">${ic('plus', 16)}Agregar agente</button>` : ''}
-      <div class="row end mt">${own ? `<button class="btn ghost" data-a="roomDel">${ic('trash', 15)}Borrar sala</button>` : ''}<div class="sp"></div><button class="btn pri" data-a="roomSave">${ic('check', 15)}Guardar sala</button></div></section>`;
+    if (!draft || draft._for !== id) { const r = id !== 'nueva' && S.rooms.find(x => x.id === id); draft = r ? JSON.parse(JSON.stringify(r)) : null; if (draft) draft._for = id; wz = {step: draft ? 2 : 1, ag: null, agDraft: null, tpl: !!draft}; }
+    const own = draft && S.rooms.some(x => x.id === draft.id);
+    const head = `<div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${own ? 'Editar sala' : 'Crear sala'}</h1><small>Te explico cada paso. Puedes cambiar todo después.</small></div></div>
+      <ol class="steps">${STEPS.map((x, i) => `<li class="${wz.step === i + 1 ? 'on' : wz.step > i + 1 ? 'done' : ''}"><button type="button" data-a="wzGo" data-s="${i + 1}" ${draft ? '' : 'disabled'}><i>${wz.step > i + 1 ? ic('check', 13) : i + 1}</i><span><b>${x[0]}</b><small>${x[1]}</small></span></button></li>`).join('')}</ol>`;
+    let body = '';
+    if (!draft) body = `<div class="tip glass">${ic('motor', 18)}<p><b>Una sala es un equipo de agentes de IA.</b> Cada agente tiene un papel (investigar, criticar, escribir…). Hablan en orden, se pasan el trabajo y el último te entrega el resultado. Empieza con una plantilla o en blanco.</p></div>
+      <div class="tpls">${R.TEMPLATES.map(t => `<button type="button" class="tpl glass" data-a="wzTpl" data-t="${t.id}" style="--c:${t.color}"><div class="stack">${t.agents.map(a => av(a, 30)).join('')}</div><b>${esc(t.name)}</b><small>${esc(t.desc)}</small><span>${t.agents.length} agentes</span></button>`).join('')}</div>`;
+    else if (wz.step === 1) body = `<div class="glass box"><div class="q"><b>¿Cómo se llama tu sala?</b><small>Un nombre corto para encontrarla rápido.</small></div><input data-k="name" value="${esc(draft.name)}" maxlength="40" placeholder="Ej.: Sala de contenido de tatuajes">
+        <div class="q"><b>¿Para qué sirve?</b><small>Una línea. Sale en la tarjeta de la sala.</small></div><input data-k="desc" value="${esc(draft.desc)}" maxlength="200">
+        <div class="q"><b>¿Qué te va a preguntar al empezar?</b><small>La pregunta que verás cada vez que abras la sala.</small></div><input data-k="ask" value="${esc(draft.ask || '')}" maxlength="120" placeholder="Ej.: ¿Qué tatuaje vamos a publicar?">
+        <div class="q"><b>Icono y color de la sala</b></div>${lookPicker({icon: draft.icon, color: draft.color}, 'data-room="1"')}</div>`;
+    else if (wz.step === 2) body = `<div class="tip glass">${ic('motor', 18)}<p>Hablan <b>en el orden de la lista</b>: el primero empieza y le pasa su trabajo al siguiente. Toca un agente para cambiar su personaje, papel, instrucciones o herramientas. Entre 2 y 8 agentes.</p></div>
+      <div class="agl">${draft.agents.map((a, i) => `<div class="agc glass" style="--c:${a.color}"><button type="button" class="agc-main" data-a="agOpen" data-i="${i}">${av(a, 46)}<span><b>${i + 1}. ${esc(a.name)}</b><small>${esc(a.role)}${a.tool ? ' · ' + toolInfo[a.tool][0] : ''}${a.back ? ' · revisa' : ''}</small></span></button>
+        <div class="agc-x"><button class="ib" data-a="agUp" data-i="${i}" ${i ? '' : 'disabled'} title="Antes">${ic('up', 15)}</button><button class="ib" data-a="agDown" data-i="${i}" ${i < draft.agents.length - 1 ? '' : 'disabled'} title="Después">${ic('down', 15)}</button><button class="ib" data-a="agDel" data-i="${i}" ${draft.agents.length > 2 ? '' : 'disabled'} title="Quitar">${ic('trash', 15)}</button></div></div>`).join('')}</div>
+      ${draft.agents.length < 8 ? `<button class="btn ghost wide" data-a="agNew">${ic('plus', 16)}Agregar agente</button>` : ''}`;
+    else if (wz.step === 3) body = `<div class="tip glass">${ic('retry', 18)}<p>Un agente que <b>revisa</b> puede aprobar el trabajo o <b>regresarlo</b> a un compañero anterior para que lo mejore. El último agente siempre revisa y te entrega el resultado.</p></div>
+      <div class="flowv glass">${draft.agents.map((a, i) => `${i ? `<span class="arr">${ic('back', 14)}</span>` : ''}<span class="fa">${av(a, 36)}<small>${esc(a.name)}</small></span>`).join('')}<span class="arr">${ic('back', 14)}</span><span class="fa">${av(null, 36)}<small>Tú</small></span></div>
+      <div class="glass box">${draft.agents.map((a, i) => i ? `<div class="rvrow">${av(a, 30)}<b>${esc(a.name)}</b><select data-back="${i}"><option value="">Solo pasa su trabajo</option>${draft.agents.slice(0, i).map(b => `<option value="${b.id}" ${b.id === a.back ? 'selected' : ''}>Revisa y puede regresarlo a ${esc(b.name)}</option>`).join('')}</select></div>` : '').join('')}
+      <div class="q"><b>¿Cuántas veces puede regresar el trabajo?</b><small>Más rondas = mejor resultado, pero tarda más y usa más IA.</small></div><div class="pills">${[1, 2, 3, 4].map(n => `<button type="button" class="pl ${n === (draft.maxRounds || 2) ? 'on' : ''}" data-a="wzRounds" data-n="${n}">${n}</button>`).join('')}</div></div>`;
+    else body = `<div class="prev glass" id="wzPrev"></div><div class="glass box"><b>${esc(draft.name || 'Sin nombre')}</b><small class="dim">${esc(draft.desc || '')}</small>
+      <ol class="team">${draft.agents.map(a => `<li>${av(a, 30)}<div><b>${esc(a.name)}</b><small>${esc(a.role)}${a.tool ? ' · ' + toolInfo[a.tool][0] : ''}</small></div></li>`).join('')}</ol></div>`;
+    const nav = draft ? `<div class="row end mt">${own && wz.step === 4 ? `<button class="btn ghost" data-a="roomDel">${ic('trash', 15)}Borrar sala</button>` : ''}${wz.step > 1 ? `<button class="btn ghost" data-a="wzGo" data-s="${wz.step - 1}">${ic('back', 15)}Atrás</button>` : ''}<div class="sp"></div>${wz.step < 4 ? `<button class="btn pri" data-a="wzGo" data-s="${wz.step + 1}">Siguiente</button>` : `<button class="btn pri" data-a="roomSave">${ic('check', 15)}Guardar sala</button>`}</div>` : '';
+    view.innerHTML = `<section class="edit">${head}${body}${nav}${agentSheet()}</section>`;
+    if (draft && wz.step === 4) { const r = R.normalizeCustom(draft), sc = SC.Scene($('#wzPrev'), r); demo(sc, r); }
   }
-  view.addEventListener('input', e => { if (!draft || !$('.edit')) return; const k = e.target.dataset.k, g = e.target.dataset.ag; if (k) draft[k] = k === 'maxRounds' ? +e.target.value : e.target.value; if (g) { const i = +e.target.closest('.ag').dataset.i; draft.agents[i][g] = e.target.value; if (g === 'icon' || g === 'name') { const sc = scrollY; editor(draft._for); scrollTo(0, sc); } } });
+  async function demo(sc, r) { // pequeña demostración: el trabajo recorre la sala
+    const el = $('#wzPrev'); sc.on({type: 'start'}); for (let i = 0; i < r.flow.length; i++) { if (!el.isConnected) return; const a = r.agents.find(x => x.id === r.flow[i]); sc.on({type: 'think', agent: a.id}); await new Promise(z => setTimeout(z, 700)); if (!el.isConnected) return; await sc.on({type: 'msg', agent: a.id, to: r.flow[i + 1] || 'user', text: a.role + ': ' + (a.prompt || '').slice(0, 90), verdict: a.output === 'verdict' ? 'aprobado' : null}); }
+    if (el.isConnected) sc.on({type: 'done', outcome: 'informe'});
+  }
+  function agentSheet() {
+    if (wz.ag == null || !wz.agDraft) return ''; const a = wz.agDraft, i = wz.ag, prev = draft.agents.slice(0, i < 0 ? draft.agents.length : i);
+    return `<div class="sheet-bg" data-a="agCancel"></div><div class="sheet glass" role="dialog" aria-label="Agente"><div class="sheet-h">${av(a, 48)}<div><b>${esc(a.name || 'Nuevo agente')}</b><small>${esc(a.role || 'Elige su papel')}</small></div><div class="sp"></div><button class="ib" data-a="agCancel" aria-label="Cerrar">${ic('x', 16)}</button></div>
+      <div class="sheet-b">
+        <div class="q"><b>1. ¿Qué papel tiene?</b><small>Elige uno y ya trae sus instrucciones. Luego las puedes ajustar.</small></div>
+        <div class="roles">${R.ROLES.map(r => `<button type="button" class="rl ${a.preset === r.id ? 'on' : ''}" data-a="agRole" data-r="${r.id}" style="--c:${r.color}"><img src="icons/bots/${r.icon}.png" alt=""><b>${esc(r.name)}</b><small>${esc(r.desc)}</small></button>`).join('')}</div>
+        <div class="q"><b>2. Su personaje</b><small>Nombre, icono y color con los que lo verás en la sala.</small></div>
+        <div class="row"><input data-ag="name" value="${esc(a.name)}" maxlength="24" placeholder="Nombre"><button type="button" class="btn ghost sm" data-a="agName">Sugerir nombre</button></div>
+        ${lookPicker({icon: a.icon, color: a.color}, 'data-agl="1"')}
+        <div class="q"><b>3. Instrucciones</b><small>Dile qué recibe, qué debe hacer y qué entrega. Ejemplo: «Eres… Tu trabajo es… Entrega…».</small></div>
+        <input data-ag="role" value="${esc(a.role)}" maxlength="40" placeholder="Papel (ej.: Guionista)"><textarea data-ag="prompt" rows="5">${esc(a.prompt)}</textarea>
+        <div class="q"><b>4. Herramienta</b><small>Datos reales que usa antes de hablar.</small></div>
+        <div class="tools">${Object.entries(toolInfo).map(([k, v]) => `<button type="button" class="tl ${k === (a.tool || '') ? 'on' : ''}" data-a="agTool" data-t="${k}">${ic(v[2], 16)}<b>${v[0]}</b><small>${v[1]}</small></button>`).join('')}</div>
+        ${prev.length ? `<div class="q"><b>5. ¿Revisa el trabajo de alguien?</b><small>Si lo eliges, podrá aprobar o regresar el trabajo a ese compañero.</small></div><select data-ag="back"><option value="">No, solo hace su parte</option>${prev.map(b => `<option value="${b.id}" ${b.id === a.back ? 'selected' : ''}>Sí, puede regresarlo a ${esc(b.name)}</option>`).join('')}</select>` : ''}
+      </div><div class="row end sheet-f"><button class="btn ghost" data-a="agCancel">Cancelar</button><div class="sp"></div><button class="btn pri" data-a="agOk">${ic('check', 15)}${i < 0 ? 'Agregar agente' : 'Listo'}</button></div></div>`;
+  }
+  const rerender = () => { const sc = scrollY, sb = $('.sheet-b'), st = sb ? sb.scrollTop : 0; editor(draft ? draft._for : 'nueva'); scrollTo(0, sc); const nb = $('.sheet-b'); if (nb) nb.scrollTop = st; };
+  view.addEventListener('input', e => {
+    if (e.target.type === 'range' && e.target.name) { const o = $(`.rv[data-for="${e.target.name}"]`); if (o) o.textContent = e.target.value + (e.target.dataset.unit || ''); }
+    if (!draft || !$('.edit')) return; const k = e.target.dataset.k, g = e.target.dataset.ag;
+    if (k) draft[k] = e.target.value; if (g && wz.agDraft) { wz.agDraft[g] = e.target.value; if (g === 'name' || g === 'role') { const h = $('.sheet-h b'), r = $('.sheet-h small'); if (g === 'name' && h) h.textContent = e.target.value || 'Nuevo agente'; if (g === 'role' && r) r.textContent = e.target.value; } }
+  });
+  view.addEventListener('change', e => { if (draft && e.target.dataset.back != null) { draft.agents[+e.target.dataset.back].back = e.target.value; } if (e.target.dataset.ag === 'back' && wz.agDraft) wz.agDraft.back = e.target.value; });
+  /* selección visual: botones tipo pastilla, tarjetas de estilo e iconos/colores */
+  view.addEventListener('click', e => {
+    const pl = e.target.closest('.pills[data-f] .pl, .styles .stc'); if (pl) { pl.parentElement.querySelectorAll('.on').forEach(x => x.classList.remove('on')); pl.classList.add('on'); return; }
+    const icb = e.target.closest('.icb, .lookp .swc'); if (!icb) return; const lp = icb.closest('.lookp');
+    const look = {icon: icb.dataset.icon || (lp.dataset.iconV || (lp.querySelector('.icb.on') || {}).dataset.icon), color: icb.dataset.color || lp.dataset.colorV || (lp.querySelector('.swc.on') || {}).dataset.color};
+    if (lp.dataset.room && draft) { draft.icon = look.icon; draft.color = look.color; } if (lp.dataset.agl && wz.agDraft) { Object.assign(wz.agDraft, look); }
+    lp.dataset.iconV = look.icon; lp.dataset.colorV = look.color; lp.outerHTML = lookPicker(look, [...lp.attributes].filter(x => x.name !== 'class').map(x => `${x.name}="${esc(x.value)}"`).join(' '));
+    if (lp.dataset.agl) { const h = $('.sheet-h .av'); if (h) h.outerHTML = av(wz.agDraft, 48); }
+  });
 
   /* ───────── Acciones ───────── */
   view.addEventListener('submit', e => { if (e.target.id === 'ask') { e.preventDefault(); start(live.room, readInputs(live.room)); } });
@@ -211,13 +263,21 @@
     else if (a === 'copy') { try { await navigator.clipboard.writeText((live.ctx && live.ctx.report) || (live.events.filter(x => x.type === 'msg').pop() || {}).text || ''); toast('Informe copiado'); } catch { toast('No se pudo copiar'); } }
     else if (a === 'sendPend') { try { if (!C.user()) await C.signIn(); if (!C.user()) return; const p = await T.sendProposal(live.ctx.pending); live.ctx.pending = null; live.proposal = p; const r = S.runs.find(x => x.events === live.events); if (r) { r.proposal = p; r.outcome = 'propuesta'; save(); } toast('Enviado a Nova Bot Lab'); paintPanel(); } catch (er) { toast('No se pudo enviar: ' + er.message); } }
     else if (a === 'edit') { e.preventDefault(); location.hash = '#/editor/' + b.dataset.id; }
-    else if (a === 'roomColor') { draft.color = b.dataset.c; editor(draft._for); }
-    else if (a === 'agColor') { draft.agents[+b.dataset.i].color = b.dataset.c; const sc = scrollY; editor(draft._for); scrollTo(0, sc); }
-    else if (['agUp', 'agDown', 'agDel', 'agAdd'].includes(a)) { const i = +b.dataset.i, A = draft.agents;
+    else if (a === 'qkCoin') { const inp = b.closest('.fld').querySelector('.coin-in'); inp.value = b.dataset.c; addCoin(inp); }
+    else if (a === 'wzTpl') { const t = R.TEMPLATES.find(x => x.id === b.dataset.t); draft = {id: 'u' + Date.now().toString(36), name: t.id === 'blanco' ? '' : t.name, desc: t.id === 'blanco' ? '' : t.desc, ask: t.ask, icon: t.icon, color: t.color, maxRounds: 2, agents: JSON.parse(JSON.stringify(t.agents)), _for: 'nueva'}; wz.step = 1; editor('nueva'); scrollTo(0, 0); }
+    else if (a === 'wzGo') { const n = +b.dataset.s; if (n > 1 && !String(draft.name || '').trim()) { wz.step = 1; editor(draft._for); return toast('Ponle nombre a la sala'); } if (n > 2 && draft.agents.some(x => !String(x.prompt || '').trim())) { wz.step = 2; editor(draft._for); return toast('Falta escribir las instrucciones de algún agente'); } wz.step = n; editor(draft._for); scrollTo(0, 0); }
+    else if (a === 'wzRounds') { draft.maxRounds = +b.dataset.n; rerender(); }
+    else if (a === 'agOpen') { wz.ag = +b.dataset.i; wz.agDraft = JSON.parse(JSON.stringify(draft.agents[wz.ag])); rerender(); }
+    else if (a === 'agNew') { const n = draft.agents.length, used = new Set(draft.agents.map(x => x.name)); wz.ag = -1; wz.agDraft = {id: newId(), name: R.NAMES.find(x => !used.has(x)) || 'Agente ' + (n + 1), role: '', icon: R.ICONS[(n * 5) % R.ICONS.length], color: R.COLORS[(n * 3) % R.COLORS.length], prompt: '', tool: '', back: ''}; rerender(); }
+    else if (a === 'agCancel') { wz.ag = null; wz.agDraft = null; rerender(); }
+    else if (a === 'agRole') { const r = R.ROLES.find(x => x.id === b.dataset.r), d = wz.agDraft; d.preset = r.id; d.role = r.name; d.prompt = r.prompt; d.icon = r.icon; d.color = r.color; rerender(); }
+    else if (a === 'agName') { const used = new Set(draft.agents.map(x => x.name)), pool = R.NAMES.filter(x => !used.has(x) && x !== wz.agDraft.name); wz.agDraft.name = pool[Math.floor(Math.random() * pool.length)] || wz.agDraft.name; rerender(); }
+    else if (a === 'agTool') { wz.agDraft.tool = b.dataset.t; rerender(); }
+    else if (a === 'agOk') { const d = wz.agDraft; if (!String(d.name).trim()) return toast('Ponle nombre al agente'); if (!String(d.prompt).trim()) return toast('Elige un papel o escribe sus instrucciones'); if (!d.role) d.role = 'Agente'; delete d.preset; if (wz.ag < 0) { const L = draft.agents, last = L[L.length - 1]; if (last && last.back) L.splice(L.length - 1, 0, d); else L.push(d); } else draft.agents[wz.ag] = d; wz.ag = null; wz.agDraft = null; rerender(); }
+    else if (['agUp', 'agDown', 'agDel'].includes(a)) { const i = +b.dataset.i, A = draft.agents;
       if (a === 'agUp') [A[i - 1], A[i]] = [A[i], A[i - 1]]; if (a === 'agDown') [A[i + 1], A[i]] = [A[i], A[i + 1]]; if (a === 'agDel') { const id = A[i].id; A.splice(i, 1); A.forEach(x => { if (x.back === id) x.back = ''; }); }
-      if (a === 'agAdd') { const n = A.length; A.push({id: 'a' + Date.now().toString(36), name: 'Agente ' + (n + 1), role: 'Especialista', icon: R.ICONS[(n * 5) % R.ICONS.length], color: R.COLORS[(n * 3) % R.COLORS.length], prompt: '', tool: ''}); }
-      A.forEach((x, j) => { if (x.back && A.findIndex(y => y.id === x.back) >= j) x.back = ''; }); const sc = scrollY; editor(draft._for); scrollTo(0, sc); }
-    else if (a === 'roomSave') { const d = draft; if (!d.name.trim()) return toast('Ponle nombre a la sala'); if (d.agents.some(x => !x.prompt.trim())) return toast('Escribe las instrucciones de cada agente');
+      A.forEach((x, j) => { if (x.back && A.findIndex(y => y.id === x.back) >= j) x.back = ''; }); rerender(); }
+    else if (a === 'roomSave') { const d = draft; if (!String(d.name).trim()) return toast('Ponle nombre a la sala'); if (d.agents.some(x => !String(x.prompt).trim())) return toast('Escribe las instrucciones de cada agente');
       const clean = Object.assign({}, d, {updatedAt: Date.now()}); delete clean._for; const i = S.rooms.findIndex(x => x.id === d.id); if (i >= 0) S.rooms[i] = clean; else S.rooms.push(Object.assign(clean, {createdAt: Date.now()})); save(); draft = null; toast('Sala guardada' + (C.user() ? ' en tu cuenta' : ' en este dispositivo')); location.hash = '#/sala/' + clean.id; }
     else if (a === 'roomDel') { if (!confirm('¿Borrar esta sala?')) return; S.deleted[draft.id] = Date.now(); S.rooms = S.rooms.filter(x => x.id !== draft.id); save(); draft = null; location.hash = '#/'; }
   });
@@ -228,7 +288,7 @@
     $$('[data-nav]').forEach(a => a.classList.toggle('on', (h[0] || '') === '' ? a.dataset.nav === 'home' : h[0] === 'historial' && a.dataset.nav === 'history'));
     if (h[0] === 'sala' && h[1]) { if (!$('.room') || !live || live.room.id !== h[1] || (h[2] || null) !== (live.replay ? live.replay.id : null)) roomView(h[1], h[2]); else paintPanel(); }
     else if (h[0] === 'historial') history();
-    else if (h[0] === 'editor') editor(h[1] || 'nueva');
+    else if (h[0] === 'editor') { if (h[1] === 'nueva' && draft && draft._for === 'nueva' && !$('.edit')) { draft = null; } editor(h[1] || 'nueva'); }
     else home();
   }
   addEventListener('hashchange', () => { route(); scrollTo(0, 0); });

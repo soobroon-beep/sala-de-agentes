@@ -35,7 +35,7 @@ NO inventes datos: usa solo los de las herramientas y los mensajes. Si un dato n
     return p;
   }
   function briefOf(room, inputs) {
-    const L = []; for (const f of room.inputs || []) { const v = inputs[f.id]; if (v == null || v === '' || (Array.isArray(v) && !v.length)) continue; const opt = f.options && f.options.find(o => o[0] === v); L.push(`- ${f.label}: ${Array.isArray(v) ? v.map(x => String(x).replace(/USDT$/, '')).join(', ') : opt ? opt[1] : v}`); }
+    const L = []; for (const f of room.inputs || []) { const v = inputs[f.id]; if (f.type === 'look' || v == null || v === '' || (Array.isArray(v) && !v.length)) continue; const opt = f.options && f.options.find(o => o[0] === v); L.push(`- ${f.label}: ${Array.isArray(v) ? v.map(x => String(x).replace(/USDT$/, '')).join(', ') : opt ? opt[1] + (f.type === 'style' && opt[2] ? ' (' + opt[2] + ')' : '') : v}${f.unit ? ' ' + f.unit : ''}`); }
     return L.join('\n');
   }
 

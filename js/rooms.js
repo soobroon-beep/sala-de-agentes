@@ -27,13 +27,21 @@ NO pongas símbolo, monedas ni temporalidad: los fija la sala.`;
     desc: 'Cinco agentes diseñan, prueban con datos reales y evalúan un bot de trading. Si pasa todos los filtros, llega como propuesta a Nova Bot Lab.',
     final: 'proposal', maxRounds: 3,
     inputs: [
-      {id: 'goal', label: '¿Qué bot quieres?', type: 'textarea', placeholder: 'Ej.: un bot de tendencia para 1h que use las señales de Nova Nexus y no opere en rango', def: ''},
-      {id: 'coins', label: 'Monedas', type: 'coins', def: ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT']},
-      {id: 'interval', label: 'Temporalidad', type: 'select', options: [['15m', '15 min'], ['1h', '1 hora'], ['4h', '4 horas'], ['1d', '1 día']], def: '1h'},
-      {id: 'sides', label: 'Dirección', type: 'select', options: [['ia', 'Que decida el equipo'], ['long', 'Solo compras'], ['short', 'Solo ventas'], ['both', 'Compras y ventas']], def: 'ia'},
-      {id: 'riskPct', label: 'Riesgo por operación (%)', type: 'number', min: .25, max: 5, step: .25, def: 2},
-      {id: 'maxLev', label: 'Apalancamiento máximo', type: 'number', min: 1, max: 10, step: 1, def: 5},
-      {id: 'maxDD', label: 'Caída máxima aceptable (%)', type: 'number', min: 5, max: 60, step: 1, def: 25}
+      {id: 'style', label: '¿Qué tipo de bot quieres?', type: 'style', help: 'Elige un estilo. El equipo lo usa como punto de partida.', def: 'ia', options: [
+        ['tendencia', 'Seguir la tendencia', 'Entra a favor del movimiento fuerte y lo aguanta mientras dure.', 'cohete'],
+        ['rango', 'Rebotes en rango', 'Compra abajo y vende arriba cuando el precio va de lado.', 'planeta'],
+        ['ruptura', 'Rupturas', 'Entra cuando el precio rompe máximos o mínimos recientes con volumen.', 'cometa'],
+        ['nova', 'Señales Nova Nexus', 'Opera las señales de compra y venta de tu indicador Nova Nexus v2.7.', 'vortice'],
+        ['ia', 'Que decida el equipo', 'Nova revisa el mercado y el equipo propone el estilo que mejor encaja.', 'estrella']]},
+      {id: 'goal', label: 'Detalles extra (opcional)', type: 'textarea', help: 'Cualquier idea o regla tuya: «no operar en rango», «usar RSI», «pocas operaciones pero buenas»…', placeholder: 'Ej.: que no opere contra la EMA200 y que use stop amplio', def: ''},
+      {id: 'coins', label: 'Monedas', type: 'coins', help: 'Hasta 8. El bot opera las mismas reglas en todas y reparte el capital.', quick: ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT', 'DOGEUSDT', 'ADAUSDT', 'AVAXUSDT', 'LINKUSDT', 'SUIUSDT'], def: ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT']},
+      {id: 'interval', label: 'Temporalidad', type: 'pills', help: 'Cada cuánto «ve» una vela nueva. 1h y 4h dan menos ruido.', options: [['15m', '15 min'], ['1h', '1 hora'], ['4h', '4 horas'], ['1d', '1 día']], def: '1h'},
+      {id: 'sides', label: 'Dirección', type: 'pills', help: 'Compras = gana si sube. Ventas (cortos) = gana si baja.', options: [['ia', 'Que decida'], ['long', 'Solo compras'], ['short', 'Solo ventas'], ['both', 'Ambas']], def: 'ia'},
+      {id: 'riskPct', label: 'Riesgo por operación', type: 'range', unit: '%', help: 'Cuánto de tu capital pierdes como máximo si una operación toca el stop.', min: .25, max: 5, step: .25, def: 2},
+      {id: 'maxLev', label: 'Apalancamiento máximo', type: 'range', unit: 'x', help: 'Tope de apalancamiento. Más alto = más riesgo.', min: 1, max: 10, step: 1, def: 5},
+      {id: 'maxDD', label: 'Caída máxima aceptable', type: 'range', unit: '%', help: 'Si en el backtest la cuenta llega a caer más que esto desde su punto más alto, el equipo no lo aprueba.', min: 5, max: 60, step: 1, def: 25},
+      {id: 'look', label: 'Apariencia del bot', type: 'look', help: 'Así se verá en Nova Bot Lab.', def: {icon: 'cohete', color: '#7c5cff'}},
+      {id: 'botName', label: 'Nombre del bot (opcional)', type: 'text', placeholder: 'Si lo dejas vacío, el estratega le pone uno', def: ''}
     ],
     agents: [
       {id: 'nova', name: 'Nova', role: 'Analista de mercado', icon: 'satelite', color: '#22d3ee', tool: 'market', output: 'text',
@@ -86,11 +94,38 @@ NO pongas símbolo, monedas ni temporalidad: los fija la sala.`;
     return {id: r.id, builtin: false, kind: 'general', name: String(r.name || 'Mi sala').slice(0, 40), color: COLORS.includes(r.color) ? r.color : COLORS[1], icon: ICONS.includes(r.icon) ? r.icon : 'ovni',
       desc: String(r.desc || '').slice(0, 200), final: 'report', maxRounds: Math.max(1, Math.min(4, +r.maxRounds || 2)),
       inputs: [{id: 'goal', label: r.ask || 'Tema o pregunta para la sala', type: 'textarea', placeholder: '', def: ''}].concat(agents.some(a => a.tool === 'market') ? [
-        {id: 'coins', label: 'Monedas', type: 'coins', def: ['BTCUSDT', 'ETHUSDT']}, {id: 'interval', label: 'Temporalidad', type: 'select', options: [['15m', '15 min'], ['1h', '1 hora'], ['4h', '4 horas'], ['1d', '1 día']], def: '4h'}] : []),
+        {id: 'coins', label: 'Monedas', type: 'coins', def: ['BTCUSDT', 'ETHUSDT']}, {id: 'interval', label: 'Temporalidad', type: 'pills', options: [['15m', '15 min'], ['1h', '1 hora'], ['4h', '4 horas'], ['1d', '1 día']], def: '4h'}] : []),
       agents, flow: ids, createdAt: r.createdAt || Date.now(), updatedAt: r.updatedAt || Date.now()};
   }
 
-  const api = {BUILTIN, ICONS, COLORS, TOOLS, SPEC_GUIDE, normalizeCustom};
+  /* ───────── Asistente: plantillas de sala y papeles listos para agentes ───────── */
+  const ROLES = [
+    {id: 'investigador', name: 'Investigador', icon: 'satelite', color: '#22d3ee', desc: 'Reúne información y datos antes que nadie.', prompt: 'Eres el investigador del equipo. Reúne los hechos y datos importantes sobre el tema del usuario, separa lo seguro de lo dudoso y entrega una lista clara de hallazgos para tus compañeros.'},
+    {id: 'analista', name: 'Analista', icon: 'luna', color: '#548fff', desc: 'Interpreta la información y saca conclusiones.', prompt: 'Eres el analista. Con lo que reunió el equipo, interpreta qué significa, encuentra patrones y saca 3 conclusiones concretas con su porqué.'},
+    {id: 'estratega', name: 'Estratega', icon: 'cohete', color: '#7c5cff', desc: 'Convierte el análisis en un plan de acción.', prompt: 'Eres el estratega. Convierte lo que dijo el equipo en un plan paso a paso, realista y ordenado por prioridad, con qué hacer primero y qué evitar.'},
+    {id: 'creativo', name: 'Creativo', icon: 'pulpo', color: '#f472b6', desc: 'Propone ideas originales y llamativas.', prompt: 'Eres el creativo del equipo. Propón ideas originales, llamativas y fáciles de ejecutar sobre el tema del usuario. Da al menos 3 opciones distintas y explica brevemente cada una.'},
+    {id: 'redactor', name: 'Redactor', icon: 'ovni', color: '#fb923c', desc: 'Escribe textos listos para usar.', prompt: 'Eres el redactor. Escribe el texto final listo para usar (publicación, guion, mensaje o documento) con el tono que pidió el usuario, claro y sin relleno.'},
+    {id: 'critico', name: 'Abogado del diablo', icon: 'alien', color: '#f06b79', desc: 'Busca fallas y riesgos en lo que dicen los demás.', prompt: 'Eres el abogado del diablo. Ataca el trabajo de tus compañeros: qué falla, qué riesgo no vieron, qué supuesto es débil. Sé concreto y propón cómo arreglar cada punto.'},
+    {id: 'riesgo', name: 'Gestor de riesgo', icon: 'astronauta', color: '#f0b90b', desc: 'Revisa qué puede salir mal y cuánto cuesta.', prompt: 'Eres el gestor de riesgo. Revisa qué puede salir mal, qué tan probable es, cuánto costaría y cómo protegerse. Termina con los 3 riesgos principales y su protección.'},
+    {id: 'programador', name: 'Programador', icon: 'robot', color: '#20bf9f', desc: 'Piensa en cómo construirlo técnicamente.', prompt: 'Eres el programador del equipo. Explica cómo construir técnicamente lo que se propone: piezas, tecnologías, pasos y posibles problemas, sin escribir código largo.'},
+    {id: 'juez', name: 'Juez / Jefe', icon: 'estrella', color: '#a3e635', desc: 'Revisa todo, aprueba o regresa el trabajo y entrega el resultado.', prompt: 'Eres el jefe de la sala. Revisa todo lo que hizo el equipo. Si falta algo importante, pide cambios diciendo exactamente qué. Si está completo, aprueba y entrega al usuario el resultado final, claro y ordenado.'}
+  ];
+  const role = id => Object.assign({}, ROLES.find(r => r.id === id));
+  const ag = (id, rid, name, extra) => Object.assign({id, name, role: role(rid).name, icon: role(rid).icon, color: role(rid).color, prompt: role(rid).prompt, tool: ''}, extra || {});
+  const TEMPLATES = [
+    {id: 'contenido', name: 'Contenido de tatuajes', icon: 'pulpo', color: '#f472b6', desc: 'Ideas, guion y textos para Instagram y TikTok de tus tatuajes.', ask: '¿Qué tatuaje o tema vamos a publicar?',
+      agents: [ag('t1', 'investigador', 'Lumen', {role: 'Tendencias', prompt: 'Eres Lumen, experto en tendencias de Instagram y TikTok para tatuadores. Di qué formatos, audios, ganchos y estilos de video funcionan ahora para el tema del usuario y por qué.'}), ag('t2', 'creativo', 'Iris', {role: 'Guionista', prompt: 'Eres Iris, guionista de videos cortos. Con lo que dijo Lumen, escribe 2 guiones de 15-30 s (gancho en los primeros 2 s, tomas, texto en pantalla) para mostrar el tatuaje.'}), ag('t3', 'redactor', 'Echo', {role: 'Copy y hashtags', prompt: 'Eres Echo. Escribe el caption (corto, con llamada a la acción para agendar cita) y 15 hashtags mezclando grandes y de nicho para cada guion de Iris.'}), ag('t4', 'juez', 'Halo', {role: 'Editor jefe', back: 't2'})]},
+    {id: 'proyecto', name: 'Revisión de proyecto', icon: 'robot', color: '#20bf9f', desc: 'Revisan una idea o app tuya y te dan prioridades claras.', ask: '¿Qué proyecto o idea revisamos y qué te preocupa?',
+      agents: [ag('p1', 'analista', 'Atlas', {role: 'Analista de producto'}), ag('p2', 'programador', 'Bit'), ag('p3', 'critico', 'Draco'), ag('p4', 'juez', 'Polaris', {back: 'p1'})]},
+    {id: 'investigacion', name: 'Investigación', icon: 'satelite', color: '#22d3ee', desc: 'Investigan un tema, lo cuestionan y te entregan un resumen.', ask: '¿Qué tema quieres investigar?',
+      agents: [ag('i1', 'investigador', 'Nova'), ag('i2', 'critico', 'Vex'), ag('i3', 'redactor', 'Quill', {role: 'Redactor del resumen'}), ag('i4', 'juez', 'Sol', {back: 'i1'})]},
+    {id: 'trading', name: 'Mesa de trading', icon: 'cometa', color: '#548fff', desc: 'Analizan monedas con datos reales y te dan un plan.', ask: '¿Qué quieres que analice la mesa?',
+      agents: [ag('m1', 'analista', 'Lyra', {role: 'Analista técnica', tool: 'market', prompt: 'Eres Lyra, analista técnica. Con los datos reales del mercado di tendencia, volatilidad, niveles importantes y tu sesgo para cada moneda.'}), ag('m2', 'riesgo', 'Atlas'), ag('m3', 'juez', 'Polaris', {role: 'Jefe de mesa', back: 'm1'})]},
+    {id: 'blanco', name: 'En blanco', icon: 'ovni', color: '#94a3b8', desc: 'Empiezas desde cero y armas tu propio equipo.', ask: '', agents: [ag('b1', 'investigador', 'Agente 1'), ag('b2', 'juez', 'Agente 2', {back: 'b1'})]}
+  ];
+  const NAMES = ['Nova', 'Orion', 'Vega', 'Atlas', 'Sirius', 'Lyra', 'Draco', 'Polaris', 'Altair', 'Rigel', 'Deneb', 'Electra', 'Kepler', 'Halley', 'Cassini', 'Juno', 'Titan', 'Luna', 'Cosmo', 'Astra', 'Quasar', 'Pulsar', 'Zenit', 'Aurora'];
+
+  const api = {ROLES, TEMPLATES, NAMES, BUILTIN, ICONS, COLORS, TOOLS, SPEC_GUIDE, normalizeCustom};
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SalaRooms = api;
 })(typeof self !== 'undefined' ? self : this);
