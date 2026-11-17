@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: 22}
       - name: Pruebas
-        run: node --test tests/
+        run: node --test tests/*.test.js
       - name: Preparar sitio
         run: mkdir -p dist && rsync -a --exclude '.git' --exclude '.github' --exclude 'tests' --exclude 'dist' --exclude '*.md' ./ dist/
       - uses: actions/upload-pages-artifact@v3
