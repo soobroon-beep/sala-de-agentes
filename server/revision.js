@@ -125,7 +125,7 @@ async function sentinel(db, uid, admin, prev) {
     const bots = (S.bots || []).filter(b => b.status !== 'archived' && !(S.deleted && S.deleted[b.id] >= (b.updatedAt || 0)));
     for (const b of bots) {
       const run = (b.paper || []).filter(s => s.status === 'running'); if (!run.length) continue; live[b.id] = b.name;
-      for (const s of run) { const ss = ((srv.paper || {})[b.id] || []).find(x => x.id === s.id), iv = IV[s.spec && s.spec.interval] || H, t = ss && ss.last && ss.last.t;
+      for (const s of run) { const ss = ((srv.paper || {})[b.id] || []).find(x => x.id === s.id), iv = IV[s.spec && s.spec.interval] || H, t = Math.max((ss && ss.last && ss.last.t) || 0, (s.last && s.last.t) || 0); // la app o el servidor: el que lo haya avanzado más reciente
         if (!t || now - t > 3 * iv + 1.5 * H) add('alta', `El bot «${b.name}» se atoró`, `Está encendido (${s.spec && s.spec.symbol} ${s.spec && s.spec.interval}) pero el servidor no lo avanza desde hace ${ago(t)}.`);
         if (ss && ss.err) add('media', `El bot «${b.name}» reporta un error`, ss.err); }
     }
