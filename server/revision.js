@@ -223,7 +223,7 @@ async function main() {
   await browser.close();
   run.outcome = ctx.outcome; run.ms = Date.now() - run.at;
 
-  const at = Date.now(), issues = mergeIssues(prev.issues, issuesOf(results, rt, sen), at);
+  const at = Date.now(), issues = mergeIssues(prev.issues, issuesOf(results, rt, sen.data), at);
   const apps = {}; for (const a of R.APPS.concat([{id: 'bots', name: 'Bots y servidores'}])) { const open = issues.filter(i => i.app === a.id && i.status !== 'resuelta'), o = results.find(r => r.app === a.id);
     apps[a.id] = {name: a.name, state: open.some(i => i.sev === 'alta') ? 'falla' : open.length ? 'atencion' : 'bien', open: open.length, loadMs: o ? o.loadMs : null, tried: o ? o.tried : null, at}; }
   const report = ((ctx.msgs || []).filter(m => m.from === 'andromeda').slice(-1)[0] || {}).text || '';
