@@ -44,7 +44,8 @@ async function buttons(page, max) {
       const r = e.getBoundingClientRect(); if (r.width < 8 || r.height < 8 || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) continue;
       const st = getComputedStyle(e); if (st.visibility === 'hidden' || st.pointerEvents === 'none' || e.disabled || st.display === 'none') continue;
       const name = (e.getAttribute('aria-label') || e.getAttribute('title') || e.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 48);
-      if (!name || re.test(name) || (e.href && /^https?:/.test(e.getAttribute('href') || ''))) continue;
+      const hr = e.getAttribute('href'); if (!name || re.test(name) || (hr && /^https?:/.test(hr))) continue;
+      if (hr && hr.startsWith('#') && (hr === location.hash || ((hr === '#/' || hr === '#') && (location.hash === '' || location.hash === '#/')))) continue; // enlace a la misma página: no tiene por qué cambiar nada
       if (seen.has(name)) continue; seen.add(name); out.push({name, x: r.left + r.width / 2, y: r.top + r.height / 2});
     }
     return out.slice(0, a.max);
