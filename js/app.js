@@ -24,7 +24,8 @@
     const del = Object.assign({}, a.deleted, b.deleted), pick = (x, y) => (x.updatedAt || x.at || 0) >= (y.updatedAt || y.at || 0) ? x : y;
     const un = (xs, ys) => { const m = new Map(); for (const x of [...xs, ...ys]) m.set(x.id, m.has(x.id) ? pick(m.get(x.id), x) : x); return [...m.values()].filter(x => !(del[x.id] >= (x.updatedAt || x.at || 0))); };
     const mem = !a.mem ? b.mem : !b.mem ? a.mem : ((b.mem.updatedAt || 0) > (a.mem.updatedAt || 0) ? b.mem : a.mem); // llave de la memoria compartida
-    return {v: 2, rooms: un(a.rooms || [], b.rooms || []), runs: un(a.runs || [], b.runs || []).sort((x, y) => y.at - x.at).slice(0, 20), deleted: del, mem: mem || null};
+    const auto = !a.auto ? b.auto : !b.auto ? a.auto : ((b.auto.updatedAt || 0) > (a.auto.updatedAt || 0) ? b.auto : a.auto); // ajustes del modo automático (24/7)
+    return {v: 2, rooms: un(a.rooms || [], b.rooms || []), runs: un(a.runs || [], b.runs || []).sort((x, y) => y.at - x.at).slice(0, 20), deleted: del, mem: mem || null, auto: auto || null};
   }
   function save() {
     S.runs = S.runs.slice(0, 20); try { localStorage.setItem(LS, JSON.stringify(S)); } catch { S.runs = S.runs.slice(0, 8); try { localStorage.setItem(LS, JSON.stringify(S)); } catch {} }
@@ -32,7 +33,21 @@
   }
   async function pull() { try { const d = await C.get('sala'); if (d && d.s) { S = mergeStore(S, JSON.parse(d.s)); save(); route(); } else if (S.rooms.length || S.runs.length) save(); } catch (e) { console.warn(e); } }
   const rooms = () => R.BUILTIN.concat(S.rooms.map(R.normalizeCustom));
-  const roomById = id => rooms().find(r => r.id === id);
+  const roomById = id => id === R.REVISION.id ? R.REVISION : rooms().find(r => r.id === id);
+
+  /* ───────── Lo que hacen tus agentes solos en el servidor (24/7): users/<tú>/data/sala_auto y sala_revision ───────── */
+  const SRV = {auto: null, rev: null, at: 0, busy: false};
+  async function pullServer(force) {
+    if (!C.user() || SRV.busy || (!force && Date.now() - SRV.at < 45000)) return; SRV.busy = true;
+    try { const [a, r] = await Promise.all([C.get('sala_auto'), C.get('sala_revision')]); const changed = (a && a.at) !== (SRV.auto && SRV.auto.at) || (r && r.at) !== (SRV.rev && SRV.rev.at); SRV.auto = a; SRV.rev = r; SRV.at = Date.now(); if (changed && !$('.room') && !$('.edit')) route(); }
+    catch (e) { console.warn('No se leyó el modo automático', e); } finally { SRV.busy = false; }
+  }
+  const autoRuns = () => ((SRV.auto && SRV.auto.runs) || []).concat((SRV.rev && SRV.rev.runs) || []);
+  const allRuns = () => S.runs.concat(autoRuns()).sort((x, y) => y.at - x.at);
+  const findRun = id => allRuns().find(x => x.id === id);
+  const autoCfg = () => Object.assign({on: true, perRun: 2}, (S.auto && S.auto.taller) || {});
+  const ago = t => { if (!t) return 'nunca'; const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? 'ahora' : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${(m / 60).toFixed(m < 600 ? 1 : 0)} h` : `hace ${Math.round(m / 1440)} d`; };
+  const inT = t => { const m = Math.round((t - Date.now()) / 6e4); return m <= 0 ? 'en cualquier momento' : m < 60 ? `en ${m} min` : `en ${(m / 60).toFixed(1)} h`; };
 
   /* ───────── Cuenta ───────── */
   function paintAcct() {
@@ -41,7 +56,7 @@
     b.title = u ? `${u.displayName || u.email} · tocar para cerrar sesión` : 'Inicia sesión con Google (la misma cuenta de VORTEX)';
   }
   $('#acct').onclick = async () => { try { if (C.user()) { if (confirm('¿Cerrar sesión?')) await C.signOut(); } else await C.signIn(); } catch (e) { toast('No se pudo iniciar sesión: ' + (e.code || e.message)); } };
-  C.init().then(ok => { paintAcct(); if (!ok) return; C.on(u => { paintAcct(); if (u) { AI.resetOwn(); pull(); if (live && live.ctx && live.ctx.pending) route(); } }); });
+  C.init().then(ok => { paintAcct(); if (!ok) return; C.on(u => { paintAcct(); if (u) { AI.resetOwn(); pull(); pullServer(true); if (live && live.ctx && live.ctx.pending) route(); } }); });
 
   /* ───────── Texto con formato ligero ───────── */
   function md(t) {
@@ -57,11 +72,13 @@
     const rs = rooms();
     view.innerHTML = `<section class="home">
       <div class="hero"><h1>Salas de agentes</h1><p>Equipos de IA que hablan entre ellos, usan datos reales y te entregan el trabajo terminado. ${C.user() ? '' : '<a href="#" data-a="login">Inicia sesión</a> para guardar tus salas y enviar bots a Nova Bot Lab.'}</p></div>
+      ${autoStrip()}
       <div class="grid">${rs.map(r => `<article class="card glass" style="--c:${r.color}">
         <div class="card-top"><div class="stack">${r.flow.map(id => r.agents.find(a => a.id === id)).filter(Boolean).map(a => av(a, 38)).join('')}</div>${r.builtin ? '' : `<button class="ib" data-a="edit" data-id="${r.id}" title="Editar sala">${ic('edit', 16)}</button>`}</div>
         <h2>${esc(r.name)}</h2><p>${esc(r.desc || '')}</p>
-        <div class="chips"><span>${r.agents.length} agentes</span><span>${r.final === 'proposal' ? 'Propone bots' : 'Entrega un informe'}</span>${r.agents.some(a => a.tool) ? '<span>Datos reales</span>' : ''}</div>
+        <div class="chips">${(r.id === 'taller-bots' && autoCfg().on !== false) || (r.auto && r.auto.on) ? `<span class="on247">${ic('motor', 12)}Funciona solo${r.auto && r.auto.on ? ' · cada ' + r.auto.everyHours + ' h' : ''}</span>` : ''}<span>${r.agents.length} agentes</span><span>${r.final === 'proposal' ? 'Propone bots' : 'Entrega un informe'}</span>${r.agents.some(a => a.tool) ? '<span>Datos reales</span>' : ''}</div>
         <a class="btn pri" href="#/sala/${encodeURIComponent(r.id)}">${ic('play', 16)}Entrar a la sala</a></article>`).join('')}
+        ${revCard()}
         <a class="card glass" href="#/memoria" style="--c:#fb923c"><div class="card-top"><div class="stack"><span class="av" style="--c:#fb923c;width:38px;height:38px"><img src="icons/bots/cometa.png" alt=""></span><span class="av" style="--c:#20bf9f;width:38px;height:38px"><img src="icons/bots/robot.png" alt=""></span><span class="av" style="--c:#548fff;width:38px;height:38px"><img src="icons/bots/estrella.png" alt=""></span></div></div>
           <h2>Memoria compartida</h2><p>Claude, ChatGPT y Gemini leen qué estás creando y guardan lo que avanzan, para no volver a explicarles el contexto.</p><div class="chips"><span>3 IAs</span><span>Bitácora y proyectos</span></div><span class="btn pri">${ic('open', 16)}Abrir memoria</span></a>
         <a class="card glass new" href="#/editor/nueva"><span class="plus">${ic('plus', 26)}</span><h2>Crear sala</h2><p>Arma tu propio equipo: nombre, papel e instrucciones de cada agente, quién revisa a quién y qué datos usan.</p></a>
@@ -69,14 +86,51 @@
       <p class="foot">IA: ${esc(AI.label())}. Las pruebas de bots son simulaciones con datos históricos; nada envía órdenes reales.</p></section>`;
   }
 
+  function autoStrip() {
+    const c = autoCfg(), a = SRV.auto, st = a && a.status || {}, last = (a && a.runs || []).find(r => r.room === 'taller-bots'), props = (a && a.runs || []).filter(r => r.outcome === 'propuesta').length;
+    if (!C.user()) return `<div class="auto glass"><span class="pulse"></span><div><b>Tus agentes trabajan solos, 24/7</b><small>El Taller de bots y la Revisión de apps corren en el servidor aunque no abras la app. <a href="#" data-a="login">Inicia sesión</a> para ver lo que hicieron y cambiar los ajustes.</small></div></div>`;
+    return `<div class="auto glass ${c.on === false ? 'off' : ''}"><span class="pulse"></span><div class="auto-t"><b>Modo automático ${c.on === false ? 'en pausa' : 'encendido'}</b>
+      <small>${c.on === false ? 'El Taller de bots no está creando bots solo. La Revisión de apps sigue cada 2 horas.' : `El Taller crea y prueba bots cada 3 horas (${c.perRun} por turno) aunque no abras la app. Última vez: ${a ? ago(a.at) : 'aún no corre'}${st.taller ? ' · ' + esc(st.taller) : ''}. ${props ? props + ' bot(s) aprobados recientes.' : ''}`}</small></div>
+      <div class="auto-x"><div class="pills">${[1, 2, 3].map(n => `<button type="button" class="pl ${n === +c.perRun ? 'on' : ''}" data-a="autoPer" data-n="${n}" title="Sesiones por turno">${n}</button>`).join('')}</div><button class="btn sm ${c.on === false ? 'pri' : 'ghost'}" data-a="autoToggle">${c.on === false ? ic('play', 14) + 'Encender' : ic('stop', 14) + 'Pausar'}</button><a class="btn sm ghost" href="#/historial">Ver lo que hicieron</a></div></div>`;
+  }
+  const STC = {bien: ['Bien', 'win'], atencion: ['Atención', 'warn'], falla: ['Falla', 'lose']};
+  function revCard() {
+    const r = SRV.rev, room = R.REVISION, open = r ? (r.issues || []).filter(i => i.status !== 'resuelta') : [];
+    return `<a class="card glass" href="#/revision" style="--c:${room.color}"><div class="card-top"><div class="stack">${room.flow.slice(0, 7).map(id => av(room.agents.find(a => a.id === id), 34)).join('')}</div></div>
+      <h2>${esc(room.name)}</h2><p>${esc(room.desc)}</p>
+      ${r ? `<div class="appdots">${Object.entries(r.apps || {}).map(([k, a]) => `<span class="ad ${a.state}" title="${esc(a.name)}: ${esc((STC[a.state] || [a.state])[0])}"><i></i>${esc(a.name)}</span>`).join('')}</div>` : ''}
+      <div class="chips"><span class="on247">${ic('motor', 12)}Funciona solo · cada 2 h</span><span>${room.agents.length} agentes</span>${r ? `<span>${open.length ? open.length + ' fallas abiertas' : 'Todo bien'}</span><span>${ago(r.at)}</span>` : '<span>Primera revisión pendiente</span>'}</div>
+      <span class="btn pri">${ic('open', 16)}Ver informe</span></a>`;
+  }
+
+  /* ───────── Revisión de apps: informe ───────── */
+  function revision() {
+    const r = SRV.rev, room = R.REVISION;
+    if (!C.user()) { view.innerHTML = `<section class="hist"><div class="hero"><h1>${esc(room.name)}</h1><p>${esc(room.desc)}</p></div><p class="empty glass">Inicia sesión con tu cuenta de Google (la misma de VORTEX) para ver los informes. <a href="#" data-a="login">Iniciar sesión</a></p></section>`; return; }
+    if (!r) { view.innerHTML = `<section class="hist"><div class="hero"><h1>${esc(room.name)}</h1><p>${esc(room.desc)}</p></div><p class="empty glass">${SRV.at ? 'La primera revisión todavía no termina. Corre sola cada 2 horas; vuelve en un rato.' : 'Cargando…'}</p></section>`; pullServer(); return; }
+    const issues = r.issues || [], open = issues.filter(i => i.status !== 'resuelta'), solved = issues.filter(i => i.status === 'resuelta'), sen = r.sentinel || {};
+    const nm = id => (r.apps[id] || {}).name || id, sevP = {alta: 'lose', media: 'warn', baja: ''};
+    const row = i => `<div class="iss glass ${i.status}"><span class="pill ${sevP[i.sev]}">${esc(i.sev)}</span><div><b>${esc(i.title)}</b><small>${esc(nm(i.app))} · ${i.status === 'nueva' ? 'nueva' : i.status === 'sigue' ? `sigue (desde ${ago(i.first)}, ${i.seen} revisiones)` : 'resuelta ' + ago(i.solvedAt)}</small><p>${esc(i.ev || '')}</p></div></div>`;
+    const lastRun = (r.runs || [])[0];
+    view.innerHTML = `<section class="hist rev"><div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${esc(room.name)}</h1><small>Última revisión ${ago(r.at)} · la siguiente ${inT(r.next)} · corre sola en el servidor</small></div><div class="sp"></div>${lastRun ? `<a class="btn sm" href="#/sala/${room.id}/${lastRun.id}">${ic('play', 14)}Ver a los agentes</a>` : ''}</div>
+      <div class="apps">${Object.entries(r.apps || {}).map(([k, a]) => { const ag = room.agents.find(x => x.app === k) || room.agents.find(x => x.id === 'centinela'); return `<div class="appc glass ${a.state}" style="--c:${ag.color}">${av(ag, 36)}<div><b>${esc(a.name)}</b><small>${esc(ag.name)} · ${a.loadMs ? 'abre en ' + (a.loadMs / 1000).toFixed(1) + ' s · ' + (a.tried || 0) + ' botones probados' : k === 'bots' ? (sen.bots ? sen.bots.live + ' de ' + sen.bots.total + ' bots encendidos' : 'bots y servidores') : ''}</small></div><span class="pill ${(STC[a.state] || [])[1] || ''}">${esc((STC[a.state] || [a.state])[0])}${a.open ? ' · ' + a.open : ''}</span></div>`; }).join('')}</div>
+      ${r.report ? `<div class="glass box rep"><header>${av(room.agents.find(a => a.id === 'andromeda'), 30)}<b>Informe de Andrómeda</b></header><div class="txt">${md(r.report)}</div></div>` : ''}
+      <h3 class="mt">Fallas abiertas (${open.length})</h3>${open.length ? open.map(row).join('') : '<p class="empty glass">Nada abierto: todo lo revisado funciona.</p>'}
+      ${(sen.ok || []).length ? `<h3 class="mt">Funcionando bien</h3><ul class="okl glass">${sen.ok.map(x => `<li>${ic('check', 14)}${esc(x)}</li>`).join('')}</ul>` : ''}
+      ${solved.length ? `<details class="mt"><summary>Resueltas recientemente (${solved.length})</summary>${solved.map(row).join('')}</details>` : ''}
+      <h3 class="mt">Sesiones anteriores</h3><div class="hlist">${(r.runs || []).map(x => `<a class="hrow glass" href="#/sala/${room.id}/${x.id}"><div class="stack">${room.flow.slice(-3).map(id => av(room.agents.find(a => a.id === id), 26)).join('')}</div><div><b>${esc(x.title)}</b><small>${when(x.at)}</small></div><span class="pill">${esc((OUT[x.outcome] || [x.outcome])[0])}</span></a>`).join('')}</div>
+      <p class="foot">La revisión entra a tus apps sin iniciar sesión (prueba la parte pública), aprieta los botones que no borran, pagan, operan ni publican, y revisa tus tareas automáticas de GitHub y tus bots. Nada se cambia solo. Si aparece una falla grave nueva o se apaga un bot, te llega un aviso al celular.</p></section>`;
+  }
+
   /* ───────── Sesión en vivo ───────── */
   let live = null; // {room, ctx, events, ctrl, scene, running}
   function roomView(id, runId) {
     const room = roomById(id); if (!room) { location.hash = '#/'; return; }
-    const replay = runId ? S.runs.find(x => x.id === runId) : null;
+    const replay = runId ? findRun(runId) : null;
+    if (room.server && !replay) { location.hash = '#/revision'; return; }
     if (live && live.running && live.room.id !== id) { toast('Hay una sesión trabajando en «' + live.room.name + '»'); location.hash = '#/sala/' + live.room.id; return; }
     view.innerHTML = `<section class="room">
-      <div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${esc(room.name)}</h1><small>${room.agents.length} agentes · ${esc(AI.label())}</small></div><div class="sp"></div><span class="live-dot" hidden>En vivo</span><button class="btn ghost sm" data-a="stop" hidden>${ic('stop', 14)}Detener</button></div>
+      <div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${esc(room.name)}</h1><small>${room.agents.length} agentes · ${replay && replay.auto ? 'sesión automática del servidor · ' + when(replay.at) : esc(AI.label())}</small></div><div class="sp"></div><span class="live-dot" hidden>En vivo</span><button class="btn ghost sm" data-a="stop" hidden>${ic('stop', 14)}Detener</button></div>
       <div class="room-body"><div class="stage glass" id="stage"></div><aside class="panel glass" id="panel"></aside></div></section>`;
     const scene = SC.Scene($('#stage'), room);
     if (live && live.room.id === id && !replay && !live.replay) { live.scene = scene; replayInto(scene, live.events, true); paintPanel(); syncBar(); return; }
@@ -116,7 +170,7 @@
   function paintPanel() {
     const P = $('#panel'); if (!P || !live) return; const room = live.room, ev = live.events;
     if (!ev.length && !live.running) {
-      P.innerHTML = `<div class="setup"><h3>${room.kind === 'bots' ? 'Diseña tu bot' : 'Pedido para el equipo'}</h3>${room.kind === 'bots' ? '<p class="intro">Elige cómo quieres tu bot. El equipo lo diseña, lo prueba con datos reales y, si pasa todos los filtros, te llega a Nova Bot Lab.</p>' : ''}<form id="ask">${inputHTML(room, live.inputs)}<button class="btn pri wide" type="submit">${ic('play', 16)}Iniciar sesión de agentes</button></form>
+      P.innerHTML = `<div class="setup"><h3>${room.kind === 'bots' ? 'Diseña tu bot' : 'Pedido para el equipo'}</h3>${room.kind === 'bots' ? `<p class="intro">Elige cómo quieres tu bot. El equipo lo diseña, lo prueba con datos reales y, si pasa todos los filtros, te llega a Nova Bot Lab.${autoCfg().on !== false ? ' <b>Además este equipo trabaja solo cada 3 horas</b> aunque no abras la app: lo que hace sale en el Historial como «Automático».' : ''}</p>` : room.auto && room.auto.on ? `<p class="intro"><b>Esta sala funciona sola cada ${room.auto.everyHours} h</b> con su tarea fija; sus informes salen en el Historial como «Automático».</p>` : ''}<form id="ask">${inputHTML(room, live.inputs)}<button class="btn pri wide" type="submit">${ic('play', 16)}Iniciar sesión de agentes</button></form>
         <h3 class="mt">El equipo</h3><ol class="team">${room.flow.map(id => room.agents.find(a => a.id === id)).filter(Boolean).map(a => `<li>${av(a, 30)}<div><b>${esc(a.name)}</b><small>${esc(a.role)}${a.tool ? ' · ' + {market: 'datos del mercado', backtest: 'backtest real', bots: 'tus bots'}[a.tool] : ''}${a.back ? ' · puede regresar el trabajo a ' + esc((room.agents.find(x => x.id === a.back) || {}).name || '') : ''}</small></div></li>`).join('')}</ol></div>`;
       return;
     }
@@ -131,7 +185,7 @@
     if (e.type === 'msg') { const a = agentOf(e.agent), to = e.to === 'user' ? {name: 'Tú'} : agentOf(e.to) || {};
       return `<article class="msg" style="--c:${a.color}"><header>${av(a)}<div><b>${esc(a.name)}</b> <span class="to">→ ${esc(to.name || '')}</span><small>${esc(a.role)}${e.round > 1 ? ' · ronda ' + e.round : ''}</small></div>${e.verdict ? `<span class="vd ${e.verdict}">${e.verdict === 'aprobado' ? ic('check', 13) + 'Aprobado' : ic('retry', 13) + 'Pide cambios'}</span>` : ''}</header>
         <div class="txt">${md(e.text)}</div>${e.spec ? `<details class="spec"><summary>${ic('flask', 14)}Estrategia «${esc(e.spec.name)}»</summary><div class="txt">${md(e.specText || '')}</div><pre>${esc(JSON.stringify(e.spec, null, 1))}</pre></details>` : ''}${e.model ? `<footer>${esc(e.model)}</footer>` : ''}</article>`; }
-    if (e.type === 'tool' && e.state !== 'run') { const a = agentOf(e.agent); return `<div class="tool ${e.state}" style="--c:${a.color}">${ic(e.tool === 'market' ? 'chart' : e.tool === 'backtest' ? 'flask' : 'bots', 15)}<div><b>${esc(a.name)} · ${esc({market: 'datos del mercado', backtest: 'backtest en el motor de Nova Bot Lab', bots: 'tus bots de Nova Bot Lab'}[e.tool] || e.tool)}</b><small>${esc(e.text || '')}</small>${e.tool === 'backtest' && e.data ? btHTML(e.data, a.color) : e.tool === 'market' && e.data ? mkHTML(e.data) : ''}</div></div>`; }
+    if (e.type === 'tool' && e.state !== 'run') { const a = agentOf(e.agent); return `<div class="tool ${e.state}" style="--c:${a.color}">${ic(e.tool === 'market' ? 'chart' : e.tool === 'backtest' || e.tool === 'retest' ? 'flask' : /^inspect_/.test(e.tool) ? 'open' : 'bots', 15)}<div><b>${esc(a.name)} · ${esc({market: 'datos del mercado', backtest: 'backtest en el motor de Nova Bot Lab', bots: 'tus bots de Nova Bot Lab', sentinel: 'bots, servidores y tráfico', retest: 'vuelve a probar cada falla, una por una'}[e.tool] || (/^inspect_/.test(e.tool) ? 'abre la app en PC y celular y aprieta sus botones' : e.tool))}</b><small>${esc(e.text || '')}</small>${e.tool === 'backtest' && e.data ? btHTML(e.data, a.color) : e.tool === 'market' && e.data ? mkHTML(e.data) : ''}</div></div>`; }
     if (e.type === 'note') return `<div class="note ${e.kind || ''}">${ic(e.kind === 'regla' ? 'x' : 'motor', 14)}<span>${esc(e.text)}</span></div>`;
     if (e.type === 'round') return `<div class="sep"><span>Ronda ${e.round} · el trabajo regresa a ${esc((agentOf(e.to) || {}).name || '')}</span></div>`;
     if (e.type === 'error') return `<div class="note err">${ic('x', 14)}<span>${esc((agentOf(e.agent) || {}).name || '')} no pudo responder: ${esc(e.text)}</span></div>`;
@@ -151,6 +205,7 @@
     else if (pend) body = `<div class="res">${ic('send', 20)}<div><b>Bot aprobado, falta enviarlo</b><small>Inicia sesión con tu cuenta de Google (la misma de VORTEX) para mandarlo a Nova Bot Lab.</small></div><button class="btn pri sm" data-a="sendPend">${ic('send', 14)}Iniciar sesión y enviar</button></div>`;
     else if (o === 'informe') body = `<div class="res win">${ic('check', 20)}<div><b>Informe entregado</b><small>Lo último que escribió el jefe de la sala es tu informe.</small></div><button class="btn sm" data-a="copy">${ic('copy', 14)}Copiar informe</button></div>`;
     else body = `<div class="res lose">${ic('x', 20)}<div><b>${o === 'cancelado' ? 'Sesión detenida' : o === 'error' ? 'La IA dejó de responder' : 'El equipo no aprobó nada'}</b><small>${o === 'rechazado' ? 'Ningún bot pasó todos los filtros. Prueba otro enfoque, temporalidad o monedas.' : o === 'error' ? 'Puede ser el límite de la IA gratis; espera un minuto e inténtalo de nuevo.' : ''}</small></div></div>`;
+    if (live.room.server) return `<div class="result">${body}<a class="btn ghost wide" href="#/revision">${ic('back', 15)}Volver al informe</a></div>`;
     return `<div class="result">${body}<button class="btn ghost wide" data-a="again">${ic('retry', 15)}Nueva sesión en esta sala</button></div>`;
   }
 
@@ -180,8 +235,9 @@
   /* ───────── Historial ───────── */
   const OUT = {propuesta: ['Propuesta enviada', 'win'], informe: ['Informe', 'win'], rechazado: ['Sin aprobar', 'lose'], cancelado: ['Detenida', ''], error: ['Error de IA', 'lose'], limite: ['Límite de mensajes', ''], 'spec-invalida': ['Estrategia inválida', 'lose'], 'aprobado-sin-enviar': ['Aprobado, sin enviar', '']};
   function history() {
-    view.innerHTML = `<section class="hist"><div class="hero"><h1>Historial</h1><p>Cada sesión guarda la conversación completa del equipo. Ábrela para volver a ver cómo se pasaron el trabajo.</p></div>
-      ${S.runs.length ? `<div class="hlist">${S.runs.map(r => { const o = OUT[r.outcome] || [r.outcome || '—', '']; const room = roomById(r.room); return `<a class="hrow glass" href="#/sala/${encodeURIComponent(r.room)}/${r.id}"><div class="stack">${room ? room.flow.slice(0, 5).map(id => av(room.agents.find(a => a.id === id), 26)).join('') : ''}</div><div><b>${esc(r.title || r.roomName)}</b><small>${esc(r.roomName)} · ${when(r.at)}</small></div><span class="pill ${o[1]}">${esc(o[0])}</span></a>`; }).join('')}</div>` : '<p class="empty glass">Todavía no hay sesiones. Entra a una sala y dale un pedido al equipo.</p>'}</section>`;
+    pullServer(); const list = allRuns();
+    view.innerHTML = `<section class="hist"><div class="hero"><h1>Historial</h1><p>Cada sesión guarda la conversación completa del equipo. Las marcadas «Automático» las hicieron tus agentes solos en el servidor. Ábrela para volver a ver cómo se pasaron el trabajo.</p></div>
+      ${list.length ? `<div class="hlist">${list.map(r => { const o = OUT[r.outcome] || [r.outcome || '—', '']; const room = roomById(r.room); return `<a class="hrow glass" href="#/sala/${encodeURIComponent(r.room)}/${r.id}"><div class="stack">${room ? room.flow.slice(0, 5).map(id => av(room.agents.find(a => a.id === id), 26)).join('') : ''}</div><div><b>${esc(r.title || r.roomName)}</b><small>${esc(r.roomName)} · ${when(r.at)}${r.proposal ? ' · «' + esc(r.proposal.name) + '»' : ''}</small></div>${r.auto ? `<span class="pill auto">${ic('motor', 11)}Automático</span>` : ''}<span class="pill ${o[1]}">${esc(o[0])}</span></a>`; }).join('')}</div>` : '<p class="empty glass">Todavía no hay sesiones. Entra a una sala y dale un pedido al equipo.</p>'}</section>`;
   }
 
   /* ───────── Asistente para crear salas y agentes (paso a paso, con explicaciones) ───────── */
@@ -209,8 +265,12 @@
       <div class="flowv glass">${draft.agents.map((a, i) => `${i ? `<span class="arr">${ic('back', 14)}</span>` : ''}<span class="fa">${av(a, 36)}<small>${esc(a.name)}</small></span>`).join('')}<span class="arr">${ic('back', 14)}</span><span class="fa">${av(null, 36)}<small>Tú</small></span></div>
       <div class="glass box">${draft.agents.map((a, i) => i ? `<div class="rvrow">${av(a, 30)}<b>${esc(a.name)}</b><select data-back="${i}"><option value="">Solo pasa su trabajo</option>${draft.agents.slice(0, i).map(b => `<option value="${b.id}" ${b.id === a.back ? 'selected' : ''}>Revisa y puede regresarlo a ${esc(b.name)}</option>`).join('')}</select></div>` : '').join('')}
       <div class="q"><b>¿Cuántas veces puede regresar el trabajo?</b><small>Más rondas = mejor resultado, pero tarda más y usa más IA.</small></div><div class="pills">${[1, 2, 3, 4].map(n => `<button type="button" class="pl ${n === (draft.maxRounds || 2) ? 'on' : ''}" data-a="wzRounds" data-n="${n}">${n}</button>`).join('')}</div></div>`;
-    else body = `<div class="prev glass" id="wzPrev"></div><div class="glass box"><b>${esc(draft.name || 'Sin nombre')}</b><small class="dim">${esc(draft.desc || '')}</small>
-      <ol class="team">${draft.agents.map(a => `<li>${av(a, 30)}<div><b>${esc(a.name)}</b><small>${esc(a.role)}${a.tool ? ' · ' + toolInfo[a.tool][0] : ''}</small></div></li>`).join('')}</ol></div>`;
+    else { const au = Object.assign({on: false, goal: '', everyHours: 12}, draft.auto || {}); body = `<div class="prev glass" id="wzPrev"></div>
+      <div class="glass box auto-box"><div class="row"><div class="q"><b>${ic('motor', 15)} ¿Funciona sola, 24/7?</b><small>Si la enciendes, el equipo trabaja en el servidor cada cierto tiempo aunque no abras la app, con una tarea fija. Sus informes salen en el Historial y te llega un aviso al celular.</small></div><div class="sp"></div><button type="button" class="btn sm ${au.on ? 'pri' : 'ghost'}" data-a="wzAuto">${au.on ? 'Encendida' : 'Apagada'}</button></div>
+      ${au.on ? `<div class="q"><b>Tarea fija</b><small>Lo que hará en cada turno. Ej.: «Revisa las noticias de cripto y dime qué cambió» o «Propón 3 ideas de contenido para hoy».</small></div><textarea data-autog="1" rows="3" maxlength="600">${esc(au.goal)}</textarea>
+      <div class="q"><b>¿Cada cuánto?</b></div><div class="pills">${[3, 6, 12, 24].map(n => `<button type="button" class="pl ${n === +au.everyHours ? 'on' : ''}" data-a="wzEvery" data-n="${n}">Cada ${n} h</button>`).join('')}</div>` : ''}</div>
+      <div class="glass box"><b>${esc(draft.name || 'Sin nombre')}</b><small class="dim">${esc(draft.desc || '')}</small>
+      <ol class="team">${draft.agents.map(a => `<li>${av(a, 30)}<div><b>${esc(a.name)}</b><small>${esc(a.role)}${a.tool ? ' · ' + toolInfo[a.tool][0] : ''}</small></div></li>`).join('')}</ol></div>`; }
     const nav = draft ? `<div class="row end mt">${own && wz.step === 4 ? `<button class="btn ghost" data-a="roomDel">${ic('trash', 15)}Borrar sala</button>` : ''}${wz.step > 1 ? `<button class="btn ghost" data-a="wzGo" data-s="${wz.step - 1}">${ic('back', 15)}Atrás</button>` : ''}<div class="sp"></div>${wz.step < 4 ? `<button class="btn pri" data-a="wzGo" data-s="${wz.step + 1}">Siguiente</button>` : `<button class="btn pri" data-a="roomSave">${ic('check', 15)}Guardar sala</button>`}</div>` : '';
     view.innerHTML = `<section class="edit">${head}${body}${nav}${agentSheet()}</section>`;
     if (draft && wz.step === 4) { const r = R.normalizeCustom(draft), sc = SC.Scene($('#wzPrev'), r); demo(sc, r); }
@@ -239,6 +299,7 @@
   view.addEventListener('input', e => {
     if (e.target.type === 'range' && e.target.name) { const o = $(`.rv[data-for="${e.target.name}"]`); if (o) o.textContent = e.target.value + (e.target.dataset.unit || ''); }
     if (!draft || !$('.edit')) return; const k = e.target.dataset.k, g = e.target.dataset.ag;
+    if (e.target.dataset.autog) draft.auto = Object.assign({on: true, everyHours: 12}, draft.auto || {}, {goal: e.target.value});
     if (k) draft[k] = e.target.value; if (g && wz.agDraft) { wz.agDraft[g] = e.target.value; if (g === 'name' || g === 'role') { const h = $('.sheet-h b'), r = $('.sheet-h small'); if (g === 'name' && h) h.textContent = e.target.value || 'Nuevo agente'; if (g === 'role' && r) r.textContent = e.target.value; } }
   });
   view.addEventListener('change', e => { if (draft && e.target.dataset.back != null) { draft.agents[+e.target.dataset.back].back = e.target.value; } if (e.target.dataset.ag === 'back' && wz.agDraft) wz.agDraft.back = e.target.value; });
@@ -270,6 +331,9 @@
     else if (a === 'wzTpl') { const t = R.TEMPLATES.find(x => x.id === b.dataset.t); draft = {id: 'u' + Date.now().toString(36), name: t.id === 'blanco' ? '' : t.name, desc: t.id === 'blanco' ? '' : t.desc, ask: t.ask, icon: t.icon, color: t.color, maxRounds: 2, agents: JSON.parse(JSON.stringify(t.agents)), _for: 'nueva'}; wz.step = 1; editor('nueva'); scrollTo(0, 0); }
     else if (a === 'wzGo') { const n = +b.dataset.s; if (n > 1 && !String(draft.name || '').trim()) { wz.step = 1; editor(draft._for); return toast('Ponle nombre a la sala'); } if (n > 2 && draft.agents.some(x => !String(x.prompt || '').trim())) { wz.step = 2; editor(draft._for); return toast('Falta escribir las instrucciones de algún agente'); } wz.step = n; editor(draft._for); scrollTo(0, 0); }
     else if (a === 'wzRounds') { draft.maxRounds = +b.dataset.n; rerender(); }
+    else if (a === 'wzAuto') { draft.auto = Object.assign({goal: '', everyHours: 12}, draft.auto || {}); draft.auto.on = !draft.auto.on; rerender(); }
+    else if (a === 'wzEvery') { draft.auto = Object.assign({on: true, goal: ''}, draft.auto || {}, {everyHours: +b.dataset.n}); rerender(); }
+    else if (a === 'autoToggle' || a === 'autoPer') { if (!C.user()) { try { await C.signIn(); } catch { return; } } const c = autoCfg(); if (a === 'autoToggle') c.on = c.on === false; else c.perRun = +b.dataset.n; S.auto = {taller: c, updatedAt: Date.now()}; save(); toast(a === 'autoToggle' ? (c.on ? 'Modo automático encendido' : 'Modo automático en pausa') : c.perRun + ' sesión(es) por turno'); route(); }
     else if (a === 'agOpen') { wz.ag = +b.dataset.i; wz.agDraft = JSON.parse(JSON.stringify(draft.agents[wz.ag])); rerender(); }
     else if (a === 'agNew') { const n = draft.agents.length, used = new Set(draft.agents.map(x => x.name)); wz.ag = -1; wz.agDraft = {id: newId(), name: R.NAMES.find(x => !used.has(x)) || 'Agente ' + (n + 1), role: '', icon: R.ICONS[(n * 5) % R.ICONS.length], color: R.COLORS[(n * 3) % R.COLORS.length], prompt: '', tool: '', back: ''}; rerender(); }
     else if (a === 'agCancel') { wz.ag = null; wz.agDraft = null; rerender(); }
@@ -280,7 +344,7 @@
     else if (['agUp', 'agDown', 'agDel'].includes(a)) { const i = +b.dataset.i, A = draft.agents;
       if (a === 'agUp') [A[i - 1], A[i]] = [A[i], A[i - 1]]; if (a === 'agDown') [A[i + 1], A[i]] = [A[i], A[i + 1]]; if (a === 'agDel') { const id = A[i].id; A.splice(i, 1); A.forEach(x => { if (x.back === id) x.back = ''; }); }
       A.forEach((x, j) => { if (x.back && A.findIndex(y => y.id === x.back) >= j) x.back = ''; }); rerender(); }
-    else if (a === 'roomSave') { const d = draft; if (!String(d.name).trim()) return toast('Ponle nombre a la sala'); if (d.agents.some(x => !String(x.prompt).trim())) return toast('Escribe las instrucciones de cada agente');
+    else if (a === 'roomSave') { const d = draft; if (!String(d.name).trim()) return toast('Ponle nombre a la sala'); if (d.auto && d.auto.on && !String(d.auto.goal || '').trim()) return toast('Escribe la tarea fija para que funcione sola'); if (d.agents.some(x => !String(x.prompt).trim())) return toast('Escribe las instrucciones de cada agente');
       const clean = Object.assign({}, d, {updatedAt: Date.now()}); delete clean._for; const i = S.rooms.findIndex(x => x.id === d.id); if (i >= 0) S.rooms[i] = clean; else S.rooms.push(Object.assign(clean, {createdAt: Date.now()})); save(); draft = null; toast('Sala guardada' + (C.user() ? ' en tu cuenta' : ' en este dispositivo')); location.hash = '#/sala/' + clean.id; }
     else if (a === 'roomDel') { if (!confirm('¿Borrar esta sala?')) return; S.deleted[draft.id] = Date.now(); S.rooms = S.rooms.filter(x => x.id !== draft.id); save(); draft = null; location.hash = '#/'; }
   });
@@ -288,15 +352,17 @@
   /* ───────── Rutas ───────── */
   function route() {
     const h = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
-    $$('[data-nav]').forEach(a => a.classList.toggle('on', (h[0] || '') === '' ? a.dataset.nav === 'home' : (h[0] === 'historial' && a.dataset.nav === 'history') || (h[0] === 'memoria' && a.dataset.nav === 'mem')));
+    $$('[data-nav]').forEach(a => a.classList.toggle('on', (h[0] || '') === '' ? a.dataset.nav === 'home' : (h[0] === 'historial' && a.dataset.nav === 'history') || (h[0] === 'memoria' && a.dataset.nav === 'mem') || (h[0] === 'revision' && a.dataset.nav === 'rev')));
     if (h[0] === 'sala' && h[1]) { if (!$('.room') || !live || live.room.id !== h[1] || (h[2] || null) !== (live.replay ? live.replay.id : null)) roomView(h[1], h[2]); else paintPanel(); }
     else if (h[0] === 'historial') history();
+    else if (h[0] === 'revision') { revision(); pullServer(); }
     else if (h[0] === 'memoria') window.SalaMem.render({view: () => view, state: () => S, save, toast, user: () => C.user()});
     else if (h[0] === 'editor') { if (h[1] === 'nueva' && draft && draft._for === 'nueva' && !$('.edit')) { draft = null; } editor(h[1] || 'nueva'); }
-    else home();
+    else { home(); pullServer(); }
   }
   addEventListener('hashchange', () => { route(); scrollTo(0, 0); });
   SC.sky($('#sky')); paintAcct(); route(); AI.boot().then(() => { if (!$('.room')) route(); }).catch(() => {});
+  setInterval(() => { if (!document.hidden) pullServer(); }, 60000); // lo que hacen tus agentes en el servidor se actualiza solo
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   window.SalaApp = {state: () => S, live: () => live, start: (id, inputs) => { const r = roomById(id); location.hash = '#/sala/' + id; route(); return start(r, inputs); }};
 })();

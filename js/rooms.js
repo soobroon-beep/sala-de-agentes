@@ -78,6 +78,34 @@ NO pongas símbolo, monedas ni temporalidad: los fija la sala.`;
     flow: ['lyra', 'draco', 'polaris']
   };
 
+  /* Sala de REVISIÓN DE APPS: corre sola en el servidor (server/revision.js) cada 2 horas; en la app se ve su informe y se repite la sesión.
+     Un inspector por app abre la app con un navegador real (PC y celular), aprieta los botones, mide la carga y revisa sus tareas automáticas;
+     el Centinela vigila bots y servidores; Quasar vuelve a probar cada falla para descartar falsas alarmas y Andrómeda entrega el informe. */
+  const APPS = [
+    {id: 'vortex', name: 'VORTEX', url: 'https://vortex-nexus.pages.dev/', repo: 'Vortex-By-Nova-Nexus', agent: ['vector', 'Vector', 'cohete', '#7c5cff']},
+    {id: 'novahub', name: 'Nova HUB', url: 'https://soobroon-beep.github.io/Nova-HUB/', repo: 'Nova-HUB', ping: 'https://nova-hub-push.soobroon.workers.dev/ai/status', agent: ['hubble', 'Hubble', 'planeta', '#548fff']},
+    {id: 'neural', name: 'Neural Brain', url: 'https://soobroon-beep.github.io/Neural-Brain-Claude/', repo: 'Neural-Brain-Claude', agent: ['synapse', 'Synapse', 'pulpo', '#f472b6']},
+    {id: 'inkbot', name: 'INKBOT PRO', url: 'https://soobroon-beep.github.io/InkBot/', repo: 'InkBot', agent: ['tinta', 'Tinta', 'cometa', '#fb923c']},
+    {id: 'sala', name: 'Sala de agentes', url: 'https://soobroon-beep.github.io/sala-de-agentes/', repo: 'sala-de-agentes', agent: ['eco', 'Eco', 'vortice', '#a3e635']},
+    {id: 'moldes', name: "Moldes Gaby's", url: 'https://soobroon-beep.github.io/moldesgabys/', repo: 'moldesgabys', agent: ['lira', 'Lira', 'luna', '#f0b90b']}
+  ];
+  const INSPECT = 'Eres {name}, inspector de la app {app} del usuario. Tu herramienta ya abrió la app con un navegador real en PC y celular, apretó sus botones, midió la carga y revisó sus tareas automáticas en GitHub. Con esos datos REALES dile a Quasar (el probador) en pocas líneas: si la app funciona, qué falló exactamente (con la evidencia), qué tan grave es para el usuario y qué botones o partes debe volver a probar. Si todo está bien, dilo en una frase. No inventes nada fuera de los datos.';
+  const REVISION = {
+    id: 'revision-apps', builtin: true, server: true, kind: 'revision', name: 'Revisión de apps', color: '#20bf9f', icon: 'satelite',
+    desc: 'Un agente por app revisa cada 2 horas que todo cargue, que los botones respondan y que tus tareas automáticas y bots sigan corriendo. Quasar confirma cada falla y Andrómeda te entrega el informe.',
+    final: 'report', maxRounds: 1, inputs: [{id: 'goal', type: 'textarea', label: 'Revisión', def: ''}],
+    apps: APPS,
+    agents: APPS.map(a => ({id: a.agent[0], name: a.agent[1], role: 'Inspector de ' + a.name, icon: a.agent[2], color: a.agent[3], tool: 'inspect_' + a.id, output: 'text', app: a.id, prompt: INSPECT.replace('{name}', a.agent[1]).replace('{app}', a.name)})).concat([
+      {id: 'centinela', name: 'Centinela', role: 'Vigila bots y servidores', icon: 'satelite', color: '#22d3ee', tool: 'sentinel', output: 'text',
+        prompt: 'Eres Centinela. Tu herramienta revisó los servidores del usuario (Motor de VORTEX, velas, servidores de avisos e IA), sus bots de Nova Bot Lab (encendidos, si el servidor los sigue avanzando, si alguno se apagó o se atoró), Claudio, el modo automático de la Sala y cuántas personas usaron VORTEX. Dile a Quasar qué está bien y qué NO, con los datos exactos (tiempos, nombres de bots). Si un bot se apagó o se atoró, es prioridad alta. No inventes.'},
+      {id: 'quasar', name: 'Quasar', role: 'Probador', icon: 'robot', color: '#f06b79', tool: 'retest', output: 'text',
+        prompt: 'Eres Quasar, el probador. Tu herramienta volvió a probar UNA POR UNA cada falla que reportaron los inspectores (botones sin respuesta, errores, páginas caídas) con la app recién abierta. Dile a Andrómeda cuáles se confirmaron (fallas reales) y cuáles fueron falsas alarmas, con la evidencia. No inventes.'},
+      {id: 'andromeda', name: 'Andrómeda', role: 'Jefa de revisión', icon: 'estrella', color: '#20bf9f', output: 'text', words: 320,
+        prompt: 'Eres Andrómeda, jefa de la sala de revisión. Con lo que reportaron los inspectores, el Centinela y lo que confirmó Quasar, entrégale al usuario (Payi) su informe: primero una línea con el estado general; luego, por prioridad (alta, media, baja), solo las fallas CONFIRMADAS con qué app, qué pasa, y qué hacer para arreglarlo; al final, una línea con lo que está funcionando bien. Escribe claro, sin tecnicismos innecesarios. Si todo funciona, dilo corto.'}
+    ]),
+    flow: APPS.map(a => a.agent[0]).concat(['centinela', 'quasar', 'andromeda'])
+  };
+
   const BUILTIN = [BOTS, MESA];
   const ICONS = ['robot', 'astronauta', 'alien', 'cohete', 'planeta', 'estrella', 'ovni', 'luna', 'cometa', 'pulpo', 'satelite', 'vortice'];
   const COLORS = ['#7c5cff', '#548fff', '#22d3ee', '#20bf9f', '#f0b90b', '#fb923c', '#f06b79', '#f472b6', '#a3e635', '#94a3b8'];
@@ -95,7 +123,8 @@ NO pongas símbolo, monedas ni temporalidad: los fija la sala.`;
       desc: String(r.desc || '').slice(0, 200), final: 'report', maxRounds: Math.max(1, Math.min(4, +r.maxRounds || 2)),
       inputs: [{id: 'goal', label: r.ask || 'Tema o pregunta para la sala', type: 'textarea', placeholder: '', def: ''}].concat(agents.some(a => a.tool === 'market') ? [
         {id: 'coins', label: 'Monedas', type: 'coins', def: ['BTCUSDT', 'ETHUSDT']}, {id: 'interval', label: 'Temporalidad', type: 'pills', options: [['15m', '15 min'], ['1h', '1 hora'], ['4h', '4 horas'], ['1d', '1 día']], def: '4h'}] : []),
-      agents, flow: ids, createdAt: r.createdAt || Date.now(), updatedAt: r.updatedAt || Date.now()};
+      agents, flow: ids, auto: r.auto && typeof r.auto === 'object' ? {on: !!r.auto.on, goal: String(r.auto.goal || '').slice(0, 600), everyHours: [3, 6, 12, 24].includes(+r.auto.everyHours) ? +r.auto.everyHours : 12} : {on: false, goal: '', everyHours: 12},
+      createdAt: r.createdAt || Date.now(), updatedAt: r.updatedAt || Date.now()};
   }
 
   /* ───────── Asistente: plantillas de sala y papeles listos para agentes ───────── */
@@ -125,7 +154,7 @@ NO pongas símbolo, monedas ni temporalidad: los fija la sala.`;
   ];
   const NAMES = ['Nova', 'Orion', 'Vega', 'Atlas', 'Sirius', 'Lyra', 'Draco', 'Polaris', 'Altair', 'Rigel', 'Deneb', 'Electra', 'Kepler', 'Halley', 'Cassini', 'Juno', 'Titan', 'Luna', 'Cosmo', 'Astra', 'Quasar', 'Pulsar', 'Zenit', 'Aurora'];
 
-  const api = {ROLES, TEMPLATES, NAMES, BUILTIN, ICONS, COLORS, TOOLS, SPEC_GUIDE, normalizeCustom};
+  const api = {ROLES, TEMPLATES, NAMES, BUILTIN, REVISION, APPS, ICONS, COLORS, TOOLS, SPEC_GUIDE, normalizeCustom};
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SalaRooms = api;
 })(typeof self !== 'undefined' ? self : this);
