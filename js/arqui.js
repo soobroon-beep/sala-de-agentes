@@ -13,13 +13,15 @@
   let open = false, busy = false, root = null;
 
   /* ───────── IA de Arqui ───────── */
-  async function free(messages, json) {
+  let lastCall = 0;
+  async function free(messages, json) { // el modelo anónimo aguanta poco seguido: espaciamos las consultas
     let last = null;
-    for (let t = 0; t < 3; t++) {
+    for (let t = 0; t < 4; t++) {
+      const gap = 3500 - (Date.now() - lastCall); if (gap > 0) await new Promise(ok => setTimeout(ok, gap)); lastCall = Date.now();
       const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 60000);
       try {
         const r = await fetch(FREE, {method: 'POST', headers: {'content-type': 'application/json'}, signal: ctl.signal, body: JSON.stringify(Object.assign({model: MODEL, messages, temperature: .6}, json ? {response_format: {type: 'json_object'}} : {}))});
-        if (r.status === 429 || r.status >= 500) { last = new Error('IA ocupada (' + r.status + ')'); await new Promise(ok => setTimeout(ok, 4000 * (t + 1))); continue; }
+        if (r.status === 429 || r.status >= 500) { last = new Error('IA ocupada (' + r.status + ')'); await new Promise(ok => setTimeout(ok, 5000 * (t + 1))); continue; }
         if (!r.ok) throw new Error('IA ' + r.status);
         const j = await r.json(), txt = String(j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content || '').trim();
         if (txt) return txt; last = new Error('respuesta vacía');
@@ -83,12 +85,14 @@ Diseña papeles complementarios (alguien investiga o crea, alguien critica, algu
       const o = parseJson(await ask([{role: 'system', content: SYS + ctx}, {role: 'user', content: text}], true)); d = o && toDraft(o, cur && cur.agents ? cur : null);
     } catch {}
     if (!d) { d = localDraft(text, cur && cur.agents ? cur : null); used = 'local'; }
+    const ev = /cada (\d+) ?h/i.exec(text), daily = /diari|cada (día|dia|mañana|noche)|todos los días|cada maña/i.test(text);
+    if (!d.auto.on && (ev || daily)) d.auto = {on: true, goal: text.slice(0, 300), everyHours: ev && [3, 6, 12, 24].includes(+ev[1]) ? +ev[1] : 24}; // si pidió frecuencia, que funcione sola
     update(note, `Listo el equipo de <b>${esc(d.name)}</b>: ${d.agents.length} agentes. Ahora los creo uno por uno.`);
     const team = d.agents.map(a => `${a.name} (${a.role})`).join(', ');
     for (let i = 0; i < d.agents.length; i++) {
       const a = d.agents[i], n = say('arqui', `${avatar(a)}<span>Creando a <b>${esc(a.name)}</b> · ${esc(a.role)}…</span>`, true, 'mk');
       if (used === 'ia') { try { const p = (await ask([{role: 'system', content: AGENT_SYS}, {role: 'user', content: `Sala «${d.name}»: ${d.desc}\nPedido del usuario: ${text}\nEquipo en orden: ${team}.\nAgente ${i + 1} de ${d.agents.length}: ${a.name}, papel «${a.role}»${a.tool === 'market' ? ', lee velas reales de cripto' : a.tool === 'bots' ? ', lee los bots de Nova Bot Lab' : ''}${a.back ? ', puede regresar el trabajo a ' + (d.agents.find(b => b.id === a.back) || {}).name : ''}${i === d.agents.length - 1 ? ', es el jefe: revisa todo y entrega el resultado final' : ', le pasa su trabajo a ' + d.agents[i + 1].name}.\nIdea inicial: ${a.prompt}`}], false)).replace(/^["«]|["»]$/g, '').trim(); if (p.length > 40) a.prompt = p.slice(0, 3000); } catch {} }
-      if (!a.prompt) a.prompt = `Eres ${a.name}, ${a.role} del equipo. Haz tu parte con lo que te pasen tus compañeros y entrégala clara y concreta.`;
+      if (a.prompt.length < 120) a.prompt = `Eres ${a.name}, ${a.role.toLowerCase()} de la sala «${d.name}» (${d.desc || text.slice(0, 120)}). ${a.prompt ? a.prompt.replace(/\.?$/, '.') : ''} ${i === d.agents.length - 1 ? 'Eres el último: revisa todo lo que hizo el equipo y entrégale al usuario el resultado final, claro y listo para usar.' : `Entrega tu parte en puntos claros y concretos y pásasela a ${d.agents[i + 1].name}.`}`.replace(/\s+/g, ' ').trim(); // si la IA no la escribió, una instrucción completa igual
       update(n, `${avatar(a)}<span><b>${esc(a.name)}</b> · ${esc(a.role)} ${chk()}</span>`);
     }
     say('arqui', `<div class="aq-team">${d.agents.map(a => `<span>${avatar(a)}${esc(a.name)} <small>${esc(a.role)}</small></span>`).join('')}</div>`);
