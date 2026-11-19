@@ -43,10 +43,13 @@ async function buttons(page, max) {
     for (const e of els) {
       const r = e.getBoundingClientRect(); if (r.width < 8 || r.height < 8 || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) continue;
       const st = getComputedStyle(e); if (st.visibility === 'hidden' || st.pointerEvents === 'none' || e.disabled || st.display === 'none') continue;
-      const name = (e.getAttribute('aria-label') || e.getAttribute('title') || e.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 48);
+      if (e.getAttribute('aria-current') === 'page' || e.getAttribute('aria-selected') === 'true') continue; // ya estás ahí: tocarlo no tiene por qué cambiar nada
+      const name = (e.getAttribute('aria-label') || e.getAttribute('title') || (e.innerText || e.textContent || '').trim().split('\n')[0] || '').replace(/\s+/g, ' ').trim().slice(0, 48); // solo la primera línea: «Crear sala», no todo el texto de la tarjeta
       const hr = e.getAttribute('href'); if (!name || re.test(name) || (hr && /^https?:/.test(hr))) continue;
       if (hr && hr.startsWith('#') && (hr === location.hash || ((hr === '#/' || hr === '#') && (location.hash === '' || location.hash === '#/')))) continue; // enlace a la misma página: no tiene por qué cambiar nada
-      if (seen.has(name)) continue; seen.add(name); out.push({name, x: r.left + r.width / 2, y: r.top + r.height / 2});
+      if (seen.has(name)) continue; seen.add(name);
+      // toca el centro de la parte VISIBLE (una tarjeta cortada por abajo tenía su centro fuera de la pantalla y se contaba como «no hace nada»)
+      out.push({name, x: (Math.max(r.left, 0) + Math.min(r.right, innerWidth)) / 2, y: (Math.max(r.top, 0) + Math.min(r.bottom, innerHeight)) / 2});
     }
     return out.slice(0, a.max);
   }, {skip: SKIP.source, max}).catch(() => []);

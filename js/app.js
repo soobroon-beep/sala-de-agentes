@@ -11,7 +11,12 @@
     back: '<path d="M15 5l-7 7 7 7"/>', play: '<path d="M8 5.5v13l11-6.5z"/>', stop: '<rect x="7" y="7" width="10" height="10" rx="2"/>', plus: '<path d="M12 5v14M5 12h14"/>',
     edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>', trash: '<path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/>', copy: '<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5H5v11h3"/>',
     send: '<path d="M4 12l16-8-6 16-2.5-6.5z"/>', chart: '<path d="M4 19h16M7 15l3-4 3 2 4-6"/>', flask: '<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/>', bots: '<rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01"/>',
-    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>', up: '<path d="M6 15l6-6 6 6"/>', down: '<path d="M6 9l6 6 6-6"/>', open: '<path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/>', retry: '<path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v5h5"/>', motor: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>'
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>', up: '<path d="M6 15l6-6 6 6"/>', down: '<path d="M6 9l6 6 6-6"/>', open: '<path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/>', retry: '<path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v5h5"/>', oct: '<path d="M8.5 3h7L21 8.5v7L15.5 21h-7L3 15.5v-7z"/><path d="M12 8v5M12 16h.01"/>', tri: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+    wand: '<path d="M5 19L15 9M14 4v2M19 9h2M17.5 6.5l1.5-1.5M14 9l1 1"/>', off: '<path d="M4 4l16 16M9 5h9a2 2 0 0 1 2 2v9M16 19H6a2 2 0 0 1-2-2V8"/>', blank: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16"/>', code: '<path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/>',
+    tap: '<path d="M9 11V5a2 2 0 0 1 4 0v5l4 1a2 2 0 0 1 1.5 2.2L18 20H10l-4-5a1.6 1.6 0 0 1 2.5-2z"/>', gh: '<circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 8v8M8 6h4a4 4 0 0 1 4 4v0"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    power: '<path d="M12 3v8M7 6.5a7 7 0 1 0 10 0"/>', server: '<rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/>', users: '<circle cx="9" cy="9" r="3"/><path d="M3 19a6 6 0 0 1 12 0M16 6a3 3 0 0 1 0 6M21 19a6 6 0 0 0-4-5.6"/>',
+    grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>', wrench: '<path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 1-2-2z"/>',
+    pc: '<rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M9 20h6M12 16v4"/>', phone: '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>', motor: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>'
   };
   const ic = (k, s = 18) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
   const toast = t => { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 3600); };
@@ -103,23 +108,97 @@
       <span class="btn pri">${ic('open', 16)}Ver informe</span></a>`;
   }
 
-  /* ───────── Revisión de apps: informe ───────── */
+  /* ───────── Revisión de apps: dashboard (semáforo por app, qué arreglar y prompts listos para tu IA) ───────── */
+  const SEV = {alta: ['Grave', 'bad', 'oct'], media: ['Media', 'warn', 'tri'], baja: ['Baja', 'info', 'info']};
+  // cada tipo de falla en palabras sencillas: [prueba, icono, nombre corto, qué significa, pista para arreglarla]
+  const KINDS = [
+    [/no abre/, 'off', 'La app no abre', 'La página no carga: nadie puede entrar.', 'Revisa que el despliegue (GitHub Pages / Cloudflare Pages) haya terminado bien, que index.html exista y que ningún script tumbe la carga.'],
+    [/en blanco/, 'blank', 'Pantalla en blanco', 'La página abre pero no muestra nada.', 'Busca el error que detiene el primer pintado (consola del navegador) y una ruta o archivo que no cargue.'],
+    [/Error de código/, 'code', 'Error en el código', 'El navegador mostró un error rojo en la consola; esa parte de la app puede no funcionar.', 'Reproduce el error con la consola abierta, encuentra la línea que lo causa y corrígelo (si viene de una petición a otro sitio, no la hagas desde el navegador o maneja el fallo sin error rojo).'],
+    [/no hacen nada/, 'tap', 'Botones que no responden', 'Se tocaron estos botones y la pantalla no cambió.', 'Revisa que cada botón tenga su acción conectada (onclick / data-a), que no lo tape otro elemento y que no truene su función.'],
+    [/tarea automática/, 'gh', 'Tarea automática fallando', 'Un proceso programado de GitHub Actions está fallando.', 'Abre la ejecución fallida (enlace en la evidencia), lee el error del log y corrige el script, los secretos o los permisos que pida.'],
+    [/tarda/, 'clock', 'Carga lenta', 'La app tarda mucho en abrir.', 'Mide qué archivos o peticiones tardan más; difiere lo que no se necesita al abrir y comprime imágenes.'],
+    [/se atoró/, 'bots', 'Bot atorado', 'El bot está encendido, pero el servidor dejó de avanzarlo.', 'Revisa el Motor del servidor (GitHub Actions) y el log de ese bot en Nova Bot Lab: qué error lo detiene.'],
+    [/se apagó/, 'power', 'Bot apagado', 'Un bot que estaba encendido ya no lo está.', 'Si no lo apagaste tú, revisa qué lo apaga (límites de riesgo, error del servidor o un guardado que lo pisó).'],
+    [/reporta un error/, 'bots', 'Bot con error', 'Un bot reporta un error al correr.', 'Lee el error del bot y corrige su estrategia o el motor de paper trading.'],
+    [/no avanza|está detenido/, 'bots', 'Agente detenido', 'Claudio o Felipe no están avanzando.', 'Revisa su tarea automática (cada hora) y su estado (interruptor de emergencia o límites).'],
+    [/Motor/, 'motor', 'El Motor no responde', 'El Motor del servidor (alertas, bots y Claudio) no da señales.', 'Revisa la tarea «Motor del servidor» en GitHub Actions del repo de VORTEX: si está atorada, cancélala y vuelve a lanzarla.'],
+    [/velas/, 'chart', 'Velas sin actualizar', 'Las velas guardadas de VORTEX están viejas.', 'Revisa el Motor y la fuente de datos (respaldo de exchanges).'],
+    [/Taller/, 'motor', 'Taller automático parado', 'El Taller de bots no ha corrido en horas.', 'Revisa la tarea «Sala · Taller automático» en GitHub Actions.'],
+    [/servidor|no responde/i, 'server', 'Servidor sin respuesta', 'Un servidor (Worker) de tus apps no responde.', 'Revisa el Worker en Cloudflare (despliegue, errores, límites).'],
+    [/uso/, 'users', 'Bajó el uso', 'Entra mucha menos gente que antes.', 'No es un error de código: revisa si algo impide entrar o iniciar sesión.']
+  ];
+  const kindOf = i => { const k = KINDS.find(x => x[0].test(i.title)) || [null, 'tri', 'Otra falla', i.title, 'Investiga la causa con la evidencia.']; return {icon: k[1], label: k[2], what: k[3], hint: k[4]}; };
+  const devsOf = ev => { const d = []; if (/PC/.test(ev || '')) d.push('PC'); if (/celular/.test(ev || '')) d.push('Celular'); return d; };
+  const appMeta = id => id === 'bots' ? {name: 'Bots y servidores de VORTEX', repo: 'Vortex-By-Nova-Nexus', url: 'https://vortex-nexus.pages.dev/'} : (R.APPS.find(a => a.id === id) || {name: id, repo: '', url: ''});
+  function fixPrompt(appId, list) {
+    const m = appMeta(appId), one = list.length === 1;
+    const lines = [`Eres un desarrollador senior. Trabaja en mi repo de GitHub soobroon-beep/${m.repo} (app «${m.name}», publicada en ${m.url}).`,
+      one ? 'La revisión automática de mi Sala de agentes encontró esta falla y necesito que la arregles:' : `La revisión automática de mi Sala de agentes encontró ${list.length} fallas abiertas en esta app. Arréglalas todas, de la más grave a la más leve:`, ''];
+    list.forEach((i, n) => { const k = kindOf(i), d = devsOf(i.ev);
+      lines.push(`${one ? 'FALLA' : (n + 1) + '.'} [Prioridad ${i.sev}] ${i.title}`, `   Qué pasa: ${k.what}`, `   Evidencia de la revisión: ${i.ev || '—'}`);
+      if (d.length) lines.push(`   Dónde: ${d.join(' y ')}`);
+      lines.push(`   Desde: ${i.first ? when(i.first) : '—'}${i.seen > 1 ? ` (se ha visto en ${i.seen} revisiones seguidas)` : ''}`, `   Pista: ${k.hint}`, ''); });
+    lines.push('Cómo trabajar:', '- Primero reproduce cada falla y encuentra la causa raíz; no la tapes (no borres el botón ni ocultes el error).',
+      '- Cambia solo lo necesario: no toques el diseño, los textos ni lo que ya funciona.', '- Prueba en PC y en celular (390 px de ancho) que quedó arreglado y que no rompiste nada más.',
+      '- Si alguna resulta ser una falsa alarma de la revisión (la app sí funciona), dímelo y explica por qué.',
+      appId === 'vortex' || appId === 'bots' ? '- Trabaja en la rama dev (dev.vortex-nexus.pages.dev) y no publiques en la oficial hasta que yo lo apruebe.' : '- Cuando esté probado, sube los cambios a main.',
+      `- Al final dime en pocas líneas qué causaba ${one ? 'la falla' : 'cada falla'} y qué cambiaste.`);
+    return lines.join('\n');
+  }
+  let revSheet = null, revAll = false; // prompt abierto · ver todos los detalles
+  const ring = (ok, tot, cls) => { const r = 34, c = 2 * Math.PI * r, f = tot ? ok / tot : 1; return `<svg class="rv-ring ${cls}" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="${r}" class="bg"/><circle cx="42" cy="42" r="${r}" class="fg" stroke-dasharray="${(f * c).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 42 42)"/></svg>`; };
   function revision() {
     const r = SRV.rev, room = R.REVISION;
     if (!C.user()) { view.innerHTML = `<section class="hist"><div class="hero"><h1>${esc(room.name)}</h1><p>${esc(room.desc)}</p></div><p class="empty glass">Inicia sesión con tu cuenta de Google (la misma de VORTEX) para ver los informes. <a href="#" data-a="login">Iniciar sesión</a></p></section>`; return; }
     if (!r) { view.innerHTML = `<section class="hist"><div class="hero"><h1>${esc(room.name)}</h1><p>${esc(room.desc)}</p></div><p class="empty glass">${SRV.at ? 'La primera revisión todavía no termina. Corre sola cada 2 horas; vuelve en un rato.' : 'Cargando…'}</p></section>`; pullServer(); return; }
     const issues = r.issues || [], open = issues.filter(i => i.status !== 'resuelta'), solved = issues.filter(i => i.status === 'resuelta'), sen = r.sentinel || {};
-    const nm = id => (r.apps[id] || {}).name || id, sevP = {alta: 'lose', media: 'warn', baja: ''};
-    const row = i => `<div class="iss glass ${i.status}"><span class="pill ${sevP[i.sev]}">${esc(i.sev)}</span><div><b>${esc(i.title)}</b><small>${esc(nm(i.app))} · ${i.status === 'nueva' ? 'nueva' : i.status === 'sigue' ? `sigue (desde ${ago(i.first)}, ${i.seen} revisiones)` : 'resuelta ' + ago(i.solvedAt)}</small><p>${esc(i.ev || '')}</p></div></div>`;
+    const apps = Object.entries(r.apps || {}), okApps = apps.filter(([, a]) => a.state === 'bien').length, graves = open.filter(i => i.sev === 'alta').length, nuevas = open.filter(i => i.status === 'nueva').length;
+    const agentOfApp = k => room.agents.find(x => x.app === k) || room.agents.find(x => x.id === 'centinela');
+    const state = graves ? 'falla' : open.length ? 'atencion' : 'bien';
+    const head = {bien: ['Todo funciona', 'Tus apps, bots y servidores pasaron la revisión.', 'check'], atencion: [`${open.length} ${open.length === 1 ? 'cosa' : 'cosas'} por arreglar`, 'Nada grave: tus apps abren y funcionan, pero hay detalles que corregir.', 'tri'], falla: [`${graves} ${graves === 1 ? 'falla grave' : 'fallas graves'}`, 'Algo importante no funciona. Empieza por lo marcado en rojo.', 'oct']}[state];
+    const kpi = (icon, val, lab, cls) => `<div class="rv-kpi ${cls || ''}"><span class="ki">${ic(icon, 16)}</span><b>${val}</b><small>${lab}</small></div>`;
+    const tile = ([k, a]) => { const ag = agentOfApp(k), st = STC[a.state] || [a.state, ''], ms = a.loadMs || 0, sp = !ms ? '' : ms < 5000 ? 'ok' : ms < 12000 ? 'warn' : 'bad';
+      return `<button type="button" class="rv-app glass ${a.state}" data-a="revGo" data-app="${esc(k)}" style="--c:${ag.color}"><span class="rv-app-h">${av(ag, 34)}<span class="rv-badge ${a.state}">${ic(a.state === 'bien' ? 'check' : a.state === 'falla' ? 'oct' : 'tri', 13)}${esc(st[0])}</span></span>
+        <b>${esc(a.name)}</b><span class="rv-app-n">${a.open ? `${a.open} por arreglar` : 'Sin fallas'}</span>
+        <span class="rv-app-m">${ms ? `<span class="rv-speed ${sp}" title="Tiempo de carga"><i style="width:${Math.min(100, ms / 150).toFixed(0)}%"></i></span><small>${(ms / 1000).toFixed(1)} s · ${a.tried || 0} botones</small>` : k === 'bots' && sen.bots ? `<small>${sen.bots.live} de ${sen.bots.total} bots encendidos</small>` : '<small>Bots y servidores</small>'}</span></button>`; };
+    const order = {falla: 0, atencion: 1, bien: 2}, byApp = {};
+    for (const i of open) (byApp[i.app] = byApp[i.app] || []).push(i);
+    const item = i => { const k = kindOf(i), s = SEV[i.sev] || SEV.media, d = devsOf(i.ev);
+      return `<div class="rv-i ${s[1]}"><span class="rv-ic">${ic(k.icon, 20)}</span><div class="rv-i-b"><div class="rv-i-t"><b>${esc(k.label)}</b><span class="rv-sev ${s[1]}">${ic(s[2], 12)}${s[0]}</span>${i.status === 'nueva' ? '<span class="rv-tag new">Nueva</span>' : `<span class="rv-tag">Sigue · desde ${ago(i.first)}</span>`}${d.map(x => `<span class="rv-tag">${ic(x === 'PC' ? 'pc' : 'phone', 11)}${x}</span>`).join('')}</div>
+        <p>${esc(k.what)}</p><small class="rv-i-s">${esc(i.title)}</small>
+        <details${revAll ? ' open' : ''}><summary>Ver detalle técnico</summary><code>${esc(i.ev || '—')}</code><p class="rv-hint">${ic('wand', 13)}${esc(k.hint)}</p></details></div>
+        <button type="button" class="btn sm rv-pbtn" data-a="revPrompt" data-app="${esc(i.app)}" data-id="${esc(i.id)}">${ic('wand', 14)}Prompt</button></div>`; };
+    const groups = Object.keys(byApp).sort((x, y) => (order[(r.apps[x] || {}).state] ?? 3) - (order[(r.apps[y] || {}).state] ?? 3)).map(k => { const a = r.apps[k] || {name: k, state: 'atencion'}, ag = agentOfApp(k), list = byApp[k];
+      return `<div class="rv-g glass ${a.state}" id="rg-${esc(k)}" style="--c:${ag.color}"><header>${av(ag, 34)}<div><b>${esc(a.name)}</b><small>${list.length} ${list.length === 1 ? 'falla' : 'fallas'} · ${esc(ag.name)} la revisó</small></div><div class="sp"></div>
+        <button type="button" class="btn sm pri" data-a="revPrompt" data-app="${esc(k)}">${ic('wand', 14)}Prompt para arreglar todo</button></header>${list.map(item).join('')}</div>`; }).join('');
     const lastRun = (r.runs || [])[0];
-    view.innerHTML = `<section class="hist rev"><div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${esc(room.name)}</h1><small>Última revisión ${ago(r.at)} · la siguiente ${inT(r.next)} · corre sola en el servidor</small></div><div class="sp"></div>${lastRun ? `<a class="btn sm" href="#/sala/${room.id}/${lastRun.id}">${ic('play', 14)}Ver a los agentes</a>` : ''}</div>
-      <div class="apps">${Object.entries(r.apps || {}).map(([k, a]) => { const ag = room.agents.find(x => x.app === k) || room.agents.find(x => x.id === 'centinela'); return `<div class="appc glass ${a.state}" style="--c:${ag.color}">${av(ag, 36)}<div><b>${esc(a.name)}</b><small>${esc(ag.name)} · ${a.loadMs ? 'abre en ' + (a.loadMs / 1000).toFixed(1) + ' s · ' + (a.tried || 0) + ' botones probados' : k === 'bots' ? (sen.bots ? sen.bots.live + ' de ' + sen.bots.total + ' bots encendidos' : 'bots y servidores') : ''}</small></div><span class="pill ${(STC[a.state] || [])[1] || ''}">${esc((STC[a.state] || [a.state])[0])}${a.open ? ' · ' + a.open : ''}</span></div>`; }).join('')}</div>
-      ${r.report ? `<div class="glass box rep"><header>${av(room.agents.find(a => a.id === 'andromeda'), 30)}<b>Informe de Andrómeda</b></header><div class="txt">${md(r.report)}</div></div>` : ''}
-      <h3 class="mt">Fallas abiertas (${open.length})</h3>${open.length ? open.map(row).join('') : '<p class="empty glass">Nada abierto: todo lo revisado funciona.</p>'}
-      ${(sen.ok || []).length ? `<h3 class="mt">Funcionando bien</h3><ul class="okl glass">${sen.ok.map(x => `<li>${ic('check', 14)}${esc(x)}</li>`).join('')}</ul>` : ''}
-      ${solved.length ? `<details class="mt"><summary>Resueltas recientemente (${solved.length})</summary>${solved.map(row).join('')}</details>` : ''}
-      <h3 class="mt">Sesiones anteriores</h3><div class="hlist">${(r.runs || []).map(x => `<a class="hrow glass" href="#/sala/${room.id}/${x.id}"><div class="stack">${room.flow.slice(-3).map(id => av(room.agents.find(a => a.id === id), 26)).join('')}</div><div><b>${esc(x.title)}</b><small>${when(x.at)}</small></div><span class="pill">${esc((OUT[x.outcome] || [x.outcome])[0])}</span></a>`).join('')}</div>
-      <p class="foot">La revisión entra a tus apps sin iniciar sesión (prueba la parte pública), aprieta los botones que no borran, pagan, operan ni publican, y revisa tus tareas automáticas de GitHub y tus bots. Nada se cambia solo. Si aparece una falla grave nueva o se apaga un bot, te llega un aviso al celular.</p></section>`;
+    view.innerHTML = `<section class="hist rev"><div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${esc(room.name)}</h1><small>Última revisión ${ago(r.at)} · la siguiente ${inT(r.next)}</small></div><div class="sp"></div>${lastRun ? `<a class="btn sm" href="#/sala/${room.id}/${lastRun.id}">${ic('play', 14)}Ver a los agentes</a>` : ''}</div>
+      <div class="rv-hero glass ${state}"><div class="rv-score">${ring(okApps, apps.length, state)}<span>${ic(head[2], 26)}</span></div>
+        <div class="rv-hero-t"><h2>${esc(head[0])}</h2><p>${esc(head[1])}</p><small>${okApps} de ${apps.length} sin fallas${nuevas ? ` · ${nuevas} nueva${nuevas > 1 ? 's' : ''} desde la revisión anterior` : ''}</small></div>
+        <div class="rv-kpis">${kpi('tri', open.length, 'Por arreglar', open.length ? 'warn' : 'ok')}${kpi('oct', graves, 'Graves', graves ? 'bad' : 'ok')}${kpi('bots', sen.bots ? `${sen.bots.live}/${sen.bots.total}` : '—', 'Bots encendidos', '')}${kpi('users', sen.traffic ? sen.traffic.d1 : '—', 'Personas hoy', '')}</div></div>
+      <h3 class="mt rv-h">${ic('grid', 17)}Tus apps <small>toca una para ver qué tiene</small></h3>
+      <div class="rv-apps">${apps.slice().sort((x, y) => order[x[1].state] - order[y[1].state]).map(tile).join('')}</div>
+      <h3 class="mt rv-h">${ic('wrench', 17)}Qué arreglar <small>${open.length ? 'de lo más grave a lo más leve' : ''}</small>${open.length > 1 && Object.keys(byApp).length > 1 ? `<span class="sp"></span><button type="button" class="btn sm ghost" data-a="revPrompt" data-app="*">${ic('copy', 14)}Prompt de todas las apps</button>` : ''}</h3>
+      ${open.length ? `<div class="rv-legend"><span class="rv-sev bad">${ic('oct', 12)}Grave: arréglalo ya</span><span class="rv-sev warn">${ic('tri', 12)}Media: pronto</span><span class="rv-sev info">${ic('info', 12)}Baja: cuando puedas</span></div>${groups}` : `<div class="rv-empty glass">${ic('check', 30)}<b>Nada que arreglar</b><small>Todo lo revisado funciona.</small></div>`}
+      ${(sen.ok || []).length ? `<h3 class="mt rv-h">${ic('check', 17)}Funcionando bien</h3><div class="rv-ok">${sen.ok.map(x => `<span>${ic('check', 13)}${esc(x)}</span>`).join('')}</div>` : ''}
+      ${r.report ? `<details class="mt rv-more"><summary>${av(room.agents.find(a => a.id === 'andromeda'), 24)}Leer el informe escrito de Andrómeda</summary><div class="glass box rep"><div class="txt">${md(r.report)}</div></div></details>` : ''}
+      ${solved.length ? `<details class="mt rv-more"><summary>${ic('check', 15)}Resueltas recientemente (${solved.length})</summary>${solved.map(i => `<div class="rv-i done"><span class="rv-ic">${ic('check', 18)}</span><div class="rv-i-b"><b>${esc(kindOf(i).label)} · ${esc((r.apps[i.app] || {}).name || i.app)}</b><small class="rv-i-s">${esc(i.title)} · resuelta ${ago(i.solvedAt)}</small></div></div>`).join('')}</details>` : ''}
+      <details class="mt rv-more"><summary>${ic('play', 15)}Sesiones anteriores (${(r.runs || []).length})</summary><div class="hlist">${(r.runs || []).map(x => `<a class="hrow glass" href="#/sala/${room.id}/${x.id}"><div class="stack">${room.flow.slice(-3).map(id => av(room.agents.find(a => a.id === id), 26)).join('')}</div><div><b>${esc(x.title)}</b><small>${when(x.at)}</small></div><span class="pill">${esc((OUT[x.outcome] || [x.outcome])[0])}</span></a>`).join('')}</div></details>
+      <p class="foot">La revisión entra a tus apps sin iniciar sesión (prueba la parte pública), aprieta los botones que no borran, pagan, operan ni publican, y revisa tus tareas automáticas de GitHub y tus bots. Nada se cambia solo: copia el prompt de una falla y pégaselo a tu IA (Claude, ChatGPT o Gemini).</p></section>${revSheetHTML()}`;
+  }
+  function revSheetHTML() {
+    if (!revSheet) return '';
+    return `<div class="sheet-bg" data-a="revClose"></div><div class="sheet glass rv-sheet" role="dialog" aria-label="Prompt"><div class="sheet-h"><span class="rv-ic">${ic('wand', 20)}</span><div><b>${esc(revSheet.title)}</b><small>Cópialo y pégalo en Claude, ChatGPT o Gemini</small></div><div class="sp"></div><button class="ib" data-a="revClose" aria-label="Cerrar">${ic('x', 16)}</button></div>
+      <div class="sheet-b"><pre class="rv-pre">${esc(revSheet.text)}</pre></div><div class="sheet-f"><button class="btn pri wide" data-a="revCopy">${ic('copy', 16)}Copiar prompt</button></div></div>`;
+  }
+  async function copyText(t) { try { await navigator.clipboard.writeText(t); return true; } catch { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch {} ta.remove(); return ok; } }
+  function openRevPrompt(appId, id) {
+    const r = SRV.rev; if (!r) return; const open = (r.issues || []).filter(i => i.status !== 'resuelta');
+    if (appId === '*') { const ids = [...new Set(open.map(i => i.app))]; revSheet = {title: 'Arreglar todas las apps', text: ids.map(k => `═════ ${appMeta(k).name} ═════\n` + fixPrompt(k, open.filter(i => i.app === k))).join('\n\n') + '\n\n(Son repos distintos: si tu IA trabaja en un solo repo a la vez, pásale cada bloque por separado.)'}; }
+    else if (id) { const i = open.find(x => x.id === id); if (!i) return; revSheet = {title: kindOf(i).label + ' · ' + ((r.apps[appId] || {}).name || appId), text: fixPrompt(appId, [i])}; }
+    else { const list = open.filter(i => i.app === appId); revSheet = {title: 'Arreglar todo en ' + ((r.apps[appId] || {}).name || appId), text: fixPrompt(appId, list)}; }
+    const y = scrollY; revision(); scrollTo(0, y);
   }
 
   /* ───────── Sesión en vivo ───────── */
@@ -322,6 +401,10 @@
     const b = e.target.closest('[data-a]'); if (!b) return; const a = b.dataset.a;
     if (a === 'login') { e.preventDefault(); try { await C.signIn(); } catch (er) { toast('No se pudo iniciar sesión'); } }
     else if (a === 'rmCoin') b.remove();
+    else if (a === 'revPrompt') openRevPrompt(b.dataset.app, b.dataset.id);
+    else if (a === 'revClose') { revSheet = null; const y = scrollY; revision(); scrollTo(0, y); }
+    else if (a === 'revCopy') { if (revSheet && await copyText(revSheet.text)) { toast('Prompt copiado: pégalo en tu IA'); b.innerHTML = ic('check', 16) + 'Copiado'; } else toast('No se pudo copiar: selecciona el texto y cópialo'); }
+    else if (a === 'revGo') { const g = $('#rg-' + CSS.escape(b.dataset.app)); if (g) { g.scrollIntoView({behavior: 'smooth', block: 'start'}); g.classList.remove('flash'); void g.offsetWidth; g.classList.add('flash'); } else toast('Esta app no tiene fallas abiertas'); }
     else if (a === 'stop') { if (live && live.ctrl) live.ctrl.abort(); }
     else if (a === 'again') { const inp = live.inputs; live.events = []; live.running = false; live.ctx = null; live.proposal = null; live.replay = null; live.inputs = inp; if (location.hash !== '#/sala/' + live.room.id) location.hash = '#/sala/' + live.room.id; else { live.scene.reset(); paintPanel(); } }
     else if (a === 'copy') { try { await navigator.clipboard.writeText((live.ctx && live.ctx.report) || (live.events.filter(x => x.type === 'msg').pop() || {}).text || ''); toast('Informe copiado'); } catch { toast('No se pudo copiar'); } }
@@ -352,6 +435,7 @@
   /* ───────── Rutas ───────── */
   function route() {
     const h = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
+    if (h[0] !== 'revision') revSheet = null; // el prompt abierto no te sigue a otras pantallas
     $$('[data-nav]').forEach(a => a.classList.toggle('on', (h[0] || '') === '' ? a.dataset.nav === 'home' : (h[0] === 'historial' && a.dataset.nav === 'history') || (h[0] === 'memoria' && a.dataset.nav === 'mem') || (h[0] === 'revision' && a.dataset.nav === 'rev')));
     if (h[0] === 'sala' && h[1]) { if (!$('.room') || !live || live.room.id !== h[1] || (h[2] || null) !== (live.replay ? live.replay.id : null)) roomView(h[1], h[2]); else paintPanel(); }
     else if (h[0] === 'historial') history();
