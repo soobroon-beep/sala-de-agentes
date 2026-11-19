@@ -158,7 +158,11 @@ ${r.perSymbol ? 'Por moneda: ' + r.perSymbol.map(p => `${base(p.symbol)} ${p.n} 
       return out; } catch { return []; }
   }
   async function web(ctx) {
-    const q = queryOf(ctx), [nw, wk] = await Promise.all([news(q), wiki(q)]);
+    const q = queryOf(ctx), short = q.split(' ').slice(0, 3).join(' '), words = q.split(' ');
+    let [nw, wk] = await Promise.all([news(q), wiki(short)]);
+    if (nw.length < 3 && short !== q) { const more = await news(short); const seen = new Set(nw.map(i => i.title)); nw = nw.concat(more.filter(i => !seen.has(i.title))).slice(0, 8); } // pocas noticias: se busca más amplio
+    const norm = x => x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    wk = wk.filter(w => words.some(x => x.length > 3 && norm(w.title + ' ' + w.text).includes(x))); // solo artículos que sí tratan del tema
     if (!nw.length && !wk.length) throw new Error('Internet no respondió para «' + q + '»');
     const text = `Búsqueda en internet: «${q}».\n` + (nw.length ? 'Noticias recientes:\n' + nw.map(i => `- ${clipT(i.title, 160)}${i.source ? ' (' + clipT(i.source, 40) + ')' : ''}${i.date ? ' · ' + ago2(i.date) : ''}`).join('\n') : 'Sin noticias recientes.') + (wk.length ? '\nWikipedia:\n' + wk.map(w => `- ${w.title}: ${w.text}`).join('\n') : '');
     return {text, summary: `${nw.length} noticias · ${wk.length} de Wikipedia · «${q}»`, data: {q, news: nw.slice(0, 5).map(i => ({title: clipT(i.title, 120), link: i.link}))}};
