@@ -250,3 +250,44 @@ details.mt summary{cursor:pointer;color:var(--mut);margin-bottom:8px}.auto-box .
 @media (max-width:560px){.rv-hero{padding:14px;gap:12px}.rv-score,.rv-ring{width:68px;height:68px}.rv-kpis{grid-template-columns:repeat(2,1fr)}.rv-apps{grid-template-columns:repeat(2,1fr)}
   .rv-i{flex-wrap:wrap}.rv-pbtn{width:100%}.rv-g>header .btn{width:100%}.rv-ic{width:34px;height:34px}}
 @media (max-width:560px){.rv-h{flex-wrap:wrap}.rv-h small{display:none}.rv-h .sp{display:none}.rv-h .btn{width:100%}.rv-kpi{padding:8px 10px}.rv-kpi b{font-size:19px}.rev .room-bar small{font-size:11.5px}}
+/* sala abierta: Revisión y Memoria son de esa sala */
+.nav-scope{display:none;align-items:center;gap:6px;margin-left:auto;font-size:12px;color:var(--mut);max-width:170px;white-space:nowrap;overflow:hidden}.nav-scope span:last-child{overflow:hidden;text-overflow:ellipsis}
+body.in-room .nav-scope{display:inline-flex}body.in-room .tabs{margin-left:8px}
+.rv-scope{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 12px;margin-bottom:14px;font-size:13px;color:#c9d0dc;border-radius:14px}.rv-scope .sp{flex:1}
+.card .row2{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.card .row2 .btn{margin-top:0}
+.rv-pbtn{margin-top:10px;align-self:flex-start}
+.rv-all{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-top:6px;border:1px solid rgba(124,92,255,.35)}.rv-all>div{flex:1;min-width:0}.rv-all b{display:block;font-size:15px}.rv-all small{color:var(--mut);font-size:12.5px}
+.auto-l{font-size:12px;color:var(--mut);white-space:nowrap}
+.muted{color:var(--mut)}.rv-ok span.no{background:rgba(240,107,121,.07);border-color:rgba(240,107,121,.2)}.rv-ok span.no svg{color:var(--bad)}
+.mlearn{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}.mlearn li{display:flex;flex-direction:column;font-size:13px}.mlearn small{color:var(--mut)}
+.mlog2{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:10px}.mlog2 a{padding:12px 14px;text-decoration:none;display:flex;flex-direction:column;gap:4px}.mlog2 header{display:flex;align-items:center;gap:8px}.mlog2 header small{color:var(--mut);font-size:11.5px}.mlog2 p{margin:0;font-size:12.5px;color:#c3c9d6}
+.box textarea{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:10px 12px;resize:vertical}
+@media (max-width:560px){.rv-all{flex-direction:column;align-items:stretch}.rv-pbtn{width:100%}.nav-scope{display:none!important}.auto-x{flex-wrap:wrap}}
+/* Arqui: el robotcito que arma salas por ti */
+#arqui{position:fixed;right:18px;bottom:18px;z-index:30;font-size:14px}
+.aq-bot{position:relative;width:64px;height:64px;border-radius:22px;border:1px solid rgba(34,211,238,.35);background:radial-gradient(circle at 50% 35%,rgba(34,211,238,.55),rgba(14,18,30,.9) 70%);display:grid;place-items:center;cursor:pointer;padding:0;box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 0 0 rgba(34,211,238,.4);animation:aqbob 3.2s ease-in-out infinite;backdrop-filter:blur(10px)}
+.aq-bot img{width:46px;height:46px;object-fit:contain;transition:transform .3s}.aq-bot:hover img{transform:rotate(-8deg) scale(1.06)}
+.aq-ant{position:absolute;top:9px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:#ffd36b;box-shadow:0 0 10px 3px rgba(255,211,107,.7);animation:aqant 1.8s ease-in-out infinite}@keyframes aqant{50%{opacity:.35;box-shadow:0 0 2px 0 rgba(255,211,107,.3)}}#arqui[data-face="think"] .aq-ant{animation-duration:.45s;background:#22d3ee;box-shadow:0 0 10px 3px rgba(34,211,238,.8)}
+.aq-ping{position:absolute;top:-3px;right:-3px;width:12px;height:12px;border-radius:50%;background:#22d3ee;box-shadow:0 0 0 0 rgba(34,211,238,.6);animation:pulse 2.2s infinite}
+.aq-orbit{position:absolute;inset:-7px;border-radius:26px;border:1.5px dashed rgba(34,211,238,.0);transition:border-color .3s}
+#arqui[data-face="think"] .aq-orbit{border-color:rgba(34,211,238,.6);animation:aqspin 2.4s linear infinite}#arqui[data-face="think"] .aq-bot{animation:aqbob 1s ease-in-out infinite}
+#arqui[data-face="happy"] .aq-bot img{transform:translateY(-4px) rotate(6deg) scale(1.08)}
+.aq-tip{position:absolute;right:74px;bottom:20px;white-space:nowrap;font-size:12.5px;padding:6px 11px;border-radius:12px;background:rgba(14,18,30,.9);border:1px solid var(--line);animation:aqtip 6s ease-in-out 1.5s both;pointer-events:none}
+@keyframes aqbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}@keyframes aqblink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}@keyframes aqspin{to{transform:rotate(360deg)}}
+@keyframes aqtip{0%{opacity:0;transform:translateX(8px)}10%,85%{opacity:1;transform:none}100%{opacity:0}}
+.aq-panel{position:absolute;right:0;bottom:78px;width:min(380px,calc(100vw - 24px));height:min(560px,calc(100vh - 120px));display:flex;flex-direction:column;background:rgba(12,16,26,.94);animation:pop2 .22s ease-out;overflow:hidden}
+.aq-panel header{display:flex;align-items:center;gap:10px;padding:12px 12px 10px;border-bottom:1px solid var(--line)}.aq-panel header b{display:block;font-family:var(--fh)}.aq-panel header small{color:var(--mut);font-size:11.5px}.aq-panel .sp{flex:1}
+.aq-mini{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,rgba(34,211,238,.5),rgba(14,18,30,.9) 70%)}.aq-mini img{width:26px}
+.aq-x{border:1px solid var(--line);background:var(--glass2);border-radius:10px;padding:4px 8px;font-size:11.5px;cursor:pointer;color:var(--mut)}.aq-x:hover{color:var(--txt)}
+.aq-msgs{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.aq-m{max-width:88%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.45;background:rgba(255,255,255,.05);border:1px solid var(--line);animation:pop2 .2s ease-out}
+.aq-m.user{align-self:flex-end;background:rgba(124,92,255,.22);border-color:rgba(124,92,255,.4)}.aq-m.arqui{align-self:flex-start}
+.aq-m.mk{display:flex;align-items:center;gap:8px;padding:7px 10px}.aq-m .ok{color:var(--ok);vertical-align:-2px}
+.aq-team{display:flex;flex-wrap:wrap;gap:6px}.aq-team span{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:3px 9px 3px 3px;border-radius:999px;background:rgba(255,255,255,.05)}.aq-team small{color:var(--mut)}
+.aq-ex{display:flex;gap:6px;overflow-x:auto;padding:0 12px 8px}.aq-ex button{flex:none;font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--glass2);cursor:pointer;color:#c9d0dc;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aq-in{display:flex;gap:8px;align-items:flex-end;padding:10px 12px;border-top:1px solid var(--line)}.aq-in textarea{flex:1;resize:none;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13.5px}
+body:has(.room) #arqui{bottom:14px;right:12px}body:has(.room) .aq-bot{width:52px;height:52px;border-radius:18px}body:has(.room) .aq-bot img{width:38px;height:38px}body:has(.room) .aq-ant{top:7px}
+@media (max-width:560px){#arqui{right:12px;bottom:12px}.aq-bot{width:56px;height:56px}.aq-bot img{width:40px;height:40px}.aq-ant{top:8px}.aq-panel{position:fixed;left:8px;right:8px;bottom:78px;width:auto;height:min(70vh,560px)}}
+.aq-bot img{animation:aqlook 7s ease-in-out infinite}@keyframes aqlook{0%,40%,100%{transform:none}45%,55%{transform:rotate(-7deg)}60%,70%{transform:rotate(6deg)}}
+@media (prefers-reduced-motion:reduce){.aq-bot img,.aq-ant,.aq-bot,.aq-ping,.aq-tip{animation:none!important}}
+body:has(.room) #arqui{display:none}

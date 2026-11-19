@@ -31,6 +31,7 @@
     let p = `${ag.prompt}\n\nESTÁS EN UNA SALA DE AGENTES DE IA llamada «${room.name}». Equipo, en orden: ${team}. Tú eres ${ag.name}. Le hablas a ${toName}.
 Escribe en español, directo, sin emojis ni saludos, como un mensaje de chat entre colegas (máximo ${ag.words || (ag.output === 'spec' ? 140 : 170)} palabras fuera de bloques de código). Responde a lo que dijeron tus compañeros por su nombre cuando haga falta.
 NO inventes datos: usa solo los de las herramientas y los mensajes. Si un dato no está, dilo.`;
+    if (room.memory) p += `\nMEMORIA DE ESTA SALA (lo que el usuario quiere que el equipo recuerde siempre; respétalo):\n${String(room.memory).slice(0, 1500)}`;
     if (ag.output === 'verdict') p += `\nTERMINA SIEMPRE con una última línea exacta: «VEREDICTO: APROBADO» o «VEREDICTO: CAMBIOS». Si pides cambios, antes de esa línea di exactamente qué cambiar.`;
     return p;
   }

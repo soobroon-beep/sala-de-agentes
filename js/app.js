@@ -16,6 +16,7 @@
     tap: '<path d="M9 11V5a2 2 0 0 1 4 0v5l4 1a2 2 0 0 1 1.5 2.2L18 20H10l-4-5a1.6 1.6 0 0 1 2.5-2z"/>', gh: '<circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 8v8M8 6h4a4 4 0 0 1 4 4v0"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     power: '<path d="M12 3v8M7 6.5a7 7 0 1 0 10 0"/>', server: '<rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/>', users: '<circle cx="9" cy="9" r="3"/><path d="M3 19a6 6 0 0 1 12 0M16 6a3 3 0 0 1 0 6M21 19a6 6 0 0 0-4-5.6"/>',
     grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>', wrench: '<path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 1-2-2z"/>',
+    shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>', brain: '<path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 6 1V5a2 2 0 0 0-3-1zM15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-6 1"/>', note: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/>',
     pc: '<rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M9 20h6M12 16v4"/>', phone: '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>', motor: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>'
   };
   const ic = (k, s = 18) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
@@ -30,7 +31,8 @@
     const un = (xs, ys) => { const m = new Map(); for (const x of [...xs, ...ys]) m.set(x.id, m.has(x.id) ? pick(m.get(x.id), x) : x); return [...m.values()].filter(x => !(del[x.id] >= (x.updatedAt || x.at || 0))); };
     const mem = !a.mem ? b.mem : !b.mem ? a.mem : ((b.mem.updatedAt || 0) > (a.mem.updatedAt || 0) ? b.mem : a.mem); // llave de la memoria compartida
     const auto = !a.auto ? b.auto : !b.auto ? a.auto : ((b.auto.updatedAt || 0) > (a.auto.updatedAt || 0) ? b.auto : a.auto); // ajustes del modo automático (24/7)
-    return {v: 2, rooms: un(a.rooms || [], b.rooms || []), runs: un(a.runs || [], b.runs || []).sort((x, y) => y.at - x.at).slice(0, 20), deleted: del, mem: mem || null, auto: auto || null};
+    const rm = Object.assign({}, a.roomMem || {}); for (const [k, v] of Object.entries(b.roomMem || {})) if (!rm[k] || (v.updatedAt || 0) > (rm[k].updatedAt || 0)) rm[k] = v; // memoria de cada sala
+    return {v: 2, roomMem: rm, rooms: un(a.rooms || [], b.rooms || []), runs: un(a.runs || [], b.runs || []).sort((x, y) => y.at - x.at).slice(0, 20), deleted: del, mem: mem || null, auto: auto || null};
   }
   function save() {
     S.runs = S.runs.slice(0, 20); try { localStorage.setItem(LS, JSON.stringify(S)); } catch { S.runs = S.runs.slice(0, 8); try { localStorage.setItem(LS, JSON.stringify(S)); } catch {} }
@@ -38,6 +40,9 @@
   }
   async function pull() { try { const d = await C.get('sala'); if (d && d.s) { S = mergeStore(S, JSON.parse(d.s)); save(); route(); } else if (S.rooms.length || S.runs.length) save(); } catch (e) { console.warn(e); } }
   const rooms = () => R.BUILTIN.concat(S.rooms.map(R.normalizeCustom));
+  let curRoom = null; // la sala en la que entraste: Revisión y Memoria muestran solo lo suyo (sin sala: todo)
+  const memOf = id => (S.roomMem = S.roomMem || {})[id] || {notes: '', updatedAt: 0};
+  const withMem = r => { const m = memOf(r.id); return m.notes ? Object.assign({}, r, {memory: m.notes}) : r; };
   const roomById = id => id === R.REVISION.id ? R.REVISION : rooms().find(r => r.id === id);
 
   /* ───────── Lo que hacen tus agentes solos en el servidor (24/7): users/<tú>/data/sala_auto y sala_revision ───────── */
@@ -74,7 +79,7 @@
 
   /* ───────── Inicio: salas ───────── */
   function home() {
-    const rs = rooms();
+    curRoom = null; paintNav(); const rs = rooms();
     view.innerHTML = `<section class="home">
       <div class="hero"><h1>Salas de agentes</h1><p>Equipos de IA que hablan entre ellos, usan datos reales y te entregan el trabajo terminado. ${C.user() ? '' : '<a href="#" data-a="login">Inicia sesión</a> para guardar tus salas y enviar bots a Nova Bot Lab.'}</p></div>
       ${autoStrip()}
@@ -91,101 +96,162 @@
       <p class="foot">IA: ${esc(AI.label())}. Las pruebas de bots son simulaciones con datos históricos; nada envía órdenes reales.</p></section>`;
   }
 
-  function autoStrip() {
-    const c = autoCfg(), a = SRV.auto, st = a && a.status || {}, last = (a && a.runs || []).find(r => r.room === 'taller-bots'), props = (a && a.runs || []).filter(r => r.outcome === 'propuesta').length;
+  function autoStrip() { // Taller automático: crea y prueba bots solo, cada 3 h, aunque no abras la app
+    const c = autoCfg(), a = SRV.auto, st = a && a.status || {};
     if (!C.user()) return `<div class="auto glass"><span class="pulse"></span><div><b>Tus agentes trabajan solos, 24/7</b><small>El Taller de bots y la Revisión de apps corren en el servidor aunque no abras la app. <a href="#" data-a="login">Inicia sesión</a> para ver lo que hicieron y cambiar los ajustes.</small></div></div>`;
-    return `<div class="auto glass ${c.on === false ? 'off' : ''}"><span class="pulse"></span><div class="auto-t"><b>Modo automático ${c.on === false ? 'en pausa' : 'encendido'}</b>
-      <small>${c.on === false ? 'El Taller de bots no está creando bots solo. La Revisión de apps sigue cada 2 horas.' : `El Taller crea y prueba bots cada 3 horas (${c.perRun} por turno) aunque no abras la app. Última vez: ${a ? ago(a.at) : 'aún no corre'}${st.taller ? ' · ' + esc(st.taller) : ''}. ${props ? props + ' bot(s) aprobados recientes.' : ''}`}</small></div>
-      <div class="auto-x"><div class="pills">${[1, 2, 3].map(n => `<button type="button" class="pl ${n === +c.perRun ? 'on' : ''}" data-a="autoPer" data-n="${n}" title="Sesiones por turno">${n}</button>`).join('')}</div><button class="btn sm ${c.on === false ? 'pri' : 'ghost'}" data-a="autoToggle">${c.on === false ? ic('play', 14) + 'Encender' : ic('stop', 14) + 'Pausar'}</button><a class="btn sm ghost" href="#/historial">Ver lo que hicieron</a></div></div>`;
+    const off = c.on === false;
+    return `<div class="auto glass ${off ? 'off' : ''}"><span class="pulse"></span><div class="auto-t"><b>Taller automático: ${off ? 'en pausa' : 'encendido'}</b>
+      <small>${off ? 'El Taller no está creando bots solo (la Revisión de apps sigue cada 2 h).' : `Cada 3 horas el Taller de bots diseña y prueba <strong>${c.perRun} bot${c.perRun > 1 ? 's' : ''}</strong> nuevo${c.perRun > 1 ? 's' : ''} con datos reales; si alguno pasa tus filtros, te llega a Nova Bot Lab. Última vez: ${a ? ago(a.at) : 'aún no corre'}${st.taller ? ' · ' + esc(st.taller) : ''}.`}</small></div>
+      <div class="auto-x">${off ? '' : `<span class="auto-l">Bots por turno</span><div class="pills" role="group" aria-label="Bots que prueba cada 3 horas">${[1, 2, 3].map(n => `<button type="button" class="pl ${n === +c.perRun ? 'on' : ''}" data-a="autoPer" data-n="${n}" title="Probar ${n} bot${n > 1 ? 's' : ''} cada 3 horas (más bots = más uso de IA)">${n}</button>`).join('')}</div>`}<button class="btn sm ${off ? 'pri' : 'ghost'}" data-a="autoToggle">${off ? ic('play', 14) + 'Encender' : ic('stop', 14) + 'Pausar'}</button></div></div>`;
   }
+
   const STC = {bien: ['Bien', 'win'], atencion: ['Atención', 'warn'], falla: ['Falla', 'lose']};
   function revCard() {
     const r = SRV.rev, room = R.REVISION, open = r ? (r.issues || []).filter(i => i.status !== 'resuelta') : [];
-    return `<a class="card glass" href="#/revision" style="--c:${room.color}"><div class="card-top"><div class="stack">${room.flow.slice(0, 7).map(id => av(room.agents.find(a => a.id === id), 34)).join('')}</div></div>
+    return `<a class="card glass" href="#/revision/${room.id}" style="--c:${room.color}"><div class="card-top"><div class="stack">${room.flow.slice(0, 7).map(id => av(room.agents.find(a => a.id === id), 34)).join('')}</div></div>
       <h2>${esc(room.name)}</h2><p>${esc(room.desc)}</p>
       ${r ? `<div class="appdots">${Object.entries(r.apps || {}).map(([k, a]) => `<span class="ad ${a.state}" title="${esc(a.name)}: ${esc((STC[a.state] || [a.state])[0])}"><i></i>${esc(a.name)}</span>`).join('')}</div>` : ''}
       <div class="chips"><span class="on247">${ic('motor', 12)}Funciona solo · cada 2 h</span><span>${room.agents.length} agentes</span>${r ? `<span>${open.length ? open.length + ' fallas abiertas' : 'Todo bien'}</span><span>${ago(r.at)}</span>` : '<span>Primera revisión pendiente</span>'}</div>
-      <span class="btn pri">${ic('open', 16)}Ver informe</span></a>`;
+      <div class="row2"><span class="btn pri" data-a="goSala" data-id="${room.id}">${ic('play', 16)}Entrar a la sala</span><span class="btn">${ic('open', 16)}Ver informe</span></div></a>`;
   }
 
-  /* ───────── Revisión de apps: dashboard (semáforo por app, qué arreglar y prompts listos para tu IA) ───────── */
+  /* ───────── Revisión: de TODO (sin sala abierta) o solo de la sala en la que entraste ───────── */
   const SEV = {alta: ['Grave', 'bad', 'oct'], media: ['Media', 'warn', 'tri'], baja: ['Baja', 'info', 'info']};
   // cada tipo de falla en palabras sencillas: [prueba, icono, nombre corto, qué significa, pista para arreglarla]
   const KINDS = [
+    [/^Seguridad/, 'shield', 'Riesgo de seguridad', 'Cerbero encontró algo que alguien podría aprovechar para entrar, leer tus datos o usar tus claves.', 'Corrígelo sin romper la app: saca las claves del código público (secretos del servidor), cierra las reglas de la base de datos a solo tu cuenta y limita quién puede llamar a tus servidores.'],
     [/no abre/, 'off', 'La app no abre', 'La página no carga: nadie puede entrar.', 'Revisa que el despliegue (GitHub Pages / Cloudflare Pages) haya terminado bien, que index.html exista y que ningún script tumbe la carga.'],
     [/en blanco/, 'blank', 'Pantalla en blanco', 'La página abre pero no muestra nada.', 'Busca el error que detiene el primer pintado (consola del navegador) y una ruta o archivo que no cargue.'],
-    [/Error de código/, 'code', 'Error en el código', 'El navegador mostró un error rojo en la consola; esa parte de la app puede no funcionar.', 'Reproduce el error con la consola abierta, encuentra la línea que lo causa y corrígelo (si viene de una petición a otro sitio, no la hagas desde el navegador o maneja el fallo sin error rojo).'],
-    [/no hacen nada/, 'tap', 'Botones que no responden', 'Se tocaron estos botones y la pantalla no cambió.', 'Revisa que cada botón tenga su acción conectada (onclick / data-a), que no lo tape otro elemento y que no truene su función.'],
-    [/tarea automática/, 'gh', 'Tarea automática fallando', 'Un proceso programado de GitHub Actions está fallando.', 'Abre la ejecución fallida (enlace en la evidencia), lee el error del log y corrige el script, los secretos o los permisos que pida.'],
+    [/Error de código/, 'code', 'Error en el código', 'El navegador mostró un error rojo en la consola; esa parte de la app puede no funcionar.', 'Reproduce el error con la consola abierta, encuentra la línea que lo causa y corrígelo.'],
+    [/no hacen nada/, 'tap', 'Botones que no responden', 'Se tocaron estos botones y la pantalla no cambió.', 'Revisa que cada botón tenga su acción conectada, que no lo tape otro elemento y que no truene su función.'],
+    [/tarea automática/, 'gh', 'Tarea automática fallando', 'Un proceso programado de GitHub Actions está fallando.', 'Abre la ejecución fallida (enlace en la evidencia), lee el error del log y corrige el script, los secretos o los permisos.'],
     [/tarda/, 'clock', 'Carga lenta', 'La app tarda mucho en abrir.', 'Mide qué archivos o peticiones tardan más; difiere lo que no se necesita al abrir y comprime imágenes.'],
-    [/se atoró/, 'bots', 'Bot atorado', 'El bot está encendido, pero el servidor dejó de avanzarlo.', 'Revisa el Motor del servidor (GitHub Actions) y el log de ese bot en Nova Bot Lab: qué error lo detiene.'],
+    [/se atoró/, 'bots', 'Bot atorado', 'El bot está encendido, pero el servidor dejó de avanzarlo.', 'Revisa el Motor del servidor (GitHub Actions) y el log de ese bot: qué error lo detiene.'],
     [/se apagó/, 'power', 'Bot apagado', 'Un bot que estaba encendido ya no lo está.', 'Si no lo apagaste tú, revisa qué lo apaga (límites de riesgo, error del servidor o un guardado que lo pisó).'],
     [/reporta un error/, 'bots', 'Bot con error', 'Un bot reporta un error al correr.', 'Lee el error del bot y corrige su estrategia o el motor de paper trading.'],
     [/no avanza|está detenido/, 'bots', 'Agente detenido', 'Claudio o Felipe no están avanzando.', 'Revisa su tarea automática (cada hora) y su estado (interruptor de emergencia o límites).'],
-    [/Motor/, 'motor', 'El Motor no responde', 'El Motor del servidor (alertas, bots y Claudio) no da señales.', 'Revisa la tarea «Motor del servidor» en GitHub Actions del repo de VORTEX: si está atorada, cancélala y vuelve a lanzarla.'],
+    [/Motor/, 'motor', 'El Motor no responde', 'El Motor del servidor (alertas, bots y Claudio) no da señales.', 'Revisa la tarea «Motor del servidor» en GitHub Actions de VORTEX: si está atorada, cancélala y vuelve a lanzarla.'],
     [/velas/, 'chart', 'Velas sin actualizar', 'Las velas guardadas de VORTEX están viejas.', 'Revisa el Motor y la fuente de datos (respaldo de exchanges).'],
     [/Taller/, 'motor', 'Taller automático parado', 'El Taller de bots no ha corrido en horas.', 'Revisa la tarea «Sala · Taller automático» en GitHub Actions.'],
     [/servidor|no responde/i, 'server', 'Servidor sin respuesta', 'Un servidor (Worker) de tus apps no responde.', 'Revisa el Worker en Cloudflare (despliegue, errores, límites).'],
     [/uso/, 'users', 'Bajó el uso', 'Entra mucha menos gente que antes.', 'No es un error de código: revisa si algo impide entrar o iniciar sesión.']
   ];
-  const kindOf = i => { const k = KINDS.find(x => x[0].test(i.title)) || [null, 'tri', 'Otra falla', i.title, 'Investiga la causa con la evidencia.']; return {icon: k[1], label: k[2], what: k[3], hint: k[4]}; };
+  const kindOf = t => { const k = KINDS.find(x => x[0].test(t)) || [null, 'tri', 'Otra falla', t, 'Investiga la causa con la evidencia.']; return {icon: k[1], label: k[2], what: k[3], hint: k[4]}; };
   const devsOf = ev => { const d = []; if (/PC/.test(ev || '')) d.push('PC'); if (/celular/.test(ev || '')) d.push('Celular'); return d; };
-  const appMeta = id => id === 'bots' ? {name: 'Bots y servidores de VORTEX', repo: 'Vortex-By-Nova-Nexus', url: 'https://vortex-nexus.pages.dev/'} : (R.APPS.find(a => a.id === id) || {name: id, repo: '', url: ''});
-  function fixPrompt(appId, list) {
-    const m = appMeta(appId), one = list.length === 1;
-    const lines = [`Eres un desarrollador senior. Trabaja en mi repo de GitHub soobroon-beep/${m.repo} (app «${m.name}», publicada en ${m.url}).`,
-      one ? 'La revisión automática de mi Sala de agentes encontró esta falla y necesito que la arregles:' : `La revisión automática de mi Sala de agentes encontró ${list.length} fallas abiertas en esta app. Arréglalas todas, de la más grave a la más leve:`, ''];
-    list.forEach((i, n) => { const k = kindOf(i), d = devsOf(i.ev);
-      lines.push(`${one ? 'FALLA' : (n + 1) + '.'} [Prioridad ${i.sev}] ${i.title}`, `   Qué pasa: ${k.what}`, `   Evidencia de la revisión: ${i.ev || '—'}`);
-      if (d.length) lines.push(`   Dónde: ${d.join(' y ')}`);
-      lines.push(`   Desde: ${i.first ? when(i.first) : '—'}${i.seen > 1 ? ` (se ha visto en ${i.seen} revisiones seguidas)` : ''}`, `   Pista: ${k.hint}`, ''); });
-    lines.push('Cómo trabajar:', '- Primero reproduce cada falla y encuentra la causa raíz; no la tapes (no borres el botón ni ocultes el error).',
-      '- Cambia solo lo necesario: no toques el diseño, los textos ni lo que ya funciona.', '- Prueba en PC y en celular (390 px de ancho) que quedó arreglado y que no rompiste nada más.',
-      '- Si alguna resulta ser una falsa alarma de la revisión (la app sí funciona), dímelo y explica por qué.',
-      appId === 'vortex' || appId === 'bots' ? '- Trabaja en la rama dev (dev.vortex-nexus.pages.dev) y no publiques en la oficial hasta que yo lo apruebe.' : '- Cuando esté probado, sube los cambios a main.',
-      `- Al final dime en pocas líneas qué causaba ${one ? 'la falla' : 'cada falla'} y qué cambiaste.`);
-    return lines.join('\n');
+  const SALA_REPO = {name: 'Sala de agentes', repo: 'sala-de-agentes', url: 'https://soobroon-beep.github.io/sala-de-agentes/'};
+  const appMeta = id => id === 'bots' ? {name: 'Bots y servidores de VORTEX', repo: 'Vortex-By-Nova-Nexus', url: 'https://vortex-nexus.pages.dev/'} : (R.APPS.find(a => a.id === id) || SALA_REPO);
+  const workRule = m => m.repo === 'Vortex-By-Nova-Nexus' ? 'trabaja en la rama dev y no publiques en la oficial hasta que yo lo apruebe' : 'cuando esté probado, sube a main';
+
+  /* fallas de las apps (las encuentra la Revisión de apps en el servidor) */
+  function appIssues() {
+    const r = SRV.rev; if (!r) return []; const room = R.REVISION;
+    return (r.issues || []).filter(i => i.status !== 'resuelta').map(i => { const ag = room.agents.find(x => x.app === i.app) || room.agents.find(x => x.id === (i.app === 'seguridad' ? 'cerbero' : 'centinela')) || room.agents[0];
+      return Object.assign({}, i, {group: 'app:' + i.app, groupName: (r.apps[i.app] || {}).name || i.app, ag, kind: kindOf(i.title), meta: appMeta(i.app)}); });
   }
-  let revSheet = null, revAll = false; // prompt abierto · ver todos los detalles
+  /* salud de una sala (sale de sus sesiones, las tuyas y las automáticas del servidor) */
+  function roomIssues(room) {
+    if (room.server) return appIssues();
+    const runs = allRuns().filter(x => x.room === room.id), last = runs.slice(0, 10), out = [], lead = room.agents[room.agents.length - 1] || room.agents[0];
+    const add = (sev, title, kind, ev, list) => out.push({id: room.id + '|' + title, group: 'room:' + room.id, groupName: room.name, ag: lead, sev, title, kind, ev, status: list && list.length && list[list.length - 1].at > Date.now() - 6 * 36e5 && list.length === 1 ? 'nueva' : 'sigue', first: list && list.length ? list[list.length - 1].at : Date.now(), seen: list ? list.length : 1, meta: SALA_REPO, room: room.id});
+    const errText = x => ((x.events || []).filter(e => e.type === 'error').slice(-1)[0] || {}).text || '';
+    const err = last.filter(x => x.outcome === 'error');
+    if (err.length) add(err.length * 2 >= last.length ? 'alta' : 'media', `La IA falló en ${err.length} de ${last.length} sesiones de «${room.name}»`, {icon: 'code', label: 'La IA no respondió', what: 'En algunas sesiones la IA se quedó sin responder y el equipo no terminó.', hint: 'Revisa la cadena de IA de la Sala (js/ai.js y server/lib.js): qué proveedor falla y por qué (límite, clave o tiempo de espera) y que el respaldo entre de verdad.'}, errText(err[0]) || 'sin detalle', err);
+    const tool = last.filter(x => (x.events || []).some(e => e.type === 'tool' && e.state === 'error'));
+    if (tool.length) { const e = (tool[0].events || []).filter(e => e.type === 'tool' && e.state === 'error').slice(-1)[0] || {};
+      add('media', `La herramienta «${e.tool || '?'}» falló en ${tool.length} sesión(es)`, {icon: 'wrench', label: 'Herramienta con error', what: 'Un agente no pudo leer sus datos reales (velas, backtest o tus bots) y trabajó a ciegas.', hint: 'Revisa js/tools.js: la fuente de datos de esa herramienta, su tiempo de espera y el respaldo.'}, e.text || 'sin detalle', tool); }
+    const lim = last.filter(x => x.outcome === 'limite');
+    if (lim.length >= 2) add('baja', `${lim.length} sesiones se quedaron sin mensajes antes de terminar`, {icon: 'clock', label: 'Sesiones sin terminar', what: 'El equipo se pasó el trabajo tantas veces que llegó al límite sin entregar resultado.', hint: 'Ajusta las instrucciones del jefe para que apruebe cuando el trabajo esté «suficientemente bien» o sube las rondas de revisión.'}, lim.map(x => when(x.at)).join(', '), lim);
+    const inv = last.filter(x => x.outcome === 'spec-invalida');
+    if (inv.length >= 2) add('media', `El estratega no logró una estrategia válida en ${inv.length} sesiones`, {icon: 'code', label: 'Estrategias inválidas', what: 'El agente que escribe la estrategia la entregó con un formato que el motor de backtest no entiende.', hint: 'Revisa SPEC_GUIDE en js/rooms.js y parseSpec en js/tools.js: que la guía y el validador pidan exactamente lo mismo.'}, inv.map(x => when(x.at)).join(', '), inv);
+    if (room.id === 'taller-bots' && C.user()) { const c = autoCfg(), a = SRV.auto;
+      if (c.on !== false && a && Date.now() - (a.at || 0) > 8 * 36e5) add('alta', 'El Taller automático no ha corrido en más de 8 horas', kindOf('Taller'), 'Última vez hace ' + ago(a.at), [{at: a.at}]);
+      const st = a && a.status && a.status.taller || ''; if (/en espera/.test(st)) add('baja', 'El Taller automático está en espera', {icon: 'bots', label: 'Propuestas sin revisar', what: 'Tienes bots propuestos sin revisar en Nova Bot Lab; el Taller espera a que los revises para no llenarte de bots.', hint: 'Abre Nova Bot Lab y Agrega o Descarta las propuestas automáticas.'}, st, [{at: a.at}]);
+      const auto = runs.filter(x => x.auto).slice(0, 8); if (auto.length >= 6 && !auto.some(x => x.outcome === 'propuesta')) add('baja', `Ningún bot pasó los filtros en las últimas ${auto.length} sesiones automáticas`, {icon: 'bots', label: 'Sin bots aprobados', what: 'El Taller sigue probando, pero ninguna estrategia pasó tus límites de riesgo.', hint: 'Revisa en la memoria del Taller por qué fallan y ajusta tus límites o los estilos que rota (server/plan.js).'}, auto.map(x => OUT[x.outcome] ? OUT[x.outcome][0] : x.outcome).join(' · '), auto); }
+    if (room.auto && room.auto.on) { const lastAuto = runs.find(x => x.auto); if (C.user() && (!lastAuto || Date.now() - lastAuto.at > (2 * room.auto.everyHours + 3) * 36e5)) add('media', `«${room.name}» no ha corrido sola`, kindOf('Taller'), lastAuto ? 'Última sesión automática ' + ago(lastAuto.at) : 'Todavía no hay sesiones automáticas', lastAuto ? [lastAuto] : []); }
+    const rank = {alta: 0, media: 1, baja: 2}; return out.sort((x, y) => rank[x.sev] - rank[y.sev]);
+  }
+  function fixPrompt(i) {
+    const m = i.meta, d = devsOf(i.ev), L = [`Eres un desarrollador senior. Trabaja en mi repo de GitHub soobroon-beep/${m.repo} (${m.name}, ${m.url}).`, 'La revisión automática de mi Sala de agentes encontró esta falla. Arréglala:', '',
+      `[Prioridad ${i.sev}] ${i.title}`, `Qué pasa: ${i.kind.what}`, `Evidencia: ${i.ev || '—'}`];
+    if (d.length) L.push('Dónde: ' + d.join(' y ')); if (i.first) L.push(`Desde: ${when(i.first)}${i.seen > 1 ? ` (${i.seen} revisiones seguidas)` : ''}`); L.push(`Pista: ${i.kind.hint}`, '',
+      'Encuentra la causa raíz (no la tapes), cambia solo lo necesario, prueba en PC y celular y ' + workRule(m) + '. Si es falsa alarma, dímelo. Al final dime en 2 líneas qué la causaba y qué cambiaste.');
+    return L.join('\n');
+  }
+  function allPrompt(list) { // resumen corto para arreglar todo de un jalón (sin explicar cada cosa: menos tokens)
+    const by = new Map(); for (const i of list) { const k = i.meta.repo; if (!by.has(k)) by.set(k, {m: i.meta, items: []}); by.get(k).items.push(i); }
+    const L = ['Eres un desarrollador senior. Arregla de un jalón estas fallas que encontró la revisión automática de mis apps. En cada una busca la causa raíz, cambia solo lo necesario y prueba en PC y celular.', ''];
+    for (const {m, items} of by.values()) { L.push(`${m.name} — repo soobroon-beep/${m.repo} (${workRule(m)}):`); for (const i of items) L.push(`- [${i.sev}] ${i.title}: ${clipS(i.ev, 150)}`); L.push(''); }
+    L.push('Al final, una línea por falla: qué la causaba y qué cambiaste. Si alguna es falsa alarma, dímelo.'); return L.join('\n');
+  }
+  const clipS = (s, n) => { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+
+  let revSheet = null, revList = []; // prompt abierto · fallas que se ven en pantalla
   const ring = (ok, tot, cls) => { const r = 34, c = 2 * Math.PI * r, f = tot ? ok / tot : 1; return `<svg class="rv-ring ${cls}" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="${r}" class="bg"/><circle cx="42" cy="42" r="${r}" class="fg" stroke-dasharray="${(f * c).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 42 42)"/></svg>`; };
-  function revision() {
-    const r = SRV.rev, room = R.REVISION;
-    if (!C.user()) { view.innerHTML = `<section class="hist"><div class="hero"><h1>${esc(room.name)}</h1><p>${esc(room.desc)}</p></div><p class="empty glass">Inicia sesión con tu cuenta de Google (la misma de VORTEX) para ver los informes. <a href="#" data-a="login">Iniciar sesión</a></p></section>`; return; }
-    if (!r) { view.innerHTML = `<section class="hist"><div class="hero"><h1>${esc(room.name)}</h1><p>${esc(room.desc)}</p></div><p class="empty glass">${SRV.at ? 'La primera revisión todavía no termina. Corre sola cada 2 horas; vuelve en un rato.' : 'Cargando…'}</p></section>`; pullServer(); return; }
-    const issues = r.issues || [], open = issues.filter(i => i.status !== 'resuelta'), solved = issues.filter(i => i.status === 'resuelta'), sen = r.sentinel || {};
-    const apps = Object.entries(r.apps || {}), okApps = apps.filter(([, a]) => a.state === 'bien').length, graves = open.filter(i => i.sev === 'alta').length, nuevas = open.filter(i => i.status === 'nueva').length;
-    const agentOfApp = k => room.agents.find(x => x.app === k) || room.agents.find(x => x.id === 'centinela');
-    const state = graves ? 'falla' : open.length ? 'atencion' : 'bien';
-    const head = {bien: ['Todo funciona', 'Tus apps, bots y servidores pasaron la revisión.', 'check'], atencion: [`${open.length} ${open.length === 1 ? 'cosa' : 'cosas'} por arreglar`, 'Nada grave: tus apps abren y funcionan, pero hay detalles que corregir.', 'tri'], falla: [`${graves} ${graves === 1 ? 'falla grave' : 'fallas graves'}`, 'Algo importante no funciona. Empieza por lo marcado en rojo.', 'oct']}[state];
-    const kpi = (icon, val, lab, cls) => `<div class="rv-kpi ${cls || ''}"><span class="ki">${ic(icon, 16)}</span><b>${val}</b><small>${lab}</small></div>`;
-    const tile = ([k, a]) => { const ag = agentOfApp(k), st = STC[a.state] || [a.state, ''], ms = a.loadMs || 0, sp = !ms ? '' : ms < 5000 ? 'ok' : ms < 12000 ? 'warn' : 'bad';
-      return `<button type="button" class="rv-app glass ${a.state}" data-a="revGo" data-app="${esc(k)}" style="--c:${ag.color}"><span class="rv-app-h">${av(ag, 34)}<span class="rv-badge ${a.state}">${ic(a.state === 'bien' ? 'check' : a.state === 'falla' ? 'oct' : 'tri', 13)}${esc(st[0])}</span></span>
-        <b>${esc(a.name)}</b><span class="rv-app-n">${a.open ? `${a.open} por arreglar` : 'Sin fallas'}</span>
-        <span class="rv-app-m">${ms ? `<span class="rv-speed ${sp}" title="Tiempo de carga"><i style="width:${Math.min(100, ms / 150).toFixed(0)}%"></i></span><small>${(ms / 1000).toFixed(1)} s · ${a.tried || 0} botones</small>` : k === 'bots' && sen.bots ? `<small>${sen.bots.live} de ${sen.bots.total} bots encendidos</small>` : '<small>Bots y servidores</small>'}</span></button>`; };
-    const order = {falla: 0, atencion: 1, bien: 2}, byApp = {};
-    for (const i of open) (byApp[i.app] = byApp[i.app] || []).push(i);
-    const item = i => { const k = kindOf(i), s = SEV[i.sev] || SEV.media, d = devsOf(i.ev);
-      return `<div class="rv-i ${s[1]}"><span class="rv-ic">${ic(k.icon, 20)}</span><div class="rv-i-b"><div class="rv-i-t"><b>${esc(k.label)}</b><span class="rv-sev ${s[1]}">${ic(s[2], 12)}${s[0]}</span>${i.status === 'nueva' ? '<span class="rv-tag new">Nueva</span>' : `<span class="rv-tag">Sigue · desde ${ago(i.first)}</span>`}${d.map(x => `<span class="rv-tag">${ic(x === 'PC' ? 'pc' : 'phone', 11)}${x}</span>`).join('')}</div>
-        <p>${esc(k.what)}</p><small class="rv-i-s">${esc(i.title)}</small>
-        <details${revAll ? ' open' : ''}><summary>Ver detalle técnico</summary><code>${esc(i.ev || '—')}</code><p class="rv-hint">${ic('wand', 13)}${esc(k.hint)}</p></details></div>
-        <button type="button" class="btn sm rv-pbtn" data-a="revPrompt" data-app="${esc(i.app)}" data-id="${esc(i.id)}">${ic('wand', 14)}Prompt</button></div>`; };
-    const groups = Object.keys(byApp).sort((x, y) => (order[(r.apps[x] || {}).state] ?? 3) - (order[(r.apps[y] || {}).state] ?? 3)).map(k => { const a = r.apps[k] || {name: k, state: 'atencion'}, ag = agentOfApp(k), list = byApp[k];
-      return `<div class="rv-g glass ${a.state}" id="rg-${esc(k)}" style="--c:${ag.color}"><header>${av(ag, 34)}<div><b>${esc(a.name)}</b><small>${list.length} ${list.length === 1 ? 'falla' : 'fallas'} · ${esc(ag.name)} la revisó</small></div><div class="sp"></div>
-        <button type="button" class="btn sm pri" data-a="revPrompt" data-app="${esc(k)}">${ic('wand', 14)}Prompt para arreglar todo</button></header>${list.map(item).join('')}</div>`; }).join('');
-    const lastRun = (r.runs || [])[0];
-    view.innerHTML = `<section class="hist rev"><div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${esc(room.name)}</h1><small>Última revisión ${ago(r.at)} · la siguiente ${inT(r.next)}</small></div><div class="sp"></div>${lastRun ? `<a class="btn sm" href="#/sala/${room.id}/${lastRun.id}">${ic('play', 14)}Ver a los agentes</a>` : ''}</div>
-      <div class="rv-hero glass ${state}"><div class="rv-score">${ring(okApps, apps.length, state)}<span>${ic(head[2], 26)}</span></div>
-        <div class="rv-hero-t"><h2>${esc(head[0])}</h2><p>${esc(head[1])}</p><small>${okApps} de ${apps.length} sin fallas${nuevas ? ` · ${nuevas} nueva${nuevas > 1 ? 's' : ''} desde la revisión anterior` : ''}</small></div>
-        <div class="rv-kpis">${kpi('tri', open.length, 'Por arreglar', open.length ? 'warn' : 'ok')}${kpi('oct', graves, 'Graves', graves ? 'bad' : 'ok')}${kpi('bots', sen.bots ? `${sen.bots.live}/${sen.bots.total}` : '—', 'Bots encendidos', '')}${kpi('users', sen.traffic ? sen.traffic.d1 : '—', 'Personas hoy', '')}</div></div>
-      <h3 class="mt rv-h">${ic('grid', 17)}Tus apps <small>toca una para ver qué tiene</small></h3>
-      <div class="rv-apps">${apps.slice().sort((x, y) => order[x[1].state] - order[y[1].state]).map(tile).join('')}</div>
-      <h3 class="mt rv-h">${ic('wrench', 17)}Qué arreglar <small>${open.length ? 'de lo más grave a lo más leve' : ''}</small>${open.length > 1 && Object.keys(byApp).length > 1 ? `<span class="sp"></span><button type="button" class="btn sm ghost" data-a="revPrompt" data-app="*">${ic('copy', 14)}Prompt de todas las apps</button>` : ''}</h3>
-      ${open.length ? `<div class="rv-legend"><span class="rv-sev bad">${ic('oct', 12)}Grave: arréglalo ya</span><span class="rv-sev warn">${ic('tri', 12)}Media: pronto</span><span class="rv-sev info">${ic('info', 12)}Baja: cuando puedas</span></div>${groups}` : `<div class="rv-empty glass">${ic('check', 30)}<b>Nada que arreglar</b><small>Todo lo revisado funciona.</small></div>`}
+  const kpi = (icon, val, lab, cls) => `<div class="rv-kpi ${cls || ''}"><span class="ki">${ic(icon, 16)}</span><b>${val}</b><small>${lab}</small></div>`;
+  const ORD = {falla: 0, atencion: 1, bien: 2}, stateOf = list => list.some(i => i.sev === 'alta') ? 'falla' : list.length ? 'atencion' : 'bien';
+  function issueHTML(i) {
+    const s = SEV[i.sev] || SEV.media, d = devsOf(i.ev);
+    return `<div class="rv-i ${s[1]}"><span class="rv-ic">${ic(i.kind.icon, 20)}</span><div class="rv-i-b"><div class="rv-i-t"><b>${esc(i.kind.label)}</b><span class="rv-sev ${s[1]}">${ic(s[2], 12)}${s[0]}</span>${i.status === 'nueva' ? '<span class="rv-tag new">Nueva</span>' : i.first ? `<span class="rv-tag">Sigue · desde ${ago(i.first)}</span>` : ''}${d.map(x => `<span class="rv-tag">${ic(x === 'PC' ? 'pc' : 'phone', 11)}${x}</span>`).join('')}</div>
+      <p>${esc(i.kind.what)}</p><small class="rv-i-s">${esc(i.title)}</small>
+      <details><summary>Ver detalle técnico</summary><code>${esc(i.ev || '—')}</code><p class="rv-hint">${ic('wand', 13)}${esc(i.kind.hint)}</p></details>
+      <button type="button" class="btn sm rv-pbtn" data-a="revPrompt" data-id="${esc(i.id)}">${ic('wand', 14)}Prompt para arreglar esta falla</button></div></div>`;
+  }
+  function groupsHTML(list) {
+    const g = new Map(); for (const i of list) { if (!g.has(i.group)) g.set(i.group, []); g.get(i.group).push(i); }
+    return [...g.values()].sort((a, b) => ORD[stateOf(a)] - ORD[stateOf(b)]).map(items => { const i0 = items[0], st = stateOf(items);
+      return `<div class="rv-g glass ${st}" id="rg-${esc(i0.group.replace(/[^a-z0-9-]/gi, '_'))}" style="--c:${i0.ag.color}"><header>${av(i0.ag, 34)}<div><b>${esc(i0.groupName)}</b><small>${items.length} ${items.length === 1 ? 'falla' : 'fallas'}</small></div></header>${items.map(issueHTML).join('')}</div>`; }).join('');
+  }
+  function fixSection(list) {
+    revList = list;
+    return `<h3 class="mt rv-h">${ic('wrench', 17)}Qué arreglar <small>${list.length ? 'de lo más grave a lo más leve' : ''}</small></h3>
+      ${list.length ? `<div class="rv-legend"><span class="rv-sev bad">${ic('oct', 12)}Grave: arréglalo ya</span><span class="rv-sev warn">${ic('tri', 12)}Media: pronto</span><span class="rv-sev info">${ic('info', 12)}Baja: cuando puedas</span></div>${groupsHTML(list)}
+        <div class="rv-all glass"><div><b>¿Quieres arreglar todo de un jalón?</b><small>Un solo prompt corto con las ${list.length} fallas, para pegarlo en Claude, ChatGPT o Gemini.</small></div><button type="button" class="btn pri" data-a="revPrompt" data-id="*">${ic('wand', 16)}Prompt para arreglar todo</button></div>`
+        : `<div class="rv-empty glass">${ic('check', 30)}<b>Nada que arreglar</b><small>Todo lo revisado funciona.</small></div>`}`;
+  }
+  function heroHTML(list, okN, totN, sub, kpis) {
+    const st = stateOf(list), graves = list.filter(i => i.sev === 'alta').length;
+    const head = {bien: ['Todo funciona', 'Pasó la revisión sin fallas.', 'check'], atencion: [`${list.length} ${list.length === 1 ? 'cosa' : 'cosas'} por arreglar`, 'Nada grave: funciona, pero hay detalles que corregir.', 'tri'], falla: [`${graves} ${graves === 1 ? 'falla grave' : 'fallas graves'}`, 'Algo importante no funciona. Empieza por lo marcado en rojo.', 'oct']}[st];
+    return `<div class="rv-hero glass ${st}"><div class="rv-score">${ring(okN, totN, st)}<span>${ic(head[2], 26)}</span></div><div class="rv-hero-t"><h2>${esc(head[0])}</h2><p>${esc(head[1])}</p><small>${sub}</small></div><div class="rv-kpis">${kpis}</div></div>`;
+  }
+  function scopeBar(room, what) { return `<div class="rv-scope glass">${av(room, 28)}<span>${what} solo de <b>${esc(room.name)}</b></span><div class="sp"></div><a class="btn sm ghost" href="#/${what === 'Revisión' ? 'revision' : 'memoria'}" data-a="leaveRoom">Ver de todas</a></div>`; }
+  const appTile = (k, a, room, sen) => { const ag = room.agents.find(x => x.app === k) || room.agents.find(x => x.id === 'centinela'), st = STC[a.state] || [a.state, ''], ms = a.loadMs || 0, sp = !ms ? '' : ms < 5000 ? 'ok' : ms < 12000 ? 'warn' : 'bad';
+    return `<button type="button" class="rv-app glass ${a.state}" data-a="revGo" data-g="app:${esc(k)}" style="--c:${ag.color}"><span class="rv-app-h">${av(ag, 34)}<span class="rv-badge ${a.state}">${ic(a.state === 'bien' ? 'check' : a.state === 'falla' ? 'oct' : 'tri', 13)}${esc(st[0])}</span></span>
+      <b>${esc(a.name)}</b><span class="rv-app-n">${a.open ? `${a.open} por arreglar` : 'Sin fallas'}</span>
+      <span class="rv-app-m">${ms ? `<span class="rv-speed ${sp}"><i style="width:${Math.min(100, ms / 150).toFixed(0)}%"></i></span><small>${(ms / 1000).toFixed(1)} s · ${a.tried || 0} botones</small>` : k === 'bots' && sen.bots ? `<small>${sen.bots.live} de ${sen.bots.total} bots encendidos</small>` : k === 'seguridad' ? '<small>Cerbero busca huecos</small>' : '<small>Bots y servidores</small>'}</span></button>`; };
+  const roomTile = (r, list) => { const st = stateOf(list), lead = r.agents[r.agents.length - 1] || r.agents[0], runs = allRuns().filter(x => x.room === r.id);
+    return `<button type="button" class="rv-app glass ${st}" data-a="revGo" data-g="room:${esc(r.id)}" style="--c:${r.color}"><span class="rv-app-h">${av(lead, 34)}<span class="rv-badge ${st}">${ic(st === 'bien' ? 'check' : st === 'falla' ? 'oct' : 'tri', 13)}${esc(STC[st][0])}</span></span>
+      <b>${esc(r.name)}</b><span class="rv-app-n">${list.length ? `${list.length} por arreglar` : 'Sin fallas'}</span><span class="rv-app-m"><small>${runs.length ? runs.length + ' sesiones · última ' + ago(runs[0].at) : 'Sin sesiones todavía'}</small></span></button>`; };
+
+  function revision(scopeId) {
+    const room = scopeId ? roomById(scopeId) : null;
+    if (scopeId && !room) { location.hash = '#/revision'; return; }
+    if (room && !room.server) return roomRevision(room);
+    const r = SRV.rev, RV = R.REVISION, scoped = !!room;
+    const head = `<div class="room-bar"><a class="ib" href="${scoped ? '#/sala/' + RV.id : '#/'}" aria-label="Volver">${ic('back')}</a><div><h1>${scoped ? esc(RV.name) : 'Revisión de todo'}</h1><small>${r ? `Apps: última revisión ${ago(r.at)} · la siguiente ${inT(r.next)}` : 'Tus apps y tus salas'}</small></div><div class="sp"></div>${scoped ? `<a class="btn sm" href="#/sala/${RV.id}">${ic('play', 14)}Ver a los agentes</a>` : ''}</div>${scoped ? scopeBar(RV, 'Revisión') : ''}`;
+    if (!C.user()) { view.innerHTML = `<section class="hist rev">${head}<p class="empty glass">Inicia sesión con tu cuenta de Google (la misma de VORTEX) para ver la revisión. <a href="#" data-a="login">Iniciar sesión</a></p></section>`; return; }
+    const sen = (r && r.sentinel) || {}, apps = r ? Object.entries(r.apps || {}) : [], aIss = appIssues();
+    const rs = scoped ? [] : rooms(), rIss = rs.map(x => [x, roomIssues(x)]), list = aIss.concat(...rIss.map(x => x[1]));
+    const okN = apps.filter(([, a]) => a.state === 'bien').length + rIss.filter(x => !x[1].length).length, totN = apps.length + rIss.length;
+    const solved = r ? (r.issues || []).filter(i => i.status === 'resuelta') : [];
+    view.innerHTML = `<section class="hist rev">${head}
+      ${heroHTML(list, okN, totN, `${okN} de ${totN} ${scoped ? 'apps' : 'apps y salas'} sin fallas${r ? '' : ' · la primera revisión de apps todavía no termina'}`, kpi('tri', list.length, 'Por arreglar', list.length ? 'warn' : 'ok') + kpi('oct', list.filter(i => i.sev === 'alta').length, 'Graves', list.some(i => i.sev === 'alta') ? 'bad' : 'ok') + kpi('bots', sen.bots ? `${sen.bots.live}/${sen.bots.total}` : '—', 'Bots encendidos', '') + kpi('users', sen.traffic ? sen.traffic.d1 : '—', 'Personas hoy', ''))}
+      ${apps.length ? `<h3 class="mt rv-h">${ic('grid', 17)}Tus apps <small>toca una para ver qué tiene</small></h3><div class="rv-apps">${apps.slice().sort((x, y) => ORD[x[1].state] - ORD[y[1].state]).map(([k, a]) => appTile(k, a, RV, sen)).join('')}</div>` : ''}
+      ${rs.length ? `<h3 class="mt rv-h">${ic('bots', 17)}Tus salas</h3><div class="rv-apps">${rIss.map(([x, l]) => roomTile(x, l)).join('')}</div>` : ''}
+      ${fixSection(list)}
       ${(sen.ok || []).length ? `<h3 class="mt rv-h">${ic('check', 17)}Funcionando bien</h3><div class="rv-ok">${sen.ok.map(x => `<span>${ic('check', 13)}${esc(x)}</span>`).join('')}</div>` : ''}
-      ${r.report ? `<details class="mt rv-more"><summary>${av(room.agents.find(a => a.id === 'andromeda'), 24)}Leer el informe escrito de Andrómeda</summary><div class="glass box rep"><div class="txt">${md(r.report)}</div></div></details>` : ''}
-      ${solved.length ? `<details class="mt rv-more"><summary>${ic('check', 15)}Resueltas recientemente (${solved.length})</summary>${solved.map(i => `<div class="rv-i done"><span class="rv-ic">${ic('check', 18)}</span><div class="rv-i-b"><b>${esc(kindOf(i).label)} · ${esc((r.apps[i.app] || {}).name || i.app)}</b><small class="rv-i-s">${esc(i.title)} · resuelta ${ago(i.solvedAt)}</small></div></div>`).join('')}</details>` : ''}
-      <details class="mt rv-more"><summary>${ic('play', 15)}Sesiones anteriores (${(r.runs || []).length})</summary><div class="hlist">${(r.runs || []).map(x => `<a class="hrow glass" href="#/sala/${room.id}/${x.id}"><div class="stack">${room.flow.slice(-3).map(id => av(room.agents.find(a => a.id === id), 26)).join('')}</div><div><b>${esc(x.title)}</b><small>${when(x.at)}</small></div><span class="pill">${esc((OUT[x.outcome] || [x.outcome])[0])}</span></a>`).join('')}</div></details>
-      <p class="foot">La revisión entra a tus apps sin iniciar sesión (prueba la parte pública), aprieta los botones que no borran, pagan, operan ni publican, y revisa tus tareas automáticas de GitHub y tus bots. Nada se cambia solo: copia el prompt de una falla y pégaselo a tu IA (Claude, ChatGPT o Gemini).</p></section>${revSheetHTML()}`;
+      ${r && r.report ? `<details class="mt rv-more"><summary>${av(RV.agents.find(a => a.id === 'andromeda'), 24)}Leer el informe escrito de Andrómeda</summary><div class="glass box rep"><div class="txt">${md(r.report)}</div></div></details>` : ''}
+      ${solved.length ? `<details class="mt rv-more"><summary>${ic('check', 15)}Resueltas recientemente (${solved.length})</summary>${solved.map(i => `<div class="rv-i done"><span class="rv-ic">${ic('check', 18)}</span><div class="rv-i-b"><b>${esc(kindOf(i.title).label)} · ${esc((r.apps[i.app] || {}).name || i.app)}</b><small class="rv-i-s">${esc(i.title)} · resuelta ${ago(i.solvedAt)}</small></div></div>`).join('')}</details>` : ''}
+      <p class="foot">La revisión de apps entra sin iniciar sesión, aprieta solo botones seguros y Cerbero busca huecos de seguridad sin atacar ni cambiar nada. Nada se arregla solo: copia el prompt y pégaselo a tu IA.</p></section>${revSheetHTML()}`;
+    if (!r) pullServer();
+  }
+  function roomRevision(room) {
+    const list = roomIssues(room), runs = allRuns().filter(x => x.room === room.id), m30 = runs.filter(x => Date.now() - x.at < 30 * 864e5), good = m30.filter(x => ['informe', 'propuesta', 'rechazado', 'aprobado-sin-enviar'].includes(x.outcome));
+    const okList = []; if (runs[0] && ['informe', 'propuesta'].includes(runs[0].outcome)) okList.push('La última sesión terminó con resultado'); if (room.id === 'taller-bots' && autoCfg().on !== false) okList.push('Crea bots solo cada 3 h'); if (room.auto && room.auto.on) okList.push(`Funciona sola cada ${room.auto.everyHours} h`); if (!list.length && runs.length) okList.push('Sin errores en sus últimas sesiones');
+    view.innerHTML = `<section class="hist rev"><div class="room-bar"><a class="ib" href="#/sala/${encodeURIComponent(room.id)}" aria-label="Volver">${ic('back')}</a><div><h1>Revisión · ${esc(room.name)}</h1><small>Cómo le está yendo a esta sala en sus sesiones</small></div></div>${scopeBar(room, 'Revisión')}
+      ${heroHTML(list, list.length ? 0 : 1, 1, runs.length ? `${runs.length} sesiones guardadas · última ${ago(runs[0].at)}` : 'Todavía no hay sesiones de esta sala', kpi('play', m30.length, 'Sesiones (30 d)', '') + kpi('check', m30.length ? Math.round(good.length / m30.length * 100) + '%' : '—', 'Terminaron bien', m30.length && good.length === m30.length ? 'ok' : '') + kpi('tri', list.length, 'Por arreglar', list.length ? 'warn' : 'ok') + kpi(room.final === 'proposal' ? 'bots' : 'clock', room.final === 'proposal' ? runs.filter(x => x.outcome === 'propuesta').length : (runs[0] ? ago(runs[0].at).replace('hace ', '') : '—'), room.final === 'proposal' ? 'Bots propuestos' : 'Última sesión', ''))}
+      ${fixSection(list)}
+      ${okList.length ? `<h3 class="mt rv-h">${ic('check', 17)}Funcionando bien</h3><div class="rv-ok">${okList.map(x => `<span>${ic('check', 13)}${esc(x)}</span>`).join('')}</div>` : ''}
+      <details class="mt rv-more"><summary>${ic('play', 15)}Últimas sesiones (${Math.min(runs.length, 12)})</summary><div class="hlist">${runs.slice(0, 12).map(x => `<a class="hrow glass" href="#/sala/${encodeURIComponent(room.id)}/${x.id}"><div><b>${esc(x.title || 'Sesión')}</b><small>${when(x.at)}${x.auto ? ' · automática' : ''}</small></div><span class="pill ${(OUT[x.outcome] || [])[1] || ''}">${esc((OUT[x.outcome] || [x.outcome || '—'])[0])}</span></a>`).join('')}</div></details></section>${revSheetHTML()}`;
   }
   function revSheetHTML() {
     if (!revSheet) return '';
@@ -193,12 +259,40 @@
       <div class="sheet-b"><pre class="rv-pre">${esc(revSheet.text)}</pre></div><div class="sheet-f"><button class="btn pri wide" data-a="revCopy">${ic('copy', 16)}Copiar prompt</button></div></div>`;
   }
   async function copyText(t) { try { await navigator.clipboard.writeText(t); return true; } catch { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch {} ta.remove(); return ok; } }
-  function openRevPrompt(appId, id) {
-    const r = SRV.rev; if (!r) return; const open = (r.issues || []).filter(i => i.status !== 'resuelta');
-    if (appId === '*') { const ids = [...new Set(open.map(i => i.app))]; revSheet = {title: 'Arreglar todas las apps', text: ids.map(k => `═════ ${appMeta(k).name} ═════\n` + fixPrompt(k, open.filter(i => i.app === k))).join('\n\n') + '\n\n(Son repos distintos: si tu IA trabaja en un solo repo a la vez, pásale cada bloque por separado.)'}; }
-    else if (id) { const i = open.find(x => x.id === id); if (!i) return; revSheet = {title: kindOf(i).label + ' · ' + ((r.apps[appId] || {}).name || appId), text: fixPrompt(appId, [i])}; }
-    else { const list = open.filter(i => i.app === appId); revSheet = {title: 'Arreglar todo en ' + ((r.apps[appId] || {}).name || appId), text: fixPrompt(appId, list)}; }
-    const y = scrollY; revision(); scrollTo(0, y);
+  function openRevPrompt(id) {
+    if (id === '*') revSheet = {title: `Arreglar todo (${revList.length} fallas)`, text: allPrompt(revList)};
+    else { const i = revList.find(x => x.id === id); if (!i) return; revSheet = {title: i.kind.label + ' · ' + i.groupName, text: fixPrompt(i)}; }
+    const y = scrollY; route(); scrollTo(0, y);
+  }
+
+  /* ───────── Memoria: de cada sala (lo que sus agentes recuerdan) y, sin sala abierta, de todas + la compartida con tus IAs ───────── */
+  function roomMemory(id) {
+    const room = roomById(id); if (!room) { location.hash = '#/memoria'; return; }
+    const m = memOf(id), runs = allRuns().filter(x => x.room === id).slice(0, 15);
+    const lastMsg = x => ((x.events || []).filter(e => e.type === 'msg').slice(-1)[0] || {}).text || '';
+    let learned = '';
+    if (id === 'taller-bots') { const tr = ((SRV.auto && SRV.auto.tried) || []).slice(0, 14);
+      if (tr.length) { const ok = tr.filter(t => t.outcome === 'propuesta'), cnt = {}; for (const t of tr) if (t.outcome !== 'propuesta') cnt[t.style + ' · ' + t.interval] = (cnt[t.style + ' · ' + t.interval] || 0) + 1;
+        learned = `<h3 class="mt rv-h">${ic('brain', 17)}Lo que aprendió solo <small>el Taller automático no repite lo que ya falló</small></h3><div class="glass box"><div class="rv-ok">${ok.length ? ok.map(t => `<span>${ic('check', 13)}Funcionó: ${esc(t.style)} · ${esc(t.interval)}</span>`).join('') : '<span class="muted">Todavía ningún estilo pasó todos los filtros</span>'}${Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, n]) => `<span class="no">${ic('x', 13)}${esc(k)} falló ${n} ${n > 1 ? 'veces' : 'vez'}</span>`).join('')}</div>
+          <ul class="mlearn">${tr.filter(t => t.why).slice(0, 6).map(t => `<li><b>${esc(t.style)} · ${esc(t.interval)}</b><small>${esc(t.why)} · ${ago(t.at)}</small></li>`).join('')}</ul></div>`; } }
+    if (room.server && SRV.rev) { const iss = SRV.rev.issues || [], rec = iss.filter(i => (i.seen || 1) >= 3);
+      learned = `<h3 class="mt rv-h">${ic('brain', 17)}Lo que recuerda de tus apps</h3><div class="glass box"><div class="rv-ok">${rec.length ? rec.slice(0, 8).map(i => `<span class="no">${ic('tri', 13)}${esc(kindOf(i.title).label)} en ${esc((SRV.rev.apps[i.app] || {}).name || i.app)}: ${i.seen} revisiones</span>`).join('') : '<span>Ninguna falla se ha repetido mucho</span>'}${iss.filter(i => i.status === 'resuelta').slice(0, 6).map(i => `<span>${ic('check', 13)}Resuelta: ${esc(kindOf(i.title).label)} · ${esc((SRV.rev.apps[i.app] || {}).name || i.app)}</span>`).join('')}</div></div>`; }
+    view.innerHTML = `<section class="hist rev"><div class="room-bar"><a class="ib" href="#/sala/${encodeURIComponent(id)}" aria-label="Volver">${ic('back')}</a><div><h1>Memoria · ${esc(room.name)}</h1><small>Lo que esta sala recuerda entre sesiones</small></div></div>${scopeBar(room, 'Memoria')}
+      <h3 class="mt rv-h">${ic('note', 17)}Lo que el equipo debe recordar siempre</h3>
+      <div class="glass box"><small class="muted">Escríbelo como se lo dirías al equipo: reglas, gustos, datos fijos, cosas que no quieres. Todos los agentes de esta sala lo leen en cada sesión, también en las automáticas.</small>
+        <textarea id="memNotes" rows="6" maxlength="1500" placeholder="${room.id === 'taller-bots' ? 'Ej.: Opero en 1h y 4h. Riesgo máximo 2 % por operación. No quiero bots que abran y cierren enseguida.' : room.server ? 'Ej.: Neural Brain todavía está en pruebas: sus fallas son de prioridad baja.' : 'Ej.: Mi estilo es neo-japonés con carmesí, oro, jade y negro. Nada de textos genéricos.'}">${esc(m.notes || '')}</textarea>
+        <div class="row end"><small class="muted">${m.updatedAt ? 'Guardado ' + ago(m.updatedAt) : 'Aún vacío'}</small><div class="sp"></div><button class="btn pri sm" data-a="memSave" data-id="${esc(id)}">${ic('check', 14)}Guardar</button></div></div>
+      ${learned}
+      <h3 class="mt rv-h">${ic('play', 17)}Bitácora de sesiones <small>lo que entregó en cada una</small></h3>
+      ${runs.length ? `<div class="mlog2">${runs.map(x => `<a class="glass" href="#/sala/${encodeURIComponent(id)}/${x.id}"><header><span class="pill ${(OUT[x.outcome] || [])[1] || ''}">${esc((OUT[x.outcome] || [x.outcome || '—'])[0])}</span><small>${when(x.at)}${x.auto ? ' · automática' : ''}</small></header><b>${esc(x.title || 'Sesión')}</b><p>${esc(clipS(lastMsg(x).replace(/VEREDICTO:.*$/m, ''), 220))}</p></a>`).join('')}</div>` : '<p class="empty glass">Todavía no hay sesiones de esta sala.</p>'}</section>`;
+  }
+  function memHome() {
+    const rs = rooms().concat([R.REVISION]);
+    view.innerHTML = `<section class="hist rev"><div class="hero"><h1>Memoria</h1><p>Cada sala tiene su propia memoria: lo que sus agentes deben recordar y lo que han hecho. Entra a una para verla o editarla.</p></div>
+      <div class="rv-apps">${rs.map(r => { const m = memOf(r.id), n = allRuns().filter(x => x.room === r.id).length, lead = r.agents[r.agents.length - 1] || r.agents[0];
+        return `<a class="rv-app glass ${m.notes ? 'bien' : ''}" href="#/memoria/${encodeURIComponent(r.id)}" style="--c:${r.color}"><span class="rv-app-h">${av(lead, 34)}${m.notes ? `<span class="rv-badge bien">${ic('note', 13)}Con notas</span>` : ''}</span><b>${esc(r.name)}</b><span class="rv-app-n">${n} sesiones en la bitácora</span><span class="rv-app-m"><small>${m.notes ? esc(clipS(m.notes, 70)) : 'Sin notas todavía'}</small></span></a>`; }).join('')}</div>
+      <details class="mt rv-more" id="memSharedBox"><summary>${ic('brain', 15)}Memoria compartida con Claude, ChatGPT y Gemini <small class="muted">(aparte de las salas)</small></summary><div id="memShared"></div></details></section>`;
+    const d = $('#memSharedBox'); d.addEventListener('toggle', () => { if (d.open && !$('#memShared .mem')) window.SalaMem.render({view: () => $('#memShared'), state: () => S, save, toast, user: () => C.user()}); });
   }
 
   /* ───────── Sesión en vivo ───────── */
@@ -206,7 +300,9 @@
   function roomView(id, runId) {
     const room = roomById(id); if (!room) { location.hash = '#/'; return; }
     const replay = runId ? findRun(runId) : null;
-    if (room.server && !replay) { location.hash = '#/revision'; return; }
+    curRoom = id; paintNav();
+    if (room.server && !replay) { const lr = SRV.rev && (SRV.rev.runs || [])[0]; if (lr) { location.replace('#/sala/' + encodeURIComponent(id) + '/' + lr.id); return; }
+      view.innerHTML = `<section class="hist"><div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${esc(room.name)}</h1><small>Corre sola en el servidor cada 2 horas</small></div></div><p class="empty glass">${C.user() ? (SRV.at ? 'Todavía no hay una sesión de revisión para ver. Vuelve en un rato.' : 'Cargando la última sesión…') : 'Inicia sesión para ver a los agentes de la revisión. <a href="#" data-a="login">Iniciar sesión</a>'}</p></section>`; if (C.user()) pullServer(true); return; }
     if (live && live.running && live.room.id !== id) { toast('Hay una sesión trabajando en «' + live.room.name + '»'); location.hash = '#/sala/' + live.room.id; return; }
     view.innerHTML = `<section class="room">
       <div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${esc(room.name)}</h1><small>${room.agents.length} agentes · ${replay && replay.auto ? 'sesión automática del servidor · ' + when(replay.at) : esc(AI.label())}</small></div><div class="sp"></div><span class="live-dot" hidden>En vivo</span><button class="btn ghost sm" data-a="stop" hidden>${ic('stop', 14)}Detener</button></div>
@@ -284,7 +380,7 @@
     else if (pend) body = `<div class="res">${ic('send', 20)}<div><b>Bot aprobado, falta enviarlo</b><small>Inicia sesión con tu cuenta de Google (la misma de VORTEX) para mandarlo a Nova Bot Lab.</small></div><button class="btn pri sm" data-a="sendPend">${ic('send', 14)}Iniciar sesión y enviar</button></div>`;
     else if (o === 'informe') body = `<div class="res win">${ic('check', 20)}<div><b>Informe entregado</b><small>Lo último que escribió el jefe de la sala es tu informe.</small></div><button class="btn sm" data-a="copy">${ic('copy', 14)}Copiar informe</button></div>`;
     else body = `<div class="res lose">${ic('x', 20)}<div><b>${o === 'cancelado' ? 'Sesión detenida' : o === 'error' ? 'La IA dejó de responder' : 'El equipo no aprobó nada'}</b><small>${o === 'rechazado' ? 'Ningún bot pasó todos los filtros. Prueba otro enfoque, temporalidad o monedas.' : o === 'error' ? 'Puede ser el límite de la IA gratis; espera un minuto e inténtalo de nuevo.' : ''}</small></div></div>`;
-    if (live.room.server) return `<div class="result">${body}<a class="btn ghost wide" href="#/revision">${ic('back', 15)}Volver al informe</a></div>`;
+    if (live.room.server) return `<div class="result">${body}<a class="btn ghost wide" href="#/revision/revision-apps">${ic('back', 15)}Ver el informe</a></div>`;
     return `<div class="result">${body}<button class="btn ghost wide" data-a="again">${ic('retry', 15)}Nueva sesión en esta sala</button></div>`;
   }
 
@@ -303,7 +399,7 @@
     };
     const deps = {ai: AI.chat, tools: {market: T.market, backtest: T.backtest, bots: T.bots}, parseSpec: T.parseSpec, checks: T.checks, signal: ctrl.signal,
       propose: async ctx => { try { return await T.propose(ctx); } catch (e) { if (e.login) { live.ctx = ctx; return null; } throw e; } }};
-    const ctx = await E.runRoom(room, inputs, deps, {emit});
+    const ctx = await E.runRoom(withMem(room), inputs, deps, {emit});
     live.ctx = ctx; live.running = false; syncBar();
     if (ctx.outcome === 'propuesta' && !ctx.proposal && ctx.pending) emit({type: 'note', text: 'Bot aprobado. Inicia sesión para enviarlo a Nova Bot Lab.'});
     run.outcome = ctx.outcome; run.proposal = ctx.proposal || null; run.title = String(inputs.goal || '').slice(0, 90); run.events.forEach(x => { if (x.text && x.text.length > 1800) x.text = x.text.slice(0, 1800) + '…'; });
@@ -401,10 +497,13 @@
     const b = e.target.closest('[data-a]'); if (!b) return; const a = b.dataset.a;
     if (a === 'login') { e.preventDefault(); try { await C.signIn(); } catch (er) { toast('No se pudo iniciar sesión'); } }
     else if (a === 'rmCoin') b.remove();
-    else if (a === 'revPrompt') openRevPrompt(b.dataset.app, b.dataset.id);
-    else if (a === 'revClose') { revSheet = null; const y = scrollY; revision(); scrollTo(0, y); }
+    else if (a === 'goSala') { e.preventDefault(); location.hash = '#/sala/' + encodeURIComponent(b.dataset.id); }
+    else if (a === 'memSave') { const t = $('#memNotes'); const m = memOf(b.dataset.id); S.roomMem[b.dataset.id] = Object.assign({}, m, {notes: t.value.slice(0, 1500), updatedAt: Date.now()}); save(); toast('Guardado: los agentes lo leerán en cada sesión'); }
+    else if (a === 'revPrompt') openRevPrompt(b.dataset.id);
+    else if (a === 'revClose') { revSheet = null; const y = scrollY; route(); scrollTo(0, y); }
+    else if (a === 'leaveRoom') curRoom = null;
     else if (a === 'revCopy') { if (revSheet && await copyText(revSheet.text)) { toast('Prompt copiado: pégalo en tu IA'); b.innerHTML = ic('check', 16) + 'Copiado'; } else toast('No se pudo copiar: selecciona el texto y cópialo'); }
-    else if (a === 'revGo') { const g = $('#rg-' + CSS.escape(b.dataset.app)); if (g) { g.scrollIntoView({behavior: 'smooth', block: 'start'}); g.classList.remove('flash'); void g.offsetWidth; g.classList.add('flash'); } else toast('Esta app no tiene fallas abiertas'); }
+    else if (a === 'revGo') { const g = $('#rg-' + b.dataset.g.replace(/[^a-z0-9-]/gi, '_')); if (g) { g.scrollIntoView({behavior: 'smooth', block: 'start'}); g.classList.remove('flash'); void g.offsetWidth; g.classList.add('flash'); } else toast('No tiene fallas abiertas'); }
     else if (a === 'stop') { if (live && live.ctrl) live.ctrl.abort(); }
     else if (a === 'again') { const inp = live.inputs; live.events = []; live.running = false; live.ctx = null; live.proposal = null; live.replay = null; live.inputs = inp; if (location.hash !== '#/sala/' + live.room.id) location.hash = '#/sala/' + live.room.id; else { live.scene.reset(); paintPanel(); } }
     else if (a === 'copy') { try { await navigator.clipboard.writeText((live.ctx && live.ctx.report) || (live.events.filter(x => x.type === 'msg').pop() || {}).text || ''); toast('Informe copiado'); } catch { toast('No se pudo copiar'); } }
@@ -433,14 +532,19 @@
   });
 
   /* ───────── Rutas ───────── */
+  function paintNav() { // con una sala abierta, Revisión y Memoria llevan a lo de esa sala
+    const q = curRoom ? '/' + encodeURIComponent(curRoom) : '', r = $('[data-nav="rev"]'), m = $('[data-nav="mem"]'), rm = curRoom && roomById(curRoom);
+    if (r) { r.href = '#/revision' + q; r.title = rm ? 'Revisión de ' + rm.name : 'Revisión de todo'; } if (m) { m.href = '#/memoria' + q; m.title = rm ? 'Memoria de ' + rm.name : 'Memoria de todas tus salas'; }
+    document.body.classList.toggle('in-room', !!rm); const lab = $('#navScope'); if (lab) lab.innerHTML = rm ? `${av(rm, 18)}<span>${esc(rm.name)}</span>` : '';
+  }
   function route() {
     const h = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
     if (h[0] !== 'revision') revSheet = null; // el prompt abierto no te sigue a otras pantallas
     $$('[data-nav]').forEach(a => a.classList.toggle('on', (h[0] || '') === '' ? a.dataset.nav === 'home' : (h[0] === 'historial' && a.dataset.nav === 'history') || (h[0] === 'memoria' && a.dataset.nav === 'mem') || (h[0] === 'revision' && a.dataset.nav === 'rev')));
     if (h[0] === 'sala' && h[1]) { if (!$('.room') || !live || live.room.id !== h[1] || (h[2] || null) !== (live.replay ? live.replay.id : null)) roomView(h[1], h[2]); else paintPanel(); }
     else if (h[0] === 'historial') history();
-    else if (h[0] === 'revision') { revision(); pullServer(); }
-    else if (h[0] === 'memoria') window.SalaMem.render({view: () => view, state: () => S, save, toast, user: () => C.user()});
+    else if (h[0] === 'revision') { if (h[1]) curRoom = h[1]; paintNav(); revision(h[1] || null); pullServer(); }
+    else if (h[0] === 'memoria') { if (h[1]) curRoom = h[1]; paintNav(); if (h[1]) roomMemory(h[1]); else memHome(); }
     else if (h[0] === 'editor') { if (h[1] === 'nueva' && draft && draft._for === 'nueva' && !$('.edit')) { draft = null; } editor(h[1] || 'nueva'); }
     else { home(); pullServer(); }
   }
@@ -448,5 +552,6 @@
   SC.sky($('#sky')); paintAcct(); route(); AI.boot().then(() => { if (!$('.room')) route(); }).catch(() => {});
   setInterval(() => { if (!document.hidden) pullServer(); }, 60000); // lo que hacen tus agentes en el servidor se actualiza solo
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-  window.SalaApp = {state: () => S, live: () => live, start: (id, inputs) => { const r = roomById(id); location.hash = '#/sala/' + id; route(); return start(r, inputs); }};
+  function loadDraft(d) { draft = Object.assign(d, {_for: 'arqui'}); wz = {step: 4, ag: null, agDraft: null, tpl: true}; if (location.hash === '#/editor/arqui') editor('arqui'); else location.hash = '#/editor/arqui'; }
+  window.SalaApp = {loadDraft, draft: () => ($('.edit') && draft) || null, state: () => S, live: () => live, start: (id, inputs) => { const r = roomById(id); location.hash = '#/sala/' + id; route(); return start(r, inputs); }};
 })();

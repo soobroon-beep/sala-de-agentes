@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* SALA DE AGENTES · SALA DE REVISIÓN DE APPS (corre sola cada 2 horas en GitHub Actions).
    Equipo: un inspector por app (Vector · VORTEX, Hubble · Nova HUB, Synapse · Neural Brain, Tinta · INKBOT PRO, Eco · Sala, Lira · Moldes Gaby's)
-   → Centinela (bots y servidores) → Quasar (vuelve a probar cada falla, una por una) → Andrómeda (tu informe).
+   → Centinela (bots y servidores) → Cerbero (huecos de seguridad, sin atacar) → Quasar (vuelve a probar cada falla, una por una) → Andrómeda (tu informe).
    Herramientas REALES (la IA solo explica; no inventa datos):
    · inspect_<app> — abre la app con Chromium en PC y celular, mide la carga, junta errores de código y respuestas fallidas del servidor,
                       aprieta sus botones (nunca los que borran, pagan, operan, cierran sesión o publican) y revisa sus tareas automáticas de GitHub.
@@ -158,6 +158,49 @@ async function sentinel(db, uid, admin, prev) {
   return {text, summary: alerts.length ? `${alerts.length} alerta(s)` : 'Bots y servidores bien', data: {alerts, ok, live, ...data}};
 }
 
+/* ───────── Cerbero: busca huecos de seguridad SIN atacar (solo lee lo que cualquiera podría ver; nunca escribe, borra ni prueba contraseñas) ───────── */
+const SECRETS = [
+  [/\bgsk_[A-Za-z0-9]{40,}/, 'una clave de Groq'], [/sk-ant-[A-Za-z0-9_-]{30,}/, 'una clave de Anthropic (Claude)'], [/\bsk-(?:proj-)?[A-Za-z0-9_-]{32,}/, 'una clave de OpenAI'],
+  [/ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{60,}/, 'un token de GitHub'], [/xox[bpa]-[A-Za-z0-9-]{20,}/, 'un token de Slack'], [/AKIA[0-9A-Z]{16}/, 'una clave de AWS'],
+  [/-----BEGIN (?:RSA |EC )?PRIVATE KEY-----|"private_key"\s*:\s*"-----BEGIN/, 'una llave privada (cuenta de servicio)'], [/discord(?:app)?\.com\/api\/webhooks\/\d+\/[A-Za-z0-9_-]{30,}/, 'un webhook de Discord'],
+  [/\b\d{9,10}:AA[A-Za-z0-9_-]{33}\b/, 'un token de bot de Telegram'], [/sk_live_[A-Za-z0-9]{20,}/, 'una clave secreta de Stripe'], [/(?:bingx|binance)[^\n]{0,40}secret[^\n]{0,8}["'][A-Za-z0-9]{40,}["']/i, 'un secreto de exchange']
+];
+const PRIVATE_COLS = ['users', 'plans', 'accounts', 'keys', 'secrets', 'admin', 'private', 'payments', 'subs'];
+const mask = s => s.slice(0, 6) + '…' + s.slice(-3);
+async function securityScan(browser, app) {
+  const out = [], add = (sev, what, ev) => out.push({sev, title: `Seguridad: ${what} en ${app.name}`, ev: clip(ev, 280)});
+  const base = app.url.replace(/[^/]*$/, ''), origin = new URL(app.url).origin, scripts = new Map();
+  let html = '', headers = {};
+  try {
+    const ctx = await browser.newContext(), page = await ctx.newPage();
+    page.on('response', async r => { const u = r.url(); if (r.request().resourceType() === 'script' && u.startsWith(origin) && !scripts.has(u)) scripts.set(u, await r.text().catch(() => '')); });
+    const main = await page.goto(app.url, {waitUntil: 'load', timeout: 45000}); headers = main ? main.headers() : {}; html = main ? await main.text().catch(() => '') : '';
+    await page.waitForTimeout(2500); await ctx.close();
+  } catch (e) { return {list: out, text: `${app.name}: no se pudo abrir para revisar seguridad (${clip(e.message, 80)}).`}; }
+  const code = [['la página', html], ...[...scripts].map(([u, t]) => [u.replace(origin, ''), t])];
+  /* 1) claves secretas metidas en el código público */
+  const seen = new Set();
+  for (const [where, t] of code) for (const [re, what] of SECRETS) { const m = re.exec(t || ''); if (m && !seen.has(what)) { seen.add(what); add('alta', `${what} visible en el código`, `Cualquiera que abra ${where} la puede copiar (${mask(m[0])}). Muévela a un secreto del servidor y cámbiala por una nueva.`); } }
+  /* 2) base de datos y archivos de Firebase abiertos sin iniciar sesión (solo lectura) */
+  const all = code.map(x => x[1]).join('\n'), projs = new Map();
+  for (const m of all.matchAll(/projectId\s*[:=]\s*["']([a-z0-9-]{4,40})["'][\s\S]{0,400}?/g)) projs.set(m[1], null);
+  for (const m of all.matchAll(/apiKey\s*[:=]\s*["'](AIza[0-9A-Za-z_-]{35})["']/g)) for (const k of projs.keys()) if (!projs.get(k)) projs.set(k, m[1]);
+  for (const [pid, key] of projs) {
+    for (const col of PRIVATE_COLS) { try { const r = await fetch(`https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents/${col}?pageSize=1${key ? '&key=' + key : ''}`, {signal: AbortSignal.timeout(10000)}); if (r.ok) { const j = await r.json().catch(() => ({})); if ((j.documents || []).length) add('alta', `la colección «${col}» se puede leer sin iniciar sesión`, `Firestore del proyecto ${pid}: cualquiera puede leer «${col}». Cierra las reglas para que cada quien lea solo lo suyo (request.auth.uid).`); } } catch {} }
+    for (const b of [`${pid}.appspot.com`, `${pid}.firebasestorage.app`]) { try { const r = await fetch(`https://firebasestorage.googleapis.com/v0/b/${b}/o?maxResults=1`, {signal: AbortSignal.timeout(10000)}); if (r.ok) { const j = await r.json().catch(() => ({})); if ((j.items || []).length) add('media', 'los archivos de Storage se pueden listar sin iniciar sesión', `Bucket ${b}: cualquiera puede ver la lista de tus archivos. Pide sesión en las reglas de Storage.`); } } catch {} }
+  }
+  /* 3) archivos que nunca deberían estar publicados */
+  for (const [p, test, what] of [['.git/config', /\[core\]/, 'la carpeta .git (tu historial de código)'], ['.env', /^[A-Z_]+=.+/m, 'un archivo .env con variables'], ['serviceAccount.json', /private_key/, 'una cuenta de servicio'], ['firebase-service-account.json', /private_key/, 'una cuenta de servicio']]) {
+    try { const r = await fetch(base + p, {signal: AbortSignal.timeout(10000), redirect: 'manual'}); if (r.ok && test.test(await r.text())) add('alta', `${what} está publicada`, `${base + p} se puede descargar. Quítala del sitio publicado (y cambia lo que contenga si es secreto).`); } catch {}
+  }
+  /* 4) servidores que aceptan llamadas de cualquier página */
+  for (const u of [app.ping].filter(Boolean)) { try { const r = await fetch(u, {headers: {origin: 'https://sitio-ajeno.example'}, signal: AbortSignal.timeout(10000)}); const ao = r.headers.get('access-control-allow-origin') || ''; if (ao === 'https://sitio-ajeno.example') add('media', 'su servidor acepta llamadas de cualquier página', `${u} responde a una página ajena (refleja el origen). Limita ALLOWED_ORIGIN a tus apps.`); } catch {} }
+  /* 5) protección contra que otra página la meta en un marco (solo donde se puede configurar: Cloudflare Pages) */
+  if (/\.pages\.dev$/.test(new URL(app.url).hostname) && !headers['x-frame-options'] && !/frame-ancestors/.test(headers['content-security-policy'] || '')) add('baja', 'otra página la puede meter en un marco (clickjacking)', 'Falta X-Frame-Options o frame-ancestors. Agrega un archivo _headers con «X-Frame-Options: DENY».');
+  const text = `${app.name}: ${scripts.size} archivos de código revisados, ${projs.size} proyecto(s) de Firebase. ${out.length ? 'HALLAZGOS: ' + out.map(o => `[${o.sev}] ${o.title.replace(/^Seguridad: /, '')}`).join(' | ') : 'Sin huecos encontrados.'}`;
+  return {list: out, text};
+}
+
 /* ───────── Quasar: repite cada falla sola ───────── */
 async function retest(browser, results) {
   const out = {};
@@ -184,7 +227,7 @@ function retestText(rt, names) {
 }
 
 /* ───────── fallas definitivas (sin IA) y su historial ───────── */
-function issuesOf(results, rt, sen) {
+function issuesOf(results, rt, sen, sec) {
   const out = [], add = (app, sev, title, ev) => out.push({id: (app + '|' + title).toLowerCase().replace(/\d+(\.\d+)?/g, 'N').replace(/\s+/g, ' ').slice(0, 160), app, sev, title: clip(title, 140), ev: clip(ev, 300)});
   for (const o of results) { const r = rt[o.app] || {};
     if (r.down) add(o.app, 'alta', `${o.name} no abre`, o.devs.map(d => `${d.dev}: ${d.status || d.err}`).join(' · '));
@@ -197,6 +240,7 @@ function issuesOf(results, rt, sen) {
     if (o.ping && !o.ping.ok) add(o.app, 'alta', `El servidor de ${o.name} no responde`, String(o.ping.status || o.ping.err));
   }
   for (const a of sen.alerts) add('bots', a.sev, a.title, a.ev);
+  for (const [app, list] of Object.entries(sec || {})) for (const x of list) add(app, x.sev, x.title, x.ev);
   return [...new Map(out.map(x => [x.id, x])).values()];
 }
 function mergeIssues(prev, now, at) {
@@ -215,19 +259,22 @@ async function main() {
   const results = [], tools = {}; let rt = null, sen = null;
   for (const app of R.APPS) tools['inspect_' + app.id] = async () => { L.log('Inspeccionando ' + app.name); const o = await inspectApp(browser, app); results.push(o); return {text: inspectText(o), summary: o.down ? 'NO ABRIÓ' : `${o.tried} botones · ${o.errors.length} errores · ${(o.loadMs / 1000).toFixed(1)} s`, data: {app: app.id, down: o.down, blank: o.blank, tried: o.tried, dead: o.dead.length, errors: o.errors.length, loadMs: o.loadMs, broken: o.actions && o.actions.broken ? o.actions.broken.length : 0}}; };
   tools.sentinel = async () => { L.log('Centinela: bots y servidores'); sen = await sentinel(db, uid, admin, prev.sentinel); return {text: sen.text, summary: sen.summary, data: {alerts: sen.data.alerts.length, bots: sen.data.bots, traffic: sen.data.traffic}}; };
+  let sec = null;
+  tools.security = async () => { L.log('Cerbero busca huecos de seguridad'); sec = {}; const T = []; for (const app of R.APPS) { const r = await securityScan(browser, app); sec[app.id] = r.list; T.push(r.text); } const n = Object.values(sec).reduce((k, l) => k + l.length, 0); return {text: T.join('\n'), summary: n ? n + ' hallazgo(s) de seguridad' : 'Sin huecos encontrados', data: {found: n}}; };
   tools.retest = async () => { L.log('Quasar vuelve a probar cada falla'); rt = await retest(browser, results); const t = retestText(rt, names); return {text: t, summary: 'Fallas repetidas una por una', data: {confirmed: Object.values(rt).reduce((n, r) => n + r.confirmedDead.length + r.errorsAgain.length + (r.down ? 1 : 0), 0)}}; };
 
   const run = {id: 'v' + Date.now().toString(36), room: room.id, roomName: room.name, at: Date.now(), inputs: {goal: 'Revisión automática de todas tus apps'}, events: [], outcome: null, auto: true, title: 'Revisión automática'};
   const deps = {ai: (m, o) => L.ai(m, o), tools, parseSpec: () => ({errors: []}), checks: {}};
   const emit = e => { run.events.push(L.keepEvent(e)); if (e.type === 'msg') L.log(`  ${e.fromName} → ${e.to}`); if (e.type === 'error') L.log('  error: ' + e.text); };
-  let ctx; try { ctx = await E.runRoom(room, run.inputs, deps, {emit}); } catch (e) { L.log('La sesión falló: ' + e.message); ctx = {outcome: 'error', msgs: []}; }
+  const SS = await L.salaState().catch(() => ({})), mem = (SS.roomMem || {})[room.id], roomM = mem && mem.notes ? Object.assign({}, room, {memory: mem.notes}) : room;
+  let ctx; try { ctx = await E.runRoom(roomM, run.inputs, deps, {emit}); } catch (e) { L.log('La sesión falló: ' + e.message); ctx = {outcome: 'error', msgs: []}; }
   /* si la IA falló a medias, las herramientas que faltan se corren igual: el informe de fallas no depende de la IA */
   for (const app of R.APPS) if (!results.find(r => r.app === app.id)) await tools['inspect_' + app.id]();
-  if (!sen) await tools.sentinel(); if (!rt) await tools.retest();
+  if (!sen) await tools.sentinel(); if (!sec) await tools.security(); if (!rt) await tools.retest();
   await browser.close();
   run.outcome = ctx.outcome; run.ms = Date.now() - run.at;
 
-  const at = Date.now(), issues = mergeIssues(prev.issues, issuesOf(results, rt, sen.data), at);
+  const at = Date.now(), issues = mergeIssues(prev.issues, issuesOf(results, rt, sen.data, sec), at);
   const apps = {}; for (const a of R.APPS.concat([{id: 'bots', name: 'Bots y servidores'}])) { const open = issues.filter(i => i.app === a.id && i.status !== 'resuelta'), o = results.find(r => r.app === a.id);
     apps[a.id] = {name: a.name, state: open.some(i => i.sev === 'alta') ? 'falla' : open.length ? 'atencion' : 'bien', open: open.length, loadMs: o ? o.loadMs : null, tried: o ? o.tried : null, at}; }
   const report = ((ctx.msgs || []).filter(m => m.from === 'andromeda').slice(-1)[0] || {}).text || '';
@@ -237,10 +284,10 @@ async function main() {
   const fresh = issues.filter(i => i.status === 'nueva' && (i.sev === 'alta' || /se apagó|se atoró/.test(i.title)));
   L.log(`Revisión guardada: ${issues.filter(i => i.status !== 'resuelta').length} fallas abiertas (${fresh.length} graves nuevas) · ${Object.values(apps).map(a => a.name + ' ' + a.state).join(' · ')}`);
   /* el repo es público: el registro solo dice QUÉ TIPO de falla tiene cada app, sin nombres de bots ni evidencia */
-  const kind = t => /no abre/.test(t) ? 'no abre' : /en blanco/.test(t) ? 'pantalla en blanco' : /Error de código/.test(t) ? 'error de código' : /no hacen nada/.test(t) ? 'botones sin reacción' : /tarea automática/.test(t) ? 'tarea automática fallando' : /tarda/.test(t) ? 'carga lenta' : /se atoró/.test(t) ? 'bot atorado' : /se apagó/.test(t) ? 'bot apagado' : /servidor|no responde|Motor|velas/i.test(t) ? 'servidor' : 'otra';
+  const kind = t => /^Seguridad/.test(t) ? 'seguridad' : /no abre/.test(t) ? 'no abre' : /en blanco/.test(t) ? 'pantalla en blanco' : /Error de código/.test(t) ? 'error de código' : /no hacen nada/.test(t) ? 'botones sin reacción' : /tarea automática/.test(t) ? 'tarea automática fallando' : /tarda/.test(t) ? 'carga lenta' : /se atoró/.test(t) ? 'bot atorado' : /se apagó/.test(t) ? 'bot apagado' : /servidor|no responde|Motor|velas/i.test(t) ? 'servidor' : 'otra';
   for (const [id, a] of Object.entries(apps)) { const k = issues.filter(i => i.app === id && i.status !== 'resuelta').map(i => `${i.sev} ${kind(i.title)}`); if (k.length) L.log(`  ${a.name}: ${k.join(', ')}`); }
   if (fresh.length) await L.push(fresh.slice(0, 3).map(i => ({title: 'Sala de agentes · ' + clip(i.title, 60), body: clip(i.ev, 200) + ' · Detalles en Sala de agentes › Revisión de apps.', tag: 'sala-rev-' + i.id.slice(0, 40)})));
 }
 
-module.exports = {issuesOf, mergeIssues, inspectText, retestText, inspectApp, retest};
+module.exports = {issuesOf, mergeIssues, inspectText, retestText, inspectApp, retest, securityScan, SECRETS};
 if (require.main === module) main().then(() => process.exit(0), e => { console.error('Error:', e.stack || e.message); process.exit(1); });

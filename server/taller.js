@@ -12,6 +12,7 @@ const L = require('./lib.js'), P = require('./plan.js');
 const MAX_PENDING = 3, KEEP_RUNS = 30, KEEP_TRIED = 80;
 
 async function runSession(room, inputs, extra) {
+  const mem = (globalThis.__salaMem || {})[room.id]; if (mem && mem.notes) room = Object.assign({}, room, {memory: mem.notes}); // memoria de la sala (la escribes en la app)
   const E = globalThis.SalaEngine, T = globalThis.SalaTools;
   const run = {id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), room: room.id, roomName: room.name, at: Date.now(), inputs, events: [], outcome: null, auto: true, title: extra.title || ''};
   const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 18 * 6e4);
@@ -37,7 +38,7 @@ function whyFailed(ctx) {
 
 async function main() {
   L.loadAll(); const {uid} = await L.account(); L.log('Cuenta encontrada. Modo automático de la Sala.');
-  const S = await L.salaState(), cfgAll = S.auto || {}, cfg = Object.assign({on: true, perRun: 2}, cfgAll.taller || {});
+  const S = await L.salaState(); globalThis.__salaMem = S.roomMem || {}; const cfgAll = S.auto || {}; const cfg = Object.assign({on: true, perRun: 2}, cfgAll.taller || {});
   const st = (await L.getDoc('sala_auto')) || {}, runs = Array.isArray(st.runs) ? st.runs : [], tried = Array.isArray(st.tried) ? st.tried : [], last = st.rooms || {};
   const status = {at: Date.now(), taller: '', rooms: [], next: Date.now() + 3 * 36e5};
   const R = globalThis.SalaRooms, taller = R.BUILTIN.find(r => r.id === 'taller-bots');

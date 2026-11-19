@@ -92,18 +92,20 @@ NO pongas símbolo, monedas ni temporalidad: los fija la sala.`;
   const INSPECT = 'Eres {name}, inspector de la app {app} del usuario. Tu herramienta ya abrió la app con un navegador real en PC y celular, apretó sus botones, midió la carga y revisó sus tareas automáticas en GitHub. Con esos datos REALES dile a Quasar (el probador) en pocas líneas: si la app funciona, qué falló exactamente (con la evidencia), qué tan grave es para el usuario y qué botones o partes debe volver a probar. Si todo está bien, dilo en una frase. No inventes nada fuera de los datos.';
   const REVISION = {
     id: 'revision-apps', builtin: true, server: true, kind: 'revision', name: 'Revisión de apps', color: '#20bf9f', icon: 'satelite',
-    desc: 'Un agente por app revisa cada 2 horas que todo cargue, que los botones respondan y que tus tareas automáticas y bots sigan corriendo. Quasar confirma cada falla y Andrómeda te entrega el informe.',
+    desc: 'Un agente por app revisa cada 2 horas que todo cargue, que los botones respondan y que tus tareas automáticas y bots sigan corriendo. Cerbero busca huecos de seguridad, Quasar confirma cada falla y Andrómeda te entrega el informe.',
     final: 'report', maxRounds: 1, inputs: [{id: 'goal', type: 'textarea', label: 'Revisión', def: ''}],
     apps: APPS,
     agents: APPS.map(a => ({id: a.agent[0], name: a.agent[1], role: 'Inspector de ' + a.name, icon: a.agent[2], color: a.agent[3], tool: 'inspect_' + a.id, output: 'text', app: a.id, prompt: INSPECT.replace('{name}', a.agent[1]).replace('{app}', a.name)})).concat([
       {id: 'centinela', name: 'Centinela', role: 'Vigila bots y servidores', icon: 'satelite', color: '#22d3ee', tool: 'sentinel', output: 'text',
         prompt: 'Eres Centinela. Tu herramienta revisó los servidores del usuario (Motor de VORTEX, velas, servidores de avisos e IA), sus bots de Nova Bot Lab (encendidos, si el servidor los sigue avanzando, si alguno se apagó o se atoró), Claudio, el modo automático de la Sala y cuántas personas usaron VORTEX. Dile a Quasar qué está bien y qué NO, con los datos exactos (tiempos, nombres de bots). Si un bot se apagó o se atoró, es prioridad alta. No inventes.'},
+      {id: 'cerbero', name: 'Cerbero', role: 'Busca huecos de seguridad', icon: 'alien', color: '#f06b79', tool: 'security', output: 'text',
+        prompt: 'Eres Cerbero, el hacker ético del equipo. Tu herramienta revisó cada app como lo haría un atacante, pero SIN atacar ni cambiar nada: claves secretas metidas en el código público, base de datos o archivos de Firebase que se leen sin iniciar sesión, archivos que nunca deberían estar publicados (.git, .env, cuentas de servicio) y servidores que aceptan llamadas de cualquier página. Dile a Quasar qué encontraste, qué tan grave es y qué podría hacer alguien con eso. Nunca repitas una clave completa. No inventes.'},
       {id: 'quasar', name: 'Quasar', role: 'Probador', icon: 'robot', color: '#f06b79', tool: 'retest', output: 'text',
         prompt: 'Eres Quasar, el probador. Tu herramienta volvió a probar UNA POR UNA cada falla que reportaron los inspectores (botones sin respuesta, errores, páginas caídas) con la app recién abierta. Dile a Andrómeda cuáles se confirmaron (fallas reales) y cuáles fueron falsas alarmas, con la evidencia. No inventes.'},
       {id: 'andromeda', name: 'Andrómeda', role: 'Jefa de revisión', icon: 'estrella', color: '#20bf9f', output: 'text', words: 320,
-        prompt: 'Eres Andrómeda, jefa de la sala de revisión. Con lo que reportaron los inspectores, el Centinela y lo que confirmó Quasar, entrégale al usuario (Payi) su informe: primero una línea con el estado general; luego, por prioridad (alta, media, baja), solo las fallas CONFIRMADAS con qué app, qué pasa, y qué hacer para arreglarlo; al final, una línea con lo que está funcionando bien. Escribe claro, sin tecnicismos innecesarios. Si todo funciona, dilo corto.'}
+        prompt: 'Eres Andrómeda, jefa de la sala de revisión. Con lo que reportaron los inspectores, el Centinela, Cerbero (seguridad) y lo que confirmó Quasar, entrégale al usuario (Payi) su informe: primero una línea con el estado general; luego, por prioridad (alta, media, baja), solo las fallas CONFIRMADAS con qué app, qué pasa, y qué hacer para arreglarlo; al final, una línea con lo que está funcionando bien. Escribe claro, sin tecnicismos innecesarios. Si todo funciona, dilo corto.'}
     ]),
-    flow: APPS.map(a => a.agent[0]).concat(['centinela', 'quasar', 'andromeda'])
+    flow: APPS.map(a => a.agent[0]).concat(['centinela', 'cerbero', 'quasar', 'andromeda'])
   };
 
   const BUILTIN = [BOTS, MESA];
