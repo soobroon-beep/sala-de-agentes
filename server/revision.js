@@ -235,7 +235,8 @@ function issuesOf(results, rt, sen, sec) {
     if (r.blank && !r.down) add(o.app, 'alta', `${o.name} se queda en blanco`, 'La página abre pero no muestra contenido.');
     for (const e of (r.errorsAgain || [])) add(o.app, /al abrir/.test(e) ? 'alta' : 'media', `Error de código en ${o.name}`, e);
     if ((r.confirmedDead || []).length) add(o.app, 'media', `${r.confirmedDead.length} botón(es) de ${o.name} no hacen nada`, r.confirmedDead.join(', '));
-    for (const h of o.http.slice(0, 3)) if (/^5/.test(h)) add(o.app, 'media', `El servidor de ${o.name} respondió con error`, h);
+    const h5 = o.http.filter(h => /^5/.test(h)), byUrl = {}; for (const h of h5) { const u = h.replace(/ \((PC|celular)\)$/, ''); byUrl[u] = (byUrl[u] || 0) + 1; }
+    for (const [u, n] of Object.entries(byUrl).slice(0, 3)) if (n >= 2) add(o.app, 'media', `El servidor de ${o.name} respondió con error`, u + ' (PC y celular)'); // un 5xx en un solo intento es un tropiezo pasajero del hosting
     const slow = Math.max(0, ...o.devs.map(d => d.loadMs || 0)); if (!r.down && slow > 15000) add(o.app, 'baja', `${o.name} tarda en abrir`, `${(slow / 1000).toFixed(1)} s`);
     for (const b of ((o.actions && o.actions.broken) || [])) add(o.app, b.fails >= 3 ? 'alta' : 'media', `La tarea automática «${b.name}» de ${o.name} sigue fallando`, `${b.fails} de ${b.runs} ejecuciones en 26 h · ${b.url}`);
     if (o.ping && !o.ping.ok) add(o.app, 'alta', `El servidor de ${o.name} no responde`, String(o.ping.status || o.ping.err));
