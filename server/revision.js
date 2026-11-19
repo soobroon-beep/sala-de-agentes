@@ -286,6 +286,8 @@ async function main() {
   /* el repo es público: el registro solo dice QUÉ TIPO de falla tiene cada app, sin nombres de bots ni evidencia */
   const kind = t => /^Seguridad/.test(t) ? 'seguridad' : /no abre/.test(t) ? 'no abre' : /en blanco/.test(t) ? 'pantalla en blanco' : /Error de código/.test(t) ? 'error de código' : /no hacen nada/.test(t) ? 'botones sin reacción' : /tarea automática/.test(t) ? 'tarea automática fallando' : /tarda/.test(t) ? 'carga lenta' : /se atoró/.test(t) ? 'bot atorado' : /se apagó/.test(t) ? 'bot apagado' : /servidor|no responde|Motor|velas/i.test(t) ? 'servidor' : 'otra';
   for (const [id, a] of Object.entries(apps)) { const k = issues.filter(i => i.app === id && i.status !== 'resuelta').map(i => `${i.sev} ${kind(i.title)}`); if (k.length) L.log(`  ${a.name}: ${k.join(', ')}`); }
+  /* los errores de código salen en la consola de cualquiera que abra la app (ya son públicos): se registran sin parámetros de URL para poder corregirlos */
+  for (const i of issues) if (i.status !== 'resuelta' && /Error de código/.test(i.title)) L.log(`  ${(apps[i.app] || {}).name || i.app} · error: ${clip(String(i.ev || '').replace(/\?[^\s'"]*/g, ''), 200)}`);
   if (fresh.length) await L.push(fresh.slice(0, 3).map(i => ({title: 'Sala de agentes · ' + clip(i.title, 60), body: clip(i.ev, 200) + ' · Detalles en Sala de agentes › Revisión de apps.', tag: 'sala-rev-' + i.id.slice(0, 40)})));
 }
 
