@@ -17,6 +17,7 @@
     power: '<path d="M12 3v8M7 6.5a7 7 0 1 0 10 0"/>', server: '<rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/>', users: '<circle cx="9" cy="9" r="3"/><path d="M3 19a6 6 0 0 1 12 0M16 6a3 3 0 0 1 0 6M21 19a6 6 0 0 0-4-5.6"/>',
     grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>', wrench: '<path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 1-2-2z"/>',
     shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>', brain: '<path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 6 1V5a2 2 0 0 0-3-1zM15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-6 1"/>', note: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/>',
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>', cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>', link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>', gauge: '<path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/>', layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
     pc: '<rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M9 20h6M12 16v4"/>', phone: '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>', motor: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>'
   };
   const ic = (k, s = 18) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
@@ -32,7 +33,8 @@
     const mem = !a.mem ? b.mem : !b.mem ? a.mem : ((b.mem.updatedAt || 0) > (a.mem.updatedAt || 0) ? b.mem : a.mem); // llave de la memoria compartida
     const auto = !a.auto ? b.auto : !b.auto ? a.auto : ((b.auto.updatedAt || 0) > (a.auto.updatedAt || 0) ? b.auto : a.auto); // ajustes del modo automático (24/7)
     const rm = Object.assign({}, a.roomMem || {}); for (const [k, v] of Object.entries(b.roomMem || {})) if (!rm[k] || (v.updatedAt || 0) > (rm[k].updatedAt || 0)) rm[k] = v; // memoria de cada sala
-    return {v: 2, roomMem: rm, rooms: un(a.rooms || [], b.rooms || []), runs: un(a.runs || [], b.runs || []).sort((x, y) => y.at - x.at).slice(0, 20), deleted: del, mem: mem || null, auto: auto || null};
+    const rv = Object.assign({}, a.roomVer || {}); for (const [k, l] of Object.entries(b.roomVer || {})) { const m = new Map((rv[k] || []).concat(l).map(x => [x.v + ':' + x.at, x])); rv[k] = [...m.values()].sort((x, y) => y.at - x.at).slice(0, 6); }
+    return {v: 2, roomVer: rv, roomMem: rm, rooms: un(a.rooms || [], b.rooms || []), runs: un(a.runs || [], b.runs || []).sort((x, y) => y.at - x.at).slice(0, 20), deleted: del, mem: mem || null, auto: auto || null};
   }
   function save() {
     S.runs = S.runs.slice(0, 20); try { localStorage.setItem(LS, JSON.stringify(S)); } catch { S.runs = S.runs.slice(0, 8); try { localStorage.setItem(LS, JSON.stringify(S)); } catch {} }
@@ -66,7 +68,7 @@
     b.title = u ? `${u.displayName || u.email} · tocar para cerrar sesión` : 'Inicia sesión con Google (la misma cuenta de VORTEX)';
   }
   $('#acct').onclick = async () => { try { if (C.user()) { if (confirm('¿Cerrar sesión?')) await C.signOut(); } else await C.signIn(); } catch (e) { toast('No se pudo iniciar sesión: ' + (e.code || e.message)); } };
-  C.init().then(ok => { paintAcct(); if (!ok) return; C.on(u => { paintAcct(); if (u) { AI.resetOwn(); pull(); pullServer(true); if (live && live.ctx && live.ctx.pending) route(); } }); });
+  C.init().then(ok => { paintAcct(); if (!ok) return; C.on(u => { paintAcct(); if (u) { AI.resetOwn(); pull(); pullServer(true); if (window.SalaConn) window.SalaConn.refresh(); if (live && live.ctx && live.ctx.pending) route(); } }); });
 
   /* ───────── Texto con formato ligero ───────── */
   function md(t) {
@@ -213,7 +215,7 @@
     const head = {bien: ['Todo funciona', 'Pasó la revisión sin fallas.', 'check'], atencion: [`${list.length} ${list.length === 1 ? 'cosa' : 'cosas'} por arreglar`, 'Nada grave: funciona, pero hay detalles que corregir.', 'tri'], falla: [`${graves} ${graves === 1 ? 'falla grave' : 'fallas graves'}`, 'Algo importante no funciona. Empieza por lo marcado en rojo.', 'oct']}[st];
     return `<div class="rv-hero glass ${st}"><div class="rv-score">${ring(okN, totN, st)}<span>${ic(head[2], 26)}</span></div><div class="rv-hero-t"><h2>${esc(head[0])}</h2><p>${esc(head[1])}</p><small>${sub}</small></div><div class="rv-kpis">${kpis}</div></div>`;
   }
-  function scopeBar(room, what) { return `<div class="rv-scope glass">${av(room, 28)}<span>${what} solo de <b>${esc(room.name)}</b></span><div class="sp"></div><a class="btn sm ghost" href="#/${what === 'Revisión' ? 'revision' : 'memoria'}" data-a="leaveRoom">Ver de todas</a></div>`; }
+  function scopeBar(room, what) { return `<div class="rv-scope glass">${av(room, 28)}<span>${what} solo de <b>${esc(room.name)}</b></span><div class="sp"></div><a class="btn sm ghost" href="#/${what === 'Revisión' ? 'revision' : what === 'Consumo' ? 'consumo' : 'memoria'}" data-a="leaveRoom">Ver de todas</a></div>`; }
   const appTile = (k, a, room, sen) => { const ag = room.agents.find(x => x.app === k) || room.agents.find(x => x.id === 'centinela'), st = STC[a.state] || [a.state, ''], ms = a.loadMs || 0, sp = !ms ? '' : ms < 5000 ? 'ok' : ms < 12000 ? 'warn' : 'bad';
     return `<button type="button" class="rv-app glass ${a.state}" data-a="revGo" data-g="app:${esc(k)}" style="--c:${ag.color}"><span class="rv-app-h">${av(ag, 34)}<span class="rv-badge ${a.state}">${ic(a.state === 'bien' ? 'check' : a.state === 'falla' ? 'oct' : 'tri', 13)}${esc(st[0])}</span></span>
       <b>${esc(a.name)}</b><span class="rv-app-n">${a.open ? `${a.open} por arreglar` : 'Sin fallas'}</span>
@@ -291,8 +293,72 @@
     view.innerHTML = `<section class="hist rev"><div class="hero"><h1>Memoria</h1><p>Cada sala tiene su propia memoria: lo que sus agentes deben recordar y lo que han hecho. Entra a una para verla o editarla.</p></div>
       <div class="rv-apps">${rs.map(r => { const m = memOf(r.id), n = allRuns().filter(x => x.room === r.id).length, lead = r.agents[r.agents.length - 1] || r.agents[0];
         return `<a class="rv-app glass ${m.notes ? 'bien' : ''}" href="#/memoria/${encodeURIComponent(r.id)}" style="--c:${r.color}"><span class="rv-app-h">${av(lead, 34)}${m.notes ? `<span class="rv-badge bien">${ic('note', 13)}Con notas</span>` : ''}</span><b>${esc(r.name)}</b><span class="rv-app-n">${n} sesiones en la bitácora</span><span class="rv-app-m"><small>${m.notes ? esc(clipS(m.notes, 70)) : 'Sin notas todavía'}</small></span></a>`; }).join('')}</div>
+      ${connBox()}
       <details class="mt rv-more" id="memSharedBox"><summary>${ic('brain', 15)}Memoria compartida con Claude, ChatGPT y Gemini <small class="muted">(aparte de las salas)</small></summary><div id="memShared"></div></details></section>`;
     const d = $('#memSharedBox'); d.addEventListener('toggle', () => { if (d.open && !$('#memShared .mem')) window.SalaMem.render({view: () => $('#memShared'), state: () => S, save, toast, user: () => C.user()}); });
+  }
+
+  /* ───────── Conexiones (en Memoria) ───────── */
+  function connBox() {
+    const h = window.SalaConn && window.SalaConn.cached();
+    const row = (icon, name, txt, act) => `<div class="cn-row">${ic(icon, 18)}<div><b>${name}</b><small>${txt}</small></div><div class="sp"></div>${act || ''}</div>`;
+    return `<h3 class="mt rv-h">${ic('link', 17)}Conexiones de tus agentes <small>de dónde sacan datos reales</small></h3><div class="glass box cn">
+      ${row('note', 'Nova Hub · notas, proyectos y agenda', !C.user() ? 'Inicia sesión primero.' : h ? `Conectado${h.email ? ' (' + esc(h.email) + ')' : ''} · ${h.projects.length} proyectos, ${h.notes.length} notas, ${h.events.length} eventos · actualizado ${ago(h.at)}` : 'Sin conectar: tus agentes no ven tus notas, proyectos ni citas.',
+        C.user() ? (h ? `<button class="btn sm ghost" data-a="connRefresh">${ic('retry', 14)}Actualizar</button><button class="btn sm ghost" data-a="connOff">Desconectar</button>` : `<button class="btn sm pri" data-a="connOn">${ic('link', 14)}Conectar Nova Hub</button>`) : '')}
+      ${row('globe', 'Internet', 'Noticias recientes (Google y Bing) y Wikipedia. Siempre disponible.', '<span class="rv-badge bien">Listo</span>')}
+      ${row('gh', 'GitHub', 'Tus repos públicos, sus últimos cambios y tareas que fallan. Siempre disponible.', '<span class="rv-badge bien">Listo</span>')}
+      ${row('chart', 'Mercado y Nova Bot Lab', 'Velas reales de cripto y tus bots. Siempre disponible.', '<span class="rv-badge bien">Listo</span>')}
+      <small class="muted">Para usarlas, en el editor de la sala elige la herramienta de cada agente (paso «Equipo»). Nova Hub se lee solo: nunca se cambia nada ahí.</small></div>`;
+  }
+
+  /* ───────── Panel de consumo: cuánta IA gasta cada sala ───────── */
+  const DAYK = t => new Date(t).toISOString().slice(0, 10);
+  function usageOf(x) { // sesiones viejas sin medición: se estima con los mensajes (1 mensaje ≈ 1 consulta)
+    if (x.usage) return Object.assign({est: false}, x.usage);
+    const m = (x.events || []).filter(e => e.type === 'msg'); return {calls: m.length, tokIn: m.length * 900, tokOut: Math.round(m.reduce((n, e) => n + String(e.text || '').length, 0) / 4), ms: 0, errors: x.outcome === 'error' ? 1 : 0, models: {}, est: true};
+  }
+  const fmtK = n => n >= 1e6 ? (n / 1e6).toFixed(1) + ' M' : n >= 1e3 ? (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + ' k' : String(Math.round(n));
+  function consumo(scopeId) {
+    const room = scopeId ? roomById(scopeId) : null; if (scopeId && !room) { location.hash = '#/consumo'; return; }
+    const runs = allRuns().filter(x => !room || x.room === room.id), now = Date.now(), M30 = runs.filter(x => now - x.at < 30 * 864e5);
+    const arq = (() => { try { return JSON.parse(localStorage.getItem('sala_arqui_use') || '{}'); } catch { return {}; } })();
+    const sum = (list, f) => list.reduce((n, x) => n + f(usageOf(x)), 0);
+    const tot = {calls: sum(M30, u => u.calls) + (room ? 0 : Object.values(arq).reduce((n, d) => n + d.calls, 0)), tok: sum(M30, u => u.tokIn + u.tokOut), err: sum(M30, u => u.errors), ms: sum(M30, u => u.ms), msN: sum(M30, u => u.ms ? u.calls : 0)};
+    const today = sum(runs.filter(x => DAYK(x.at) === DAYK(now)), u => u.calls) + (room ? 0 : ((arq[DAYK(now)] || {}).calls || 0));
+    const days = [...Array(14)].map((_, i) => DAYK(now - (13 - i) * 864e5)), rs = room ? [room] : rooms().concat([R.REVISION]);
+    const per = days.map(d => { const o = {}; for (const x of runs.filter(y => DAYK(y.at) === d)) o[x.room] = (o[x.room] || 0) + usageOf(x).calls; if (!room && arq[d]) o._arqui = arq[d].calls; return o; });
+    const maxD = Math.max(1, ...per.map(o => Object.values(o).reduce((a, b) => a + b, 0)));
+    const color = id => id === '_arqui' ? '#22d3ee' : (roomById(id) || {color: '#94a3b8'}).color;
+    const models = {}; for (const x of M30) for (const [k, v] of Object.entries(usageOf(x).models || {})) models[k] = (models[k] || 0) + v;
+    const rows = rs.map(r => { const l = M30.filter(x => x.room === r.id); return {r, n: l.length, calls: sum(l, u => u.calls), tok: sum(l, u => u.tokIn + u.tokOut), err: sum(l, u => u.errors), est: l.some(x => !x.usage), last: l[0]}; }).filter(x => x.n || room).sort((a, b) => b.calls - a.calls);
+    const lead = r => r.agents[r.agents.length - 1] || r.agents[0];
+    view.innerHTML = `<section class="hist rev"><div class="room-bar"><a class="ib" href="${room ? '#/sala/' + encodeURIComponent(room.id) : '#/'}" aria-label="Volver">${ic('back')}</a><div><h1>Consumo${room ? ' · ' + esc(room.name) : ''}</h1><small>Cuánta IA usan tus salas (últimos 30 días)</small></div></div>${room ? scopeBar(room, 'Consumo') : ''}
+      <div class="rv-kpis cs-k">${kpi('gauge', fmtK(tot.calls), 'Consultas de IA', '')}${kpi('layers', fmtK(tot.tok), 'Tokens (aprox.)', '')}${kpi('clock', tot.msN ? (tot.ms / tot.msN / 1000).toFixed(1) + ' s' : '—', 'Por consulta', '')}${kpi('tri', tot.calls ? Math.round(tot.err / Math.max(1, tot.calls + tot.err) * 100) + '%' : '0%', 'Fallaron', tot.err ? 'warn' : 'ok')}${kpi('play', today, 'Consultas hoy', '')}</div>
+      <h3 class="mt rv-h">${ic('chart', 17)}Consultas por día <small>últimos 14 días</small></h3>
+      <div class="glass box cs-chart"><div class="cs-bars">${per.map((o, i) => { const t = Object.values(o).reduce((a, b) => a + b, 0); return `<div class="cs-col" title="${days[i]}: ${t} consultas"><div class="cs-stack" style="height:${(t / maxD * 100).toFixed(1)}%">${Object.entries(o).map(([k, v]) => `<i style="flex:${v};background:${color(k)}"></i>`).join('')}</div><small>${days[i].slice(8)}</small></div>`; }).join('')}</div>
+        <div class="cs-leg">${[...new Set(per.flatMap(o => Object.keys(o)))].map(k => `<span><i style="background:${color(k)}"></i>${k === '_arqui' ? 'Arqui' : esc((roomById(k) || {name: k}).name)}</span>`).join('') || '<span class="muted">Sin consultas en estos días</span>'}</div></div>
+      <h3 class="mt rv-h">${ic('bots', 17)}${room ? 'Esta sala' : 'Por sala'}</h3>
+      <div class="cs-tab glass"><div class="cs-tr cs-th"><span>Sala</span><span>Sesiones</span><span>Consultas</span><span>Tokens</span><span>Por sesión</span><span>Errores</span></div>
+        ${rows.map(x => `<a class="cs-tr" href="#/consumo/${encodeURIComponent(x.r.id)}">${av(lead(x.r), 24)}<span class="cs-n">${esc(x.r.name)}${x.est ? ' <small class="muted">(aprox.)</small>' : ''}</span><span>${x.n}</span><span>${fmtK(x.calls)}</span><span>${fmtK(x.tok)}</span><span>${x.n ? Math.round(x.calls / x.n) : 0}</span><span class="${x.err ? 'bad' : ''}">${x.err}</span></a>`).join('')}
+        ${!room && Object.keys(arq).length ? `<div class="cs-tr"><span class="av" style="--c:#22d3ee;width:24px;height:24px"><img src="icons/bots/robot.png" alt=""></span><span class="cs-n">Arqui <small class="muted">(este dispositivo)</small></span><span>—</span><span>${fmtK(Object.values(arq).reduce((n, d) => n + d.calls, 0))}</span><span>${fmtK(Object.values(arq).reduce((n, d) => n + d.tok, 0))}</span><span>—</span><span>${Object.values(arq).reduce((n, d) => n + (d.err || 0), 0)}</span></div>` : ''}
+        ${rows.length ? '' : '<p class="empty">Sin sesiones en 30 días.</p>'}</div>
+      ${Object.keys(models).length ? `<h3 class="mt rv-h">${ic('motor', 17)}Qué IA respondió</h3><div class="rv-ok">${Object.entries(models).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<span>${esc(k)} · ${v}</span>`).join('')}</div>` : ''}
+      <p class="foot">Los tokens son aproximados (≈ 4 letras por token). Las sesiones de antes de este panel se estiman con sus mensajes. Con la IA gratis no pagas nada; si usas «Tu IA», esto es lo que gasta de tu saldo.</p></section>`;
+  }
+
+  /* ───────── Versiones de una sala propia ───────── */
+  function versionsSheet(id) {
+    const r = S.rooms.find(x => x.id === id); if (!r) return '';
+    const list = ((S.roomVer || {})[id] || []), runs = allRuns().filter(x => x.room === id), stat = v => { const l = runs.filter(x => (x.ver || 1) === v), ok = l.filter(x => ['informe', 'propuesta'].includes(x.outcome)).length; return l.length ? `${l.length} sesiones · ${Math.round(ok / l.length * 100)}% con resultado` : 'sin sesiones'; };
+    const diff = (a, b) => { const A = (a.agents || []).map(x => x.name), B = (b.agents || []).map(x => x.name), out = [];
+      B.filter(n => !A.includes(n)).forEach(n => out.push('agregó a ' + n)); A.filter(n => !B.includes(n)).forEach(n => out.push('quitó a ' + n));
+      (b.agents || []).forEach(x => { const o = (a.agents || []).find(y => y.name === x.name); if (o && (o.prompt !== x.prompt || o.role !== x.role || o.tool !== x.tool)) out.push('cambió a ' + x.name); });
+      if (a.name !== b.name) out.push('nombre'); if (JSON.stringify(a.auto) !== JSON.stringify(b.auto)) out.push('modo automático'); if (JSON.stringify(a.chain || null) !== JSON.stringify(b.chain || null)) out.push('cadena');
+      return out.slice(0, 5).join(', ') || 'detalles'; };
+    return `<div class="sheet-bg" data-a="verClose"></div><div class="sheet glass" role="dialog" aria-label="Versiones"><div class="sheet-h"><span class="rv-ic">${ic('layers', 20)}</span><div><b>Versiones de ${esc(r.name)}</b><small>Cada vez que guardas cambios se guarda la versión anterior (últimas 6)</small></div><div class="sp"></div><button class="ib" data-a="verClose" aria-label="Cerrar">${ic('x', 16)}</button></div>
+      <div class="sheet-b"><div class="vr cur"><div><b>v${r.ver || 1} · actual</b><small>${r.agents.length} agentes · ${stat(r.ver || 1)}</small></div><span class="rv-badge bien">En uso</span></div>
+      ${list.length ? list.map((v, i) => `<div class="vr"><div><b>v${v.v} · ${when(v.at)}</b><small>${v.room.agents.length} agentes · ${stat(v.v)} · después ${esc(diff(v.room, i ? list[i - 1].room : r))}</small></div><button class="btn sm" data-a="verUse" data-i="${i}">${ic('retry', 14)}Volver a esta</button></div>`).join('') : '<p class="empty">Todavía no hay versiones anteriores: aparecen cuando guardes un cambio.</p>'}
+      <small class="muted">Así ves qué versión trabajó mejor. Volver a una versión guarda la actual primero, así no pierdes nada.</small></div></div>`;
   }
 
   /* ───────── Sesión en vivo ───────── */
@@ -384,11 +450,11 @@
     return `<div class="result">${body}<button class="btn ghost wide" data-a="again">${ic('retry', 15)}Nueva sesión en esta sala</button></div>`;
   }
 
-  async function start(room, inputs) {
+  async function start(room, inputs, chainFrom, depth) {
     if (!inputs.goal && room.inputs.some(f => f.id === 'goal') && !room.inputs.some(f => f.type === 'style')) { toast('Escribe tu pedido para el equipo'); return; }
     if (room.inputs.some(f => f.type === 'coins') && !(inputs.coins || []).length) { toast('Agrega al menos una moneda'); return; }
     try { await AI.boot(); } catch (e) { toast(e.message); return; }
-    const ctrl = new AbortController(), run = {id: 'r' + Date.now().toString(36), room: room.id, roomName: room.name, at: Date.now(), inputs, events: [], outcome: null};
+    const ctrl = new AbortController(), run = {id: 'r' + Date.now().toString(36), room: room.id, roomName: room.name, at: Date.now(), inputs, events: [], outcome: null, ver: room.ver || 1, chainOf: chainFrom || null};
     Object.assign(live, {events: run.events, inputs, ctrl, running: true, proposal: null, ctx: null, replay: null, _shown: 0}); paintPanel(); syncBar();
     const emit = e => {
       if (e.type === 'done') { live.running = false; live.ctx = e.ctx; }
@@ -397,13 +463,18 @@
       run.events.push(keep); if (live.scene) live.scene.on(keep);
       if (live.room.id === room.id && $('#panel')) { if (['msg', 'tool', 'note', 'round', 'error', 'done'].includes(e.type)) paintPanel(); else paintTyping(); }
     };
-    const deps = {ai: AI.chat, tools: {market: T.market, backtest: T.backtest, bots: T.bots}, parseSpec: T.parseSpec, checks: T.checks, signal: ctrl.signal,
+    const deps = {ai: E.meter(AI.chat, run), tools: {market: T.market, backtest: T.backtest, bots: T.bots, web: T.web, novahub: T.novahub, agenda: T.agenda, github: T.github}, parseSpec: T.parseSpec, checks: T.checks, signal: ctrl.signal,
       propose: async ctx => { try { return await T.propose(ctx); } catch (e) { if (e.login) { live.ctx = ctx; return null; } throw e; } }};
     const ctx = await E.runRoom(withMem(room), inputs, deps, {emit});
     live.ctx = ctx; live.running = false; syncBar();
     if (ctx.outcome === 'propuesta' && !ctx.proposal && ctx.pending) emit({type: 'note', text: 'Bot aprobado. Inicia sesión para enviarlo a Nova Bot Lab.'});
     run.outcome = ctx.outcome; run.proposal = ctx.proposal || null; run.title = String(inputs.goal || '').slice(0, 90); run.events.forEach(x => { if (x.text && x.text.length > 1800) x.text = x.text.slice(0, 1800) + '…'; });
     S.runs.unshift(run); save(); if (live.room.id === room.id) paintPanel();
+    const ch = room.chain, okOut = ['informe', 'propuesta', 'rechazado', 'aprobado-sin-enviar'].includes(ctx.outcome), target = ch && ch.to && roomById(ch.to);
+    if (target && okOut && !target.server && (depth || 0) < 3 && live.room.id === room.id) { // cadena: el resultado pasa solo a la siguiente sala
+      const rep = ctx.report || (run.events.filter(x => x.type === 'msg').slice(-1)[0] || {}).text || '';
+      emit({type: 'note', text: `Cadena: paso el resultado a «${target.name}» en 3 segundos…`}); paintPanel();
+      setTimeout(() => { if (live.running) return; location.hash = '#/sala/' + encodeURIComponent(target.id); setTimeout(() => start(target, chainInputs(target, room, rep, ch.goal), {room: room.id, run: run.id}, (depth || 0) + 1), 600); }, 3000); }
     if (document.hidden && 'Notification' in window && Notification.permission === 'granted') try { new Notification('Sala de agentes', {body: ctx.outcome === 'propuesta' ? 'Nuevo bot aprobado para Nova Bot Lab' : 'La sesión de «' + room.name + '» terminó', icon: 'icons/app-192.png'}); } catch {}
   }
 
@@ -415,15 +486,32 @@
       ${list.length ? `<div class="hlist">${list.map(r => { const o = OUT[r.outcome] || [r.outcome || '—', '']; const room = roomById(r.room); return `<a class="hrow glass" href="#/sala/${encodeURIComponent(r.room)}/${r.id}"><div class="stack">${room ? room.flow.slice(0, 5).map(id => av(room.agents.find(a => a.id === id), 26)).join('') : ''}</div><div><b>${esc(r.title || r.roomName)}</b><small>${esc(r.roomName)} · ${when(r.at)}${r.proposal ? ' · «' + esc(r.proposal.name) + '»' : ''}</small></div>${r.auto ? `<span class="pill auto">${ic('motor', 11)}Automático</span>` : ''}<span class="pill ${o[1]}">${esc(o[0])}</span></a>`; }).join('')}</div>` : '<p class="empty glass">Todavía no hay sesiones. Entra a una sala y dale un pedido al equipo.</p>'}</section>`;
   }
 
+  /* ───────── Cadenas de salas y versiones ───────── */
+  function chainInputs(target, from, rep, goal) { // lo último que usaste en esa sala (o sus valores de fábrica) + el resultado de la sala anterior
+    const prev = (allRuns().find(x => x.room === target.id) || {}).inputs || {}, inp = {};
+    for (const f of target.inputs || []) inp[f.id] = prev[f.id] != null && f.id !== 'goal' ? prev[f.id] : Array.isArray(f.def) ? f.def.slice() : f.def;
+    inp.goal = `${goal || (target.auto && target.auto.goal) || 'Continúa con el trabajo de la sala anterior.'}\n\nRESULTADO DE «${from.name}» (sala anterior de la cadena):\n${String(rep).replace(/VEREDICTO:.*$/m, '').trim().slice(0, 2500)}`;
+    return inp;
+  }
+  function chainBox() {
+    const ch = draft.chain || {}, opts = rooms().filter(r => r.id !== draft.id && !r.server);
+    return `<div class="glass box auto-box"><div class="q"><b>${ic('link', 15)} Cadena: ¿a quién le pasa su resultado?</b><small>Cuando esta sala termine, su resultado se le entrega solo a otra sala, que empieza a trabajar con él (también en las sesiones automáticas). Ej.: Noticias → Taller de bots.</small></div>
+      <select data-chain="to"><option value="">Nadie: aquí termina</option>${opts.map(r => `<option value="${esc(r.id)}" ${r.id === ch.to ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select>
+      ${ch.to ? `<div class="q"><b>¿Qué le pides a esa sala?</b><small>Opcional. Si lo dejas vacío, usa su tarea fija o «continúa con el trabajo».</small></div><textarea data-chaing="1" rows="2" maxlength="400" placeholder="Ej.: Con estas noticias, diseña un bot que aproveche el movimiento">${esc(ch.goal || '')}</textarea>` : ''}</div>`;
+  }
+  const sig = r => JSON.stringify([r.name, r.desc, r.ask, r.icon, r.color, r.maxRounds, r.auto, r.chain, (r.agents || []).map(a => [a.name, a.role, a.icon, a.color, a.prompt, a.tool, a.back])]);
+  function keepVersion(r, note) { const V = (S.roomVer = S.roomVer || {}), list = V[r.id] = V[r.id] || [], snap = JSON.parse(JSON.stringify(r)); delete snap._for;
+    if (list[0] && sig(list[0].room) === sig(snap)) return; list.unshift({v: +r.ver || 1, at: Date.now(), note, room: snap}); V[r.id] = list.slice(0, 6); }
+
   /* ───────── Asistente para crear salas y agentes (paso a paso, con explicaciones) ───────── */
-  let draft = null, wz = {step: 1, ag: null, agDraft: null};
+  let draft = null, wz = {step: 1, ag: null, agDraft: null}, verFor = null;
   const STEPS = [['Propósito', 'Para qué es tu sala'], ['Equipo', 'Quiénes trabajan'], ['Revisión', 'Quién revisa a quién'], ['Listo', 'Vista previa y guardar']];
-  const toolInfo = {'': ['Sin herramienta', 'Solo piensa con lo que le dicen sus compañeros.', 'motor'], market: ['Datos del mercado', 'Lee velas reales de las monedas que elijas (tendencia, volatilidad, niveles).', 'chart'], bots: ['Mis bots de Nova Bot Lab', 'Lee tus bots y sus resultados para comparar.', 'bots']};
+  const toolInfo = {'': ['Sin herramienta', 'Solo piensa con lo que le dicen sus compañeros.', 'motor'], market: ['Datos del mercado', 'Lee velas reales de las monedas que elijas (tendencia, volatilidad, niveles).', 'chart'], bots: ['Mis bots de Nova Bot Lab', 'Lee tus bots y sus resultados para comparar.', 'bots'], web: ['Buscar en internet', 'Noticias recientes (Google y Bing) y Wikipedia sobre el tema del pedido.', 'globe'], novahub: ['Mis notas y proyectos', 'Lee tus proyectos, pendientes y notas de Nova Hub (conéctalo en Memoria).', 'note'], agenda: ['Mi agenda y citas', 'Lee tus próximos eventos, citas de tatuaje y recordatorios.', 'cal'], github: ['Mis repos de GitHub', 'Lee tus repos, sus últimos cambios y las tareas automáticas que fallan.', 'gh']};
   const newId = () => 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   function editor(id) {
     if (!draft || draft._for !== id) { const r = id !== 'nueva' && S.rooms.find(x => x.id === id); draft = r ? JSON.parse(JSON.stringify(r)) : null; if (draft) draft._for = id; wz = {step: draft ? 2 : 1, ag: null, agDraft: null, tpl: !!draft}; }
     const own = draft && S.rooms.some(x => x.id === draft.id);
-    const head = `<div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${own ? 'Editar sala' : 'Crear sala'}</h1><small>Te explico cada paso. Puedes cambiar todo después.</small></div></div>
+    const head = `<div class="room-bar"><a class="ib" href="#/" aria-label="Volver">${ic('back')}</a><div><h1>${own ? 'Editar sala' : 'Crear sala'}</h1><small>Te explico cada paso. Puedes cambiar todo después.</small></div><div class="sp"></div>${own ? `<button class="btn sm" data-a="verOpen" data-id="${esc(draft.id)}">${ic('layers', 14)}Versiones (${((S.roomVer || {})[draft.id] || []).length + 1})</button>` : ''}</div>
       <ol class="steps">${STEPS.map((x, i) => `<li class="${wz.step === i + 1 ? 'on' : wz.step > i + 1 ? 'done' : ''}"><button type="button" data-a="wzGo" data-s="${i + 1}" ${draft ? '' : 'disabled'}><i>${wz.step > i + 1 ? ic('check', 13) : i + 1}</i><span><b>${x[0]}</b><small>${x[1]}</small></span></button></li>`).join('')}</ol>`;
     let body = '';
     if (!draft) body = `<div class="tip glass">${ic('motor', 18)}<p><b>Una sala es un equipo de agentes de IA.</b> Cada agente tiene un papel (investigar, criticar, escribir…). Hablan en orden, se pasan el trabajo y el último te entrega el resultado. Empieza con una plantilla o en blanco.</p></div>
@@ -444,10 +532,11 @@
       <div class="glass box auto-box"><div class="row"><div class="q"><b>${ic('motor', 15)} ¿Funciona sola, 24/7?</b><small>Si la enciendes, el equipo trabaja en el servidor cada cierto tiempo aunque no abras la app, con una tarea fija. Sus informes salen en el Historial y te llega un aviso al celular.</small></div><div class="sp"></div><button type="button" class="btn sm ${au.on ? 'pri' : 'ghost'}" data-a="wzAuto">${au.on ? 'Encendida' : 'Apagada'}</button></div>
       ${au.on ? `<div class="q"><b>Tarea fija</b><small>Lo que hará en cada turno. Ej.: «Revisa las noticias de cripto y dime qué cambió» o «Propón 3 ideas de contenido para hoy».</small></div><textarea data-autog="1" rows="3" maxlength="600">${esc(au.goal)}</textarea>
       <div class="q"><b>¿Cada cuánto?</b></div><div class="pills">${[3, 6, 12, 24].map(n => `<button type="button" class="pl ${n === +au.everyHours ? 'on' : ''}" data-a="wzEvery" data-n="${n}">Cada ${n} h</button>`).join('')}</div>` : ''}</div>
+      ${chainBox()}
       <div class="glass box"><b>${esc(draft.name || 'Sin nombre')}</b><small class="dim">${esc(draft.desc || '')}</small>
       <ol class="team">${draft.agents.map(a => `<li>${av(a, 30)}<div><b>${esc(a.name)}</b><small>${esc(a.role)}${a.tool ? ' · ' + toolInfo[a.tool][0] : ''}</small></div></li>`).join('')}</ol></div>`; }
     const nav = draft ? `<div class="row end mt">${own && wz.step === 4 ? `<button class="btn ghost" data-a="roomDel">${ic('trash', 15)}Borrar sala</button>` : ''}${wz.step > 1 ? `<button class="btn ghost" data-a="wzGo" data-s="${wz.step - 1}">${ic('back', 15)}Atrás</button>` : ''}<div class="sp"></div>${wz.step < 4 ? `<button class="btn pri" data-a="wzGo" data-s="${wz.step + 1}">Siguiente</button>` : `<button class="btn pri" data-a="roomSave">${ic('check', 15)}Guardar sala</button>`}</div>` : '';
-    view.innerHTML = `<section class="edit">${head}${body}${nav}${agentSheet()}</section>`;
+    view.innerHTML = `<section class="edit">${head}${body}${nav}${agentSheet()}${verFor ? versionsSheet(verFor) : ''}</section>`;
     if (draft && wz.step === 4) { const r = R.normalizeCustom(draft), sc = SC.Scene($('#wzPrev'), r); demo(sc, r); }
   }
   async function demo(sc, r) { // pequeña demostración: el trabajo recorre la sala
@@ -471,9 +560,11 @@
       </div><div class="row end sheet-f"><button class="btn ghost" data-a="agCancel">Cancelar</button><div class="sp"></div><button class="btn pri" data-a="agOk">${ic('check', 15)}${i < 0 ? 'Agregar agente' : 'Listo'}</button></div></div>`;
   }
   const rerender = () => { const sc = scrollY, sb = $('.sheet-b'), st = sb ? sb.scrollTop : 0; editor(draft ? draft._for : 'nueva'); scrollTo(0, sc); const nb = $('.sheet-b'); if (nb) nb.scrollTop = st; };
+  view.addEventListener('change', e => { if (e.target.dataset.chain === 'to' && draft) { draft.chain = e.target.value ? Object.assign({}, draft.chain || {}, {to: e.target.value}) : null; rerender(); } });
   view.addEventListener('input', e => {
     if (e.target.type === 'range' && e.target.name) { const o = $(`.rv[data-for="${e.target.name}"]`); if (o) o.textContent = e.target.value + (e.target.dataset.unit || ''); }
     if (!draft || !$('.edit')) return; const k = e.target.dataset.k, g = e.target.dataset.ag;
+    if (e.target.dataset.chaing) draft.chain = Object.assign({}, draft.chain || {}, {goal: e.target.value.slice(0, 400)});
     if (e.target.dataset.autog) draft.auto = Object.assign({on: true, everyHours: 12}, draft.auto || {}, {goal: e.target.value});
     if (k) draft[k] = e.target.value; if (g && wz.agDraft) { wz.agDraft[g] = e.target.value; if (g === 'name' || g === 'role') { const h = $('.sheet-h b'), r = $('.sheet-h small'); if (g === 'name' && h) h.textContent = e.target.value || 'Nuevo agente'; if (g === 'role' && r) r.textContent = e.target.value; } }
   });
@@ -497,6 +588,12 @@
     const b = e.target.closest('[data-a]'); if (!b) return; const a = b.dataset.a;
     if (a === 'login') { e.preventDefault(); try { await C.signIn(); } catch (er) { toast('No se pudo iniciar sesión'); } }
     else if (a === 'rmCoin') b.remove();
+    else if (a === 'connOn' || a === 'connRefresh') { b.disabled = true; try { await (a === 'connOn' ? window.SalaConn.connect() : window.SalaConn.refresh(true)); toast('Nova Hub listo: tus agentes ya pueden leerlo'); } catch (er) { toast('No se pudo conectar Nova Hub: ' + (er.code || er.message)); } route(); }
+    else if (a === 'connOff') { if (!confirm('¿Desconectar Nova Hub? Tus agentes dejarán de ver tus notas, proyectos y agenda.')) return; await window.SalaConn.disconnect(); route(); }
+    else if (a === 'verOpen') { verFor = b.dataset.id; rerender(); }
+    else if (a === 'verClose') { verFor = null; rerender(); }
+    else if (a === 'verUse') { const r = S.rooms.find(x => x.id === verFor), v = ((S.roomVer || {})[verFor] || [])[+b.dataset.i]; if (!r || !v || !confirm(`¿Volver a la versión v${v.v}? La actual se guarda primero.`)) return;
+      keepVersion(r, 'Antes de volver a v' + v.v); const back = Object.assign(JSON.parse(JSON.stringify(v.room)), {id: r.id, ver: (+r.ver || 1) + 1, updatedAt: Date.now(), createdAt: r.createdAt}); S.rooms[S.rooms.findIndex(x => x.id === r.id)] = back; save(); verFor = null; draft = null; toast('Listo: la sala volvió a la versión v' + v.v + ' (ahora es v' + back.ver + ')'); editor(r.id); }
     else if (a === 'goSala') { e.preventDefault(); location.hash = '#/sala/' + encodeURIComponent(b.dataset.id); }
     else if (a === 'memSave') { const t = $('#memNotes'); const m = memOf(b.dataset.id); S.roomMem[b.dataset.id] = Object.assign({}, m, {notes: t.value.slice(0, 1500), updatedAt: Date.now()}); save(); toast('Guardado: los agentes lo leerán en cada sesión'); }
     else if (a === 'revPrompt') openRevPrompt(b.dataset.id);
@@ -527,22 +624,23 @@
       if (a === 'agUp') [A[i - 1], A[i]] = [A[i], A[i - 1]]; if (a === 'agDown') [A[i + 1], A[i]] = [A[i], A[i + 1]]; if (a === 'agDel') { const id = A[i].id; A.splice(i, 1); A.forEach(x => { if (x.back === id) x.back = ''; }); }
       A.forEach((x, j) => { if (x.back && A.findIndex(y => y.id === x.back) >= j) x.back = ''; }); rerender(); }
     else if (a === 'roomSave') { const d = draft; if (!String(d.name).trim()) return toast('Ponle nombre a la sala'); if (d.auto && d.auto.on && !String(d.auto.goal || '').trim()) return toast('Escribe la tarea fija para que funcione sola'); if (d.agents.some(x => !String(x.prompt).trim())) return toast('Escribe las instrucciones de cada agente');
-      const clean = Object.assign({}, d, {updatedAt: Date.now()}); delete clean._for; const i = S.rooms.findIndex(x => x.id === d.id); if (i >= 0) S.rooms[i] = clean; else S.rooms.push(Object.assign(clean, {createdAt: Date.now()})); save(); draft = null; toast('Sala guardada' + (C.user() ? ' en tu cuenta' : ' en este dispositivo')); location.hash = '#/sala/' + clean.id; }
+      const clean = Object.assign({}, d, {updatedAt: Date.now()}); delete clean._for; const i = S.rooms.findIndex(x => x.id === d.id); if (i >= 0) { const old = S.rooms[i]; if (sig(old) !== sig(clean)) { keepVersion(old, 'Antes de editar'); clean.ver = (+old.ver || 1) + 1; } else clean.ver = +old.ver || 1; S.rooms[i] = clean; } else S.rooms.push(Object.assign(clean, {createdAt: Date.now(), ver: 1})); save(); draft = null; toast('Sala guardada' + (C.user() ? ' en tu cuenta' : ' en este dispositivo')); location.hash = '#/sala/' + clean.id; }
     else if (a === 'roomDel') { if (!confirm('¿Borrar esta sala?')) return; S.deleted[draft.id] = Date.now(); S.rooms = S.rooms.filter(x => x.id !== draft.id); save(); draft = null; location.hash = '#/'; }
   });
 
   /* ───────── Rutas ───────── */
   function paintNav() { // con una sala abierta, Revisión y Memoria llevan a lo de esa sala
-    const q = curRoom ? '/' + encodeURIComponent(curRoom) : '', r = $('[data-nav="rev"]'), m = $('[data-nav="mem"]'), rm = curRoom && roomById(curRoom);
+    const q = curRoom ? '/' + encodeURIComponent(curRoom) : '', r = $('[data-nav="rev"]'), m = $('[data-nav="mem"]'), u = $('[data-nav="use"]'), rm = curRoom && roomById(curRoom); if (u) u.href = '#/consumo' + q;
     if (r) { r.href = '#/revision' + q; r.title = rm ? 'Revisión de ' + rm.name : 'Revisión de todo'; } if (m) { m.href = '#/memoria' + q; m.title = rm ? 'Memoria de ' + rm.name : 'Memoria de todas tus salas'; }
     document.body.classList.toggle('in-room', !!rm); const lab = $('#navScope'); if (lab) lab.innerHTML = rm ? `${av(rm, 18)}<span>${esc(rm.name)}</span>` : '';
   }
   function route() {
     const h = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
     if (h[0] !== 'revision') revSheet = null; // el prompt abierto no te sigue a otras pantallas
-    $$('[data-nav]').forEach(a => a.classList.toggle('on', (h[0] || '') === '' ? a.dataset.nav === 'home' : (h[0] === 'historial' && a.dataset.nav === 'history') || (h[0] === 'memoria' && a.dataset.nav === 'mem') || (h[0] === 'revision' && a.dataset.nav === 'rev')));
+    $$('[data-nav]').forEach(a => a.classList.toggle('on', (h[0] || '') === '' ? a.dataset.nav === 'home' : (h[0] === 'historial' && a.dataset.nav === 'history') || (h[0] === 'memoria' && a.dataset.nav === 'mem') || (h[0] === 'revision' && a.dataset.nav === 'rev') || (h[0] === 'consumo' && a.dataset.nav === 'use')));
     if (h[0] === 'sala' && h[1]) { if (!$('.room') || !live || live.room.id !== h[1] || (h[2] || null) !== (live.replay ? live.replay.id : null)) roomView(h[1], h[2]); else paintPanel(); }
     else if (h[0] === 'historial') history();
+    else if (h[0] === 'consumo') { if (h[1]) curRoom = h[1]; paintNav(); consumo(h[1] || null); pullServer(); }
     else if (h[0] === 'revision') { if (h[1]) curRoom = h[1]; paintNav(); revision(h[1] || null); pullServer(); }
     else if (h[0] === 'memoria') { if (h[1]) curRoom = h[1]; paintNav(); if (h[1]) roomMemory(h[1]); else memHome(); }
     else if (h[0] === 'editor') { if (h[1] === 'nueva' && draft && draft._for === 'nueva' && !$('.edit')) { draft = null; } editor(h[1] || 'nueva'); }

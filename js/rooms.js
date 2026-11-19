@@ -111,7 +111,7 @@ NO pongas símbolo, monedas ni temporalidad: los fija la sala.`;
   const BUILTIN = [BOTS, MESA];
   const ICONS = ['robot', 'astronauta', 'alien', 'cohete', 'planeta', 'estrella', 'ovni', 'luna', 'cometa', 'pulpo', 'satelite', 'vortice'];
   const COLORS = ['#7c5cff', '#548fff', '#22d3ee', '#20bf9f', '#f0b90b', '#fb923c', '#f06b79', '#f472b6', '#a3e635', '#94a3b8'];
-  const TOOLS = {'': 'Ninguna', market: 'Datos del mercado', bots: 'Mis bots de Nova Bot Lab'};
+  const TOOLS = {'': 'Ninguna', market: 'Datos del mercado', bots: 'Mis bots de Nova Bot Lab', web: 'Buscar en internet', novahub: 'Mis notas y proyectos', agenda: 'Mi agenda y citas', github: 'Mis repos de GitHub'};
 
   /* Sala propia → misma forma que las incluidas (sin JSON de bots: entrega un informe) */
   function normalizeCustom(r) {
@@ -126,6 +126,7 @@ NO pongas símbolo, monedas ni temporalidad: los fija la sala.`;
       inputs: [{id: 'goal', label: r.ask || 'Tema o pregunta para la sala', type: 'textarea', placeholder: '', def: ''}].concat(agents.some(a => a.tool === 'market') ? [
         {id: 'coins', label: 'Monedas', type: 'coins', def: ['BTCUSDT', 'ETHUSDT']}, {id: 'interval', label: 'Temporalidad', type: 'pills', options: [['15m', '15 min'], ['1h', '1 hora'], ['4h', '4 horas'], ['1d', '1 día']], def: '4h'}] : []),
       agents, flow: ids, auto: r.auto && typeof r.auto === 'object' ? {on: !!r.auto.on, goal: String(r.auto.goal || '').slice(0, 600), everyHours: [3, 6, 12, 24].includes(+r.auto.everyHours) ? +r.auto.everyHours : 12} : {on: false, goal: '', everyHours: 12},
+      chain: r.chain && r.chain.to ? {to: String(r.chain.to), goal: String(r.chain.goal || '').slice(0, 400)} : null, ver: +r.ver || 1,
       createdAt: r.createdAt || Date.now(), updatedAt: r.updatedAt || Date.now()};
   }
 

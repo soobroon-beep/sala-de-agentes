@@ -29,7 +29,11 @@
     }
     throw last || new Error('sin respuesta');
   }
-  async function ask(messages, json) {
+  function use(messages, out, err) { try { const k = new Date().toISOString().slice(0, 10), o = JSON.parse(localStorage.getItem('sala_arqui_use') || '{}'), d = o[k] = o[k] || {calls: 0, tok: 0, err: 0};
+    if (err) d.err++; else { d.calls++; d.tok += Math.round((messages.reduce((n, m) => n + String(m.content).length, 0) + String(out).length) / 4); }
+    for (const x of Object.keys(o).sort().slice(0, -30)) delete o[x]; localStorage.setItem('sala_arqui_use', JSON.stringify(o)); } catch {} } // para el panel de Consumo
+  async function ask(messages, json) { try { const r = await ask0(messages, json); use(messages, r); return r; } catch (e) { use(messages, '', true); throw e; } }
+  async function ask0(messages, json) {
     if (st.own && window.SalaAI) { try { const r = await window.SalaAI.chat(messages, {purpose: json ? 'spec' : 'text'}); if (r.text) return r.text; } catch {} }
     return free(messages, json);
   }
@@ -42,7 +46,7 @@ Tu trabajo: convertir lo que pide el usuario en el diseño completo de la sala. 
  "agents":[{"name":"un nombre de estrella o constelación (único)","role":"papel corto (máx 30 letras)","icon":"ICONO","color":"COLOR","tool":"","reviews":"","prompt":"qué hace, 1 frase"}],
  "auto":{"on":false,"goal":"","everyHours":12}}
 ICONO: uno de ${R.ICONS.join(', ')}. COLOR: uno de ${R.COLORS.join(', ')}.
-tool: "" (solo piensa), "market" (lee velas reales de cripto; solo si la sala trata de mercado o trading) o "bots" (lee sus bots de Nova Bot Lab).
+tool (herramienta real que usa ANTES de hablar): "" (solo piensa), "market" (velas reales de cripto), "bots" (sus bots de Nova Bot Lab), "web" (noticias recientes y Wikipedia sobre el tema), "novahub" (sus proyectos, pendientes y notas), "agenda" (sus próximas citas y eventos), "github" (sus repos y tareas que fallan). Dale herramienta solo al agente que la necesita.
 reviews: nombre de UN agente ANTERIOR cuyo trabajo puede regresar para que lo mejore, o "" si no revisa. El último agente SIEMPRE revisa (normalmente al primero o al que hace el trabajo principal).
 auto: si pide que funcione sola o con una frecuencia (diario, cada mañana, cada X horas) → {"on":true,"goal":"la tarea fija que hará cada vez","everyHours":3|6|12|24}.
 Diseña papeles complementarios (alguien investiga o crea, alguien critica, alguien entrega). Todo en español.`;
@@ -53,7 +57,7 @@ Diseña papeles complementarios (alguien investiga o crea, alguien critica, algu
     const pick = (v, list, i) => list.includes(v) ? v : list[i % list.length], used = new Set();
     const agents = (Array.isArray(o.agents) ? o.agents : []).filter(a => a && a.name).slice(0, 8).map((a, i) => {
       let name = String(a.name).trim().slice(0, 24); if (used.has(name.toLowerCase())) name = (R.NAMES.find(n => !used.has(n.toLowerCase())) || name + ' ' + (i + 1)); used.add(name.toLowerCase());
-      return {id: 'a' + Date.now().toString(36) + i, name, role: String(a.role || 'Agente').slice(0, 40), icon: pick(a.icon, R.ICONS, i * 5), color: pick(a.color, R.COLORS, i * 3), prompt: String(a.prompt || '').slice(0, 3000), tool: ['market', 'bots'].includes(a.tool) ? a.tool : '', _rev: String(a.reviews || '').trim().toLowerCase()};
+      return {id: 'a' + Date.now().toString(36) + i, name, role: String(a.role || 'Agente').slice(0, 40), icon: pick(a.icon, R.ICONS, i * 5), color: pick(a.color, R.COLORS, i * 3), prompt: String(a.prompt || '').slice(0, 3000), tool: ['market', 'bots', 'web', 'novahub', 'agenda', 'github'].includes(a.tool) ? a.tool : '', _rev: String(a.reviews || '').trim().toLowerCase()};
     });
     if (agents.length < 2) return null;
     agents.forEach((a, i) => { const j = agents.findIndex(b => b.name.toLowerCase() === a._rev); a.back = j >= 0 && j < i ? agents[j].id : ''; });
@@ -91,7 +95,7 @@ Diseña papeles complementarios (alguien investiga o crea, alguien critica, algu
     const team = d.agents.map(a => `${a.name} (${a.role})`).join(', ');
     for (let i = 0; i < d.agents.length; i++) {
       const a = d.agents[i], n = say('arqui', `${avatar(a)}<span>Creando a <b>${esc(a.name)}</b> · ${esc(a.role)}…</span>`, true, 'mk');
-      if (used === 'ia') { try { const p = (await ask([{role: 'system', content: AGENT_SYS}, {role: 'user', content: `Sala «${d.name}»: ${d.desc}\nPedido del usuario: ${text}\nEquipo en orden: ${team}.\nAgente ${i + 1} de ${d.agents.length}: ${a.name}, papel «${a.role}»${a.tool === 'market' ? ', lee velas reales de cripto' : a.tool === 'bots' ? ', lee los bots de Nova Bot Lab' : ''}${a.back ? ', puede regresar el trabajo a ' + (d.agents.find(b => b.id === a.back) || {}).name : ''}${i === d.agents.length - 1 ? ', es el jefe: revisa todo y entrega el resultado final' : ', le pasa su trabajo a ' + d.agents[i + 1].name}.\nIdea inicial: ${a.prompt}`}], false)).replace(/^["«]|["»]$/g, '').trim(); const own = p.split(/\n\s*\n/).filter(x => !d.agents.some(b => b !== a && x.trim().startsWith(b.name))).join('\n\n').trim(); if (own.length > 40) a.prompt = own.slice(0, 3000); } catch {} }
+      if (used === 'ia') { try { const p = (await ask([{role: 'system', content: AGENT_SYS}, {role: 'user', content: `Sala «${d.name}»: ${d.desc}\nPedido del usuario: ${text}\nEquipo en orden: ${team}.\nAgente ${i + 1} de ${d.agents.length}: ${a.name}, papel «${a.role}»${a.tool ? ', antes de hablar recibe datos reales de su herramienta «' + (R.TOOLS[a.tool] || a.tool) + '»' : ''}${a.back ? ', puede regresar el trabajo a ' + (d.agents.find(b => b.id === a.back) || {}).name : ''}${i === d.agents.length - 1 ? ', es el jefe: revisa todo y entrega el resultado final' : ', le pasa su trabajo a ' + d.agents[i + 1].name}.\nIdea inicial: ${a.prompt}`}], false)).replace(/^["«]|["»]$/g, '').trim(); const own = p.split(/\n\s*\n/).filter(x => !d.agents.some(b => b !== a && x.trim().startsWith(b.name))).join('\n\n').trim(); if (own.length > 40) a.prompt = own.slice(0, 3000); } catch {} }
       if (a.prompt.length < 120) a.prompt = `Eres ${a.name}, ${a.role.toLowerCase()} de la sala «${d.name}» (${d.desc || text.slice(0, 120)}). ${a.prompt ? a.prompt.replace(/\.?$/, '.') : ''} ${i === d.agents.length - 1 ? 'Eres el último: revisa todo lo que hizo el equipo y entrégale al usuario el resultado final, claro y listo para usar.' : `Entrega tu parte en puntos claros y concretos y pásasela a ${d.agents[i + 1].name}.`}`.replace(/\s+/g, ' ').trim(); // si la IA no la escribió, una instrucción completa igual
       update(n, `${avatar(a)}<span><b>${esc(a.name)}</b> · ${esc(a.role)} ${chk()}</span>`);
     }

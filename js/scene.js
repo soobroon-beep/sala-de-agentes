@@ -6,7 +6,7 @@
   'use strict';
   const RM = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
-  const NS = 'http://www.w3.org/2000/svg', TOOL_TXT = {market: 'Leyendo el mercado', backtest: 'Corriendo backtest', bots: 'Revisando tus bots'};
+  const NS = 'http://www.w3.org/2000/svg', TOOL_TXT = {market: 'Leyendo el mercado', backtest: 'Corriendo backtest', bots: 'Revisando tus bots', web: 'Buscando en internet', novahub: 'Leyendo Nova Hub', agenda: 'Leyendo tu agenda', github: 'Revisando GitHub'};
 
   /* ───────── Cielo de fondo (estrellas lentas) ───────── */
   function sky(cv) {

@@ -266,7 +266,7 @@ async function main() {
   tools.retest = async () => { L.log('Quasar vuelve a probar cada falla'); rt = await retest(browser, results); const t = retestText(rt, names); return {text: t, summary: 'Fallas repetidas una por una', data: {confirmed: Object.values(rt).reduce((n, r) => n + r.confirmedDead.length + r.errorsAgain.length + (r.down ? 1 : 0), 0)}}; };
 
   const run = {id: 'v' + Date.now().toString(36), room: room.id, roomName: room.name, at: Date.now(), inputs: {goal: 'Revisión automática de todas tus apps'}, events: [], outcome: null, auto: true, title: 'Revisión automática'};
-  const deps = {ai: (m, o) => L.ai(m, o), tools, parseSpec: () => ({errors: []}), checks: {}};
+  const deps = {ai: E.meter((m, o) => L.ai(m, o), run), tools, parseSpec: () => ({errors: []}), checks: {}};
   const emit = e => { run.events.push(L.keepEvent(e)); if (e.type === 'msg') L.log(`  ${e.fromName} → ${e.to}`); if (e.type === 'error') L.log('  error: ' + e.text); };
   const SS = await L.salaState().catch(() => ({})), mem = (SS.roomMem || {})[room.id], roomM = mem && mem.notes ? Object.assign({}, room, {memory: mem.notes}) : room;
   let ctx; try { ctx = await E.runRoom(roomM, run.inputs, deps, {emit}); } catch (e) { L.log('La sesión falló: ' + e.message); ctx = {outcome: 'error', msgs: []}; }

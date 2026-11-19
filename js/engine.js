@@ -127,7 +127,14 @@ NO inventes datos: usa solo los de las herramientas y los mensajes. Si un dato n
     return ctx;
   }
 
-  const api = {runRoom, parseVerdict, stripVerdict, extractJson, withoutJson, briefOf, MAX_CALLS};
+  /* Consumo: envuelve la IA y anota en la sesión cuántas consultas, cuántos tokens (aprox.: 4 letras ≈ 1 token), cuánto tardó y con qué modelo */
+  function meter(fn, run) {
+    const u = run.usage = run.usage || {calls: 0, tokIn: 0, tokOut: 0, ms: 0, errors: 0, models: {}};
+    return async (messages, o) => { const t0 = Date.now(), inC = (messages || []).reduce((n, m) => n + String(m.content || '').length, 0);
+      try { const r = await fn(messages, o); u.calls++; u.tokIn += Math.round(inC / 4); u.tokOut += Math.round(String(r && r.text || '').length / 4); u.ms += Date.now() - t0; const md = String(r && r.model || 'IA').slice(0, 40); u.models[md] = (u.models[md] || 0) + 1; return r; }
+      catch (e) { u.errors++; u.ms += Date.now() - t0; throw e; } };
+  }
+  const api = {runRoom, meter, parseVerdict, stripVerdict, extractJson, withoutJson, briefOf, MAX_CALLS};
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SalaEngine = api;
 })(typeof self !== 'undefined' ? self : this);

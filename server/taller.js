@@ -14,14 +14,27 @@ const MAX_PENDING = 3, KEEP_RUNS = 30, KEEP_TRIED = 80;
 async function runSession(room, inputs, extra) {
   const mem = (globalThis.__salaMem || {})[room.id]; if (mem && mem.notes) room = Object.assign({}, room, {memory: mem.notes}); // memoria de la sala (la escribes en la app)
   const E = globalThis.SalaEngine, T = globalThis.SalaTools;
-  const run = {id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), room: room.id, roomName: room.name, at: Date.now(), inputs, events: [], outcome: null, auto: true, title: extra.title || ''};
+  const run = {id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), room: room.id, roomName: room.name, at: Date.now(), inputs, events: [], outcome: null, auto: true, title: extra.title || '', ver: room.ver || 1};
   const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 18 * 6e4);
-  const deps = {ai: (m, o) => L.ai(m, Object.assign({}, o, {signal: ctrl.signal})), tools: {market: T.market, backtest: T.backtest, bots: T.bots}, parseSpec: T.parseSpec, checks: T.checks, signal: ctrl.signal,
+  const deps = {ai: E.meter((m, o) => L.ai(m, Object.assign({}, o, {signal: ctrl.signal})), run), tools: {market: T.market, backtest: T.backtest, bots: T.bots, web: T.web, novahub: T.novahub, agenda: T.agenda, github: T.github}, parseSpec: T.parseSpec, checks: T.checks, signal: ctrl.signal,
     propose: async ctx => { const p = T.buildProposal(ctx); p.auto = true; p.room = room.name + ' · automático'; await T.sendProposal(p); return p; }};
   const emit = e => { run.events.push(L.keepEvent(e)); if (e.type === 'msg') L.log(`  ${e.fromName} → ${e.to}${e.verdict ? ' [' + e.verdict + ']' : ''}`); if (e.type === 'tool' && e.state !== 'run') L.log(`  herramienta ${e.tool}: ${e.state} ${L.clip(e.text, 90)}`); if (e.type === 'note') L.log('  nota: ' + L.clip(e.text, 140)); };
   let ctx; try { ctx = await E.runRoom(room, inputs, deps, {emit}); } finally { clearTimeout(timer); }
   run.outcome = ctx.outcome; run.proposal = ctx.proposal || null; run.ms = Date.now() - run.at;
   return {run, ctx};
+}
+
+/* Cadena de salas: el resultado pasa solo a la sala que elegiste (máx. 3 saltos) */
+const OK_OUT = ['informe', 'propuesta', 'rechazado', 'aprobado-sin-enviar'];
+async function chainNext(S, R, from, run, push, depth = 0) {
+  if (!from.chain || !from.chain.to || depth >= 3 || !OK_OUT.includes(run.outcome)) return;
+  const raw = (S.rooms || []).find(x => x.id === from.chain.to && !(S.deleted && S.deleted[x.id])), target = raw ? R.normalizeCustom(raw) : R.BUILTIN.find(x => x.id === from.chain.to);
+  if (!target) return; const rep = ((run.events || []).filter(e => e.type === 'msg').slice(-1)[0] || {}).text || '';
+  const inputs = {}; for (const f of target.inputs || []) inputs[f.id] = Array.isArray(f.def) ? f.def.slice() : f.def;
+  inputs.goal = `${from.chain.goal || (target.auto && target.auto.goal) || 'Continúa con el trabajo de la sala anterior.'}\n\nRESULTADO DE «${from.name}» (sala anterior de la cadena):\n${String(rep).replace(/VEREDICTO:.*$/m, '').trim().slice(0, 2500)}`;
+  L.log(`  cadena: «${from.name}» → «${target.name}»`);
+  try { const r = await runSession(target, inputs, {title: `Cadena · ${from.name} → ${target.name}`}); r.run.chainOf = {room: from.id, run: run.id}; await push(r.run); await chainNext(S, R, target, r.run, push, depth + 1); }
+  catch (e) { L.log('  la cadena falló: ' + L.clip(e.message, 160)); }
 }
 
 /* Por qué no pasó (para que la siguiente sesión no tropiece igual) */
@@ -42,6 +55,7 @@ async function main() {
   const st = (await L.getDoc('sala_auto')) || {}, runs = Array.isArray(st.runs) ? st.runs : [], tried = Array.isArray(st.tried) ? st.tried : [], last = st.rooms || {};
   const status = {at: Date.now(), taller: '', rooms: [], next: Date.now() + 3 * 36e5};
   const R = globalThis.SalaRooms, taller = R.BUILTIN.find(r => r.id === 'taller-bots');
+  const chain = (room, run) => chainNext(S, globalThis.SalaRooms, room, run, async r => { runs.unshift(r); await save(); });
   const save = async () => { await L.setDoc('sala_auto', {runs: L.fit(runs.slice(0, KEEP_RUNS)), tried: tried.slice(0, KEEP_TRIED), rooms: last, status, at: Date.now()}); };
 
   /* 1) Taller de bots */
@@ -74,7 +88,7 @@ async function main() {
     const room = R.normalizeCustom(raw); if (!P.dueRoom(room, last[room.id], Date.now())) continue;
     L.log(`Sala propia «${room.name}» (cada ${room.auto.everyHours} h)`);
     const inputs = {goal: room.auto.goal}; for (const f of room.inputs) if (inputs[f.id] == null) inputs[f.id] = Array.isArray(f.def) ? f.def.slice() : f.def;
-    try { const {run} = await runSession(room, inputs, {title: 'Automático · ' + L.clip(room.auto.goal, 70)}); runs.unshift(run); last[room.id] = run.at; status.rooms.push(`${room.name}: ${run.outcome}`);
+    try { const {run} = await runSession(room, inputs, {title: 'Automático · ' + L.clip(room.auto.goal, 70)}); runs.unshift(run); last[room.id] = run.at; status.rooms.push(`${room.name}: ${run.outcome}`); await chain(room, run);
       if (run.outcome === 'informe') { const rep = (run.events.filter(e => e.type === 'msg').slice(-1)[0] || {}).text || ''; await L.push([{title: `Sala de agentes · ${room.name}`, body: L.clip(rep.replace(/\s+/g, ' '), 260) || 'Informe nuevo en tu historial.', tag: 'sala-room-' + room.id}]); } }
     catch (e) { last[room.id] = Date.now(); status.rooms.push(`${room.name}: error`); L.log('  error: ' + L.clip(e.message, 200)); }
     await save();

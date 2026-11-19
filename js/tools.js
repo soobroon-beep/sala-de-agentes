@@ -134,5 +134,59 @@ ${r.perSymbol ? 'Por moneda: ' + r.perSymbol.map(p => `${base(p.symbol)} ${p.n} 
     await sendProposal(p); ctx.pending = null; return p;
   }
 
-  window.SalaTools = {candles, market, backtest, bots, parseSpec, checks, propose, sendProposal, buildProposal};
+
+  /* ───────── Herramientas reales nuevas: internet, Nova Hub (notas, proyectos y agenda) y GitHub ───────── */
+  const SERVER = typeof document === 'undefined'; // en el servidor (GitHub Actions) no hay CORS: se lee directo
+  const STOP = new Set('a al algo como con cual de del el ella en es esa ese esta este hay la las le lo los mas me mi mis muy no o para pero por que se si sin sobre su sus te tu tus un una y ya quiero dame dime haz hazme necesito sala equipo hoy favor'.split(' '));
+  const queryOf = ctx => { const g = String(ctx.inputs.goal || '').split(/\n|RESULTADO DE/)[0]; const w = g.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ\s-]/g, ' ').split(/\s+/).filter(x => x.length > 2 && !STOP.has(x)); return w.slice(0, 7).join(' ') || 'noticias'; };
+  const clipT = (s, n) => { s = String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+  const ago2 = t => { const h = (Date.now() - t) / 36e5; return !t ? '' : h < 1 ? 'hace minutos' : h < 48 ? `hace ${Math.round(h)} h` : `hace ${Math.round(h / 24)} d`; };
+  async function getJ(u, ms = 12000) { const r = await fetch(u, {signal: AbortSignal.timeout(ms)}); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
+  async function getT(u, ms = 12000) { const r = await fetch(u, {signal: AbortSignal.timeout(ms), headers: SERVER ? {'user-agent': 'Mozilla/5.0 (sala-de-agentes)'} : {}}); if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); }
+  const rssItems = x => [...String(x).matchAll(/<item>([\s\S]*?)<\/item>/g)].map(m => { const g = k => { const r = new RegExp(`<${k}[^>]*>([\\s\\S]*?)<\\/${k}>`).exec(m[1]); return r ? r[1].replace(/<!\[CDATA\[|\]\]>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim() : ''; }; return {title: g('title'), link: g('link'), date: Date.parse(g('pubDate')) || 0, source: g('source')}; });
+  async function news(q) {
+    const gn = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=es-419&gl=MX&ceid=MX:es-419`, bn = `https://www.bing.com/news/search?q=${encodeURIComponent(q)}&format=rss&setlang=es`;
+    const tries = SERVER ? [() => getT(gn).then(rssItems), () => getT(bn).then(rssItems)]
+      : [() => getJ('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(bn)).then(j => (j.items || []).map(i => ({title: i.title, link: i.link, date: Date.parse(String(i.pubDate).replace(' ', 'T') + 'Z') || 0, source: i.author || ''}))),
+         () => getT('https://api.allorigins.win/raw?url=' + encodeURIComponent(gn)).then(rssItems)];
+    for (const f of tries) { try { const it = (await f()).filter(i => i.title); if (it.length) return it.sort((a, b) => b.date - a.date).slice(0, 8); } catch {} }
+    return [];
+  }
+  async function wiki(q) {
+    try { const j = await getJ(`https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*&srlimit=2`); const out = [];
+      for (const s of (j.query && j.query.search) || []) { try { const p = await getJ('https://es.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(s.title.replace(/ /g, '_'))); if (p.extract) out.push({title: s.title, text: clipT(p.extract, 420)}); } catch {} }
+      return out; } catch { return []; }
+  }
+  async function web(ctx) {
+    const q = queryOf(ctx), [nw, wk] = await Promise.all([news(q), wiki(q)]);
+    if (!nw.length && !wk.length) throw new Error('Internet no respondió para «' + q + '»');
+    const text = `Búsqueda en internet: «${q}».\n` + (nw.length ? 'Noticias recientes:\n' + nw.map(i => `- ${clipT(i.title, 160)}${i.source ? ' (' + clipT(i.source, 40) + ')' : ''}${i.date ? ' · ' + ago2(i.date) : ''}`).join('\n') : 'Sin noticias recientes.') + (wk.length ? '\nWikipedia:\n' + wk.map(w => `- ${w.title}: ${w.text}`).join('\n') : '');
+    return {text, summary: `${nw.length} noticias · ${wk.length} de Wikipedia · «${q}»`, data: {q, news: nw.slice(0, 5).map(i => ({title: clipT(i.title, 120), link: i.link}))}};
+  }
+  /* Nova Hub: se lee la copia que la app guarda en tu cuenta (sala_ctx) al conectarla; así también funciona en el servidor */
+  async function hubSnap() { const c = C(); if (!c || !c.user()) throw new Error('Inicia sesión para leer Nova Hub'); const d = await c.get('sala_ctx'); if (!d || !d.novahub) throw new Error('Nova Hub no está conectado: conéctalo en Memoria › Conexiones'); return d.novahub; }
+  async function novahub(ctx) {
+    const h = await hubSnap(), P = h.projects || [], N = h.notes || [];
+    const text = `Nova Hub de Payi (copia de ${ago2(h.at) || 'hace poco'}).\nPROYECTOS (${P.length}):\n` + P.slice(0, 20).map(p => `- ${p.name}${p.status ? ' [' + p.status + ']' : ''}${p.desc ? ': ' + clipT(p.desc, 120) : ''}${p.pending ? ` · pendientes: ${p.pendingList.slice(0, 5).join('; ')}${p.pending > 5 ? ' …' : ''}` : ' · sin pendientes'}`).join('\n') +
+      `\nNOTAS RECIENTES (${N.length}):\n` + N.slice(0, 25).map(n => `- ${n.title}${n.body ? ': ' + clipT(n.body, 150) : ''}${n.tags && n.tags.length ? ' #' + n.tags.join(' #') : ''}`).join('\n');
+    return {text, summary: `${P.length} proyectos · ${N.length} notas`, data: {projects: P.length, notes: N.length}};
+  }
+  async function agenda(ctx) {
+    const h = await hubSnap(), E = (h.events || []).slice(0, 40), Rm = (h.reminders || []).slice(0, 20);
+    const text = `Agenda de Payi (Google Calendar y Nova Hub; copia de ${ago2(h.at) || 'hace poco'}). Hoy es ${new Date().toLocaleDateString('es-MX', {weekday: 'long', day: 'numeric', month: 'long'})}.\nEVENTOS Y CITAS PRÓXIMOS:\n` + (E.length ? E.map(e => `- ${e.date}${e.start ? ' ' + e.start : ''}${e.end ? '-' + e.end : ''}: ${e.title}${e.cal ? ' (' + e.cal + ')' : ''}`).join('\n') : 'Nada en los próximos días.') +
+      (Rm.length ? '\nRECORDATORIOS:\n' + Rm.map(r => `- ${r.when}: ${r.title}`).join('\n') : '');
+    return {text, summary: `${E.length} eventos · ${Rm.length} recordatorios`, data: {events: E.length}};
+  }
+  async function github(ctx) {
+    const H = SERVER && typeof process !== 'undefined' && process.env.GITHUB_TOKEN ? {authorization: 'Bearer ' + process.env.GITHUB_TOKEN} : {};
+    const gj = async u => { const r = await fetch('https://api.github.com/' + u, {headers: Object.assign({accept: 'application/vnd.github+json'}, H), signal: AbortSignal.timeout(12000)}); if (!r.ok) throw new Error('GitHub ' + r.status); return r.json(); };
+    const repos = (await gj('users/soobroon-beep/repos?sort=pushed&per_page=12')).filter(r => !r.fork);
+    const rows = await Promise.all(repos.slice(0, 8).map(async r => { let runs = []; try { runs = ((await gj(`repos/${r.full_name}/actions/runs?per_page=12`)).workflow_runs || []); } catch {}
+      const last = {}; for (const x of runs) if (x.status === 'completed' && !last[x.name]) last[x.name] = x.conclusion; const bad = Object.entries(last).filter(([, c]) => c === 'failure').map(([n]) => n);
+      return {name: r.name, desc: r.description || '', pushed: Date.parse(r.pushed_at), issues: r.open_issues_count, bad}; }));
+    const text = 'Repos de GitHub de Payi (públicos, del más reciente):\n' + rows.map(r => `- ${r.name}${r.desc ? ': ' + clipT(r.desc, 90) : ''} · último cambio ${ago2(r.pushed)}${r.issues ? ' · ' + r.issues + ' pendientes abiertos' : ''}${r.bad.length ? ' · TAREAS FALLANDO: ' + r.bad.join(', ') : ''}`).join('\n');
+    return {text, summary: `${rows.length} repos · ${rows.reduce((n, r) => n + r.bad.length, 0)} tareas fallando`, data: {repos: rows.length}};
+  }
+
+  window.SalaTools = {web, novahub, agenda, github, queryOf, candles, market, backtest, bots, parseSpec, checks, propose, sendProposal, buildProposal};
 })();

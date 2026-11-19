@@ -23,6 +23,12 @@ Corre en GitHub Actions desde el repo de VORTEX (ahí están los secretos: cuent
 - Dentro de una sala, ambas muestran solo lo de esa sala. Cada falla trae su prompt y abajo hay un solo «Prompt para arreglar todo» (resumen corto).
 - La memoria de cada sala (`roomMem` en el documento `sala`) la leen sus agentes en cada sesión, también en las automáticas del servidor.
 
+## Herramientas reales, cadenas, consumo y versiones
+- Herramientas de cada agente (paso «Equipo»): mercado, tus bots, **internet** (noticias de Google/Bing + Wikipedia), **notas y proyectos** y **agenda** de Nova Hub, y **GitHub** (tus repos y tareas que fallan). Nova Hub se conecta una vez en Memoria › Conexiones (`js/conexiones.js`, copia en `sala_ctx` para que también la lea el servidor).
+- **Cadenas**: en «Listo», «¿a quién le pasa su resultado?». Al terminar, la otra sala empieza sola con ese resultado (también en el servidor, máx. 3 saltos).
+- **Consumo** (pestaña): consultas de IA, tokens aprox., errores y modelos por día y por sala (`E.meter` anota cada consulta en la sesión).
+- **Versiones**: al guardar cambios se guarda la versión anterior (últimas 6) con sus resultados; botón «Versiones» en el editor para volver a una.
+
 ## Cómo funciona
 - `js/engine.js` — orquestador: cada agente recibe la conversación del equipo y le habla al siguiente; los jueces terminan con `VEREDICTO: APROBADO | CAMBIOS`.
   Reglas fijas en código (pierde dinero, < 30 operaciones, se pasa del riesgo o de la caída máxima) regresan el trabajo aunque la IA apruebe.
