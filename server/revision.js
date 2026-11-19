@@ -13,7 +13,8 @@
 'use strict';
 const L = require('./lib.js');
 const SKIP = /borrar|elimin|desconect|cerrar sesi|salir|logout|reset|restablec|comprar|vender|pagar|suscrib|cerrar posici|importar|exportar|limpiar|quitar|papelera|cancelar orden|inicia(r)? sesi|google|instalar|descargar|discord|unirme|publicar|enviar|whatsapp|llamar|compartir|share|delete|remove|sign ?out/i;
-const NOISE = /Failed to load resource|favicon|ERR_BLOCKED|net::ERR_|gstatic|googleapis|firebase.*offline|Cross-Origin-Opener|third-party cookie|Permissions-Policy|was preloaded|deprecat/i;
+// Binance bloquea las IP de EE. UU. (donde corre GitHub Actions): ahí su error es del servidor de pruebas, no de la app (VORTEX usa otro exchange de respaldo y en México sí responde)
+const NOISE = /(?:api|fapi|stream|data-api)\.binance\.(?:com|vision)[^\s]*'? from origin|WebSocket connection to 'wss:\/\/(?:stream|fstream)\.binance|Failed to load resource|favicon|ERR_BLOCKED|net::ERR_|gstatic|googleapis|firebase.*offline|Cross-Origin-Opener|third-party cookie|Permissions-Policy|was preloaded|deprecat/i;
 const DEVS = [{name: 'PC', vp: {width: 1366, height: 800}, mobile: false}, {name: 'celular', vp: {width: 390, height: 844}, mobile: true}];
 const H = 36e5, clip = L.clip;
 const ghHead = () => ({accept: 'application/vnd.github+json', 'user-agent': 'sala-de-agentes', ...(process.env.GITHUB_TOKEN ? {authorization: 'Bearer ' + process.env.GITHUB_TOKEN} : {})});
