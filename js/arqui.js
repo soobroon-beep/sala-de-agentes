@@ -86,7 +86,7 @@ Diseña papeles complementarios (alguien investiga o crea, alguien critica, algu
     let d = null, used = 'ia';
     try {
       const ctx = cur && cur.agents && cur.agents.length ? `\nEl usuario está editando esta sala; MODIFÍCALA según su pedido y conserva lo que no pida cambiar:\n${JSON.stringify({name: cur.name, desc: cur.desc, ask: cur.ask, icon: cur.icon, color: cur.color, maxRounds: cur.maxRounds, auto: cur.auto, agents: cur.agents.map(a => ({name: a.name, role: a.role, icon: a.icon, color: a.color, tool: a.tool, reviews: (cur.agents.find(b => b.id === a.back) || {}).name || '', prompt: a.prompt.slice(0, 300)}))})}` : '';
-      const o = parseJson(await ask([{role: 'system', content: SYS + ctx}, {role: 'user', content: text}], true)); d = o && toDraft(o, cur && cur.agents ? cur : null);
+      const o = parseJson(await ask([{role: 'system', content: SYS + ctx + (window.VozLimpia ? VozLimpia.HINT : '')}, {role: 'user', content: text}], true)); d = o && toDraft(o, cur && cur.agents ? cur : null);
     } catch {}
     if (!d) { d = localDraft(text, cur && cur.agents ? cur : null); used = 'local'; }
     const ev = /cada (\d+) ?h/i.exec(text), daily = /diari|cada (día|dia|mañana|noche)|todos los días|cada maña/i.test(text);
@@ -120,7 +120,7 @@ Diseña papeles complementarios (alguien investiga o crea, alguien critica, algu
           <button type="button" class="aq-x" data-aq="own" title="Cambiar la IA de Arqui">${st.own ? 'Tu IA' : 'Gratis'}</button><button type="button" class="aq-x" data-aq="clear" title="Borrar la conversación">Limpiar</button><button type="button" class="aq-x" data-aq="close" aria-label="Cerrar">✕</button></header>
         <div class="aq-msgs" id="arqMsgs"><div class="aq-m arqui">Hola, soy <b>Arqui</b>. Dime qué sala quieres: para qué sirve, qué tipo de agentes y si debe trabajar sola. Yo lleno todo el formulario y creo a los agentes uno por uno.</div>${st.msgs.map(m => `<div class="aq-m ${m.who}">${m.who === 'user' ? esc(m.html) : m.html}</div>`).join('')}</div>
         ${busy ? '' : `<div class="aq-ex">${(cur && cur.agents && cur.agents.length ? ['Agrega un agente que critique todo', 'Hazla funcionar sola cada mañana', 'Hazla más corta: 3 agentes'] : EX).map(x => `<button type="button" data-aq="ex">${esc(x)}</button>`).join('')}</div>`}
-        <form class="aq-in" data-aq-form><textarea rows="2" placeholder="${cur && cur.agents ? 'Dime qué cambiar de la sala que estás editando…' : 'Ej.: Quiero una sala que me ayude a…'}" ${busy ? 'disabled' : ''}></textarea><button class="btn pri sm" ${busy ? 'disabled' : ''}>${busy ? 'Creando…' : 'Crear'}</button></form></div>` : ''}`;
+        <form class="aq-in" data-aq-form>${SR ? `<button type="button" class="aq-mic${mic.on ? ' on' : ''}" data-aq="mic" aria-label="${mic.on ? 'Terminar y enviar lo que dictaste' : 'Dictarle a Arqui'}" title="${mic.on ? 'Toca para terminar y enviar' : 'Háblale'}" ${busy ? 'disabled' : ''}><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>` : ''}<textarea rows="2" placeholder="${cur && cur.agents ? 'Dime qué cambiar de la sala que estás editando…' : 'Ej.: Quiero una sala que me ayude a…'}" ${busy ? 'disabled' : ''}></textarea><button class="btn pri sm" ${busy ? 'disabled' : ''}>${busy ? 'Creando…' : 'Crear'}</button></form></div>` : ''}`;
     const box = $('#arqMsgs'); if (box) box.scrollTop = box.scrollHeight;
   }
   function mount() {
@@ -129,13 +129,36 @@ Diseña papeles complementarios (alguien investiga o crea, alguien critica, algu
       const b = e.target.closest('[data-aq], .aq-bot'); if (!b) return;
       if (b.classList.contains('aq-bot')) { open = !open; paint(); if (open) setTimeout(() => { const t = $('.aq-in textarea'); if (t) t.focus(); }, 60); return; }
       const k = b.dataset.aq;
-      if (k === 'close') { open = false; paint(); }
+      if (k === 'mic') { toggleMic(); return; }
+      if (k === 'close') { stopMic(true); open = false; paint(); }
       else if (k === 'clear') { st.msgs = []; keep(); paint(); }
       else if (k === 'own') { st.own = !st.own; keep(); paint(); }
       else if (k === 'ex' && !busy) go(b.textContent);
     });
     root.addEventListener('submit', e => { e.preventDefault(); const t = $('.aq-in textarea'); if (t && t.value.trim() && !busy) go(t.value.trim()); });
     root.addEventListener('keydown', e => { if (e.target.matches('.aq-in textarea') && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); root.querySelector('.aq-in').requestSubmit(); } });
+  }
+  /* ───────── Dictado por voz: no te corta en las pausas; tocas otra vez y lo manda limpio (sin muletillas ni repeticiones) ───────── */
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition, VL = () => window.VozLimpia;
+  const mic = {on: false, rec: null, done: '', heard: '', cancel: false, fail: ''};
+  function micText() { const t = $('.aq-in textarea'); if (t) t.value = mic.heard; }
+  function stopMic(cancel) { mic.cancel = !!cancel; mic.on = false; if (mic.rec) { try { mic.rec.stop(); } catch {} } }
+  function toggleMic() {
+    if (!SR || busy) return; if (mic.on) { stopMic(false); return; }
+    const t = $('.aq-in textarea'); mic.done = t && t.value.trim() ? t.value.trim() : ''; mic.heard = mic.done; mic.cancel = false; mic.on = true; face('think'); paint(); micText();
+    const start = () => {
+      const r = mic.rec = new SR(); r.lang = 'es-MX'; r.continuous = true; r.interimResults = true; mic.fail = '';
+      r.onresult = e => { const part = VL() ? VL().fromResults(e.results) : Array.from(e.results).map(x => x[0].transcript).join(''); mic.heard = VL() ? VL().merge(mic.done, part) : (mic.done + ' ' + part).trim(); micText(); };
+      r.onerror = e => { mic.fail = e.error; };
+      r.onend = () => { if (mic.rec !== r) return; mic.done = mic.heard;
+        if (mic.on && !['not-allowed', 'service-not-allowed', 'audio-capture'].includes(mic.fail)) { try { start(); return; } catch {} } // el navegador se detuvo solo: sigue escuchando
+        mic.rec = null; mic.on = false; face(''); const text = VL() ? (VL().clean(mic.heard) || mic.heard) : mic.heard; mic.heard = ''; paint();
+        if (mic.cancel) { mic.cancel = false; return; }
+        if (mic.fail === 'not-allowed' || mic.fail === 'service-not-allowed') { say('arqui', 'Necesito permiso para usar el micrófono: actívalo en los permisos del navegador y vuelve a tocarlo.'); return; }
+        if (text && text.trim()) go(text.trim()); };
+      r.start();
+    };
+    try { start(); } catch { mic.on = false; mic.rec = null; paint(); }
   }
   async function go(text) { busy = true; paint(); try { await build(text); } catch (e) { say('arqui', 'Algo falló: ' + esc(e.message) + '. Intenta otra vez.'); } busy = false; paint(); setTimeout(paint, 400); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
