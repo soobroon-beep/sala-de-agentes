@@ -60,14 +60,14 @@ const setDoc = async (n, o) => globalThis.SalaCloud.set(n, o);
 /* El documento «sala» lo escribe la app como {s: '<JSON>'}: aquí solo se lee (tus salas y los ajustes del modo automático) */
 async function salaState() { const d = await getDoc('sala'); try { return d && d.s ? JSON.parse(d.s) : {}; } catch { return {}; } }
 
-/* ───────── IA: la misma de la app (Tu IA → IA gratis de VORTEX → servicio gratis) y Groq de respaldo ───────── */
-let ownDone = false;
+/* ───────── IA: SIEMPRE la gratis (IA gratis de VORTEX → Groq de respaldo). Nunca «Tu IA» (tu clave de pago):
+   el modo automático corre 24/7 y gastaba tu saldo de Claude sin que usaras la app. ───────── */
 async function ai(messages, o = {}) {
   const L = globalThis.CCTLLM;
-  if (!ownDone) { ownDone = true; try { const d = await getDoc('ownai'); if (d && d.on && d.key && L.OWN && L.OWN[d.provider]) L.ownSave({on: true, provider: d.provider, key: d.key, model: d.model, url: d.url || ''}); } catch {} }
+  try { L.ownSave && L.ownSave(null); } catch {}
   const spec = o.purpose === 'spec', json = o.purpose === 'json', errs = [];
   try {
-    const r = await L.chat(messages, {purpose: 'text', maxTokens: spec ? 1800 : json ? 1600 : 1100, temperature: spec ? .3 : json ? .2 : .5, signal: o.signal});
+    const r = await L.chat(messages, {purpose: 'text', noOwn: true, maxTokens: spec ? 1800 : json ? 1600 : 1100, temperature: spec ? .3 : json ? .2 : .5, signal: o.signal});
     const text = String(r.text || '').trim(); if (text) return {text, model: String(r.model || '')};
   } catch (e) { errs.push('VORTEX: ' + clip(e.message, 80)); }
   const key = process.env.GROQ_KEY;

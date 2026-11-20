@@ -2,7 +2,7 @@
    Documentos privados en users/<tú>/data/:
    · sala        — tus salas propias y el historial de sesiones
    · sala_props  — propuestas de bots aprobadas por el Taller (Nova Bot Lab las muestra para Agregar o Descartar)
-   · ownai       — «Tu IA» (la misma que configuras en VORTEX), solo lectura aquí
+   · ownai       — «Tu IA» de VORTEX: la Sala YA NO la usa (siempre IA gratis)
    · botlab      — tus bots de Nova Bot Lab, solo lectura aquí (el Juez los compara)
    Sin sesión la sala funciona igual con la IA gratis, guardando en este dispositivo; solo enviar propuestas pide iniciar sesión. */
 (function () {
